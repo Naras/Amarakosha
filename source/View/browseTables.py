@@ -1,9 +1,10 @@
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt
-from source.Model import cli_browse
+from source.Model import Kosha_Subanta_Synonyms_Queries
+import pandas
 
-qt_creator_file = "mainwindow_uiComposition.xml"
+qt_creator_file = "browseTables_uiComposition.xml"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qt_creator_file)
 tick = QtGui.QImage('tick.png')
 
@@ -22,7 +23,7 @@ class modelSchema(QtCore.QAbstractListModel):
                 return tick
     def rowCount(self, index):
         return len(self.tables)
-
+'''
 class modelContent(QtCore.QAbstractTableModel):
     def __init__(self, data=None):
         super(modelContent, self).__init__()
@@ -40,6 +41,33 @@ class modelContent(QtCore.QAbstractTableModel):
         # The following takes the first sub-list, and returns
         # the length (only works if all rows are an equal length)
         return len(self._data[0])
+'''
+
+class modelContent_DataFrame(QtCore.QAbstractTableModel):
+
+    def __init__(self, data=pandas.DataFrame([[]], columns=[], index=[])):
+        super(modelContent_DataFrame, self).__init__()
+        self._data = data
+
+    def data(self, index, role):
+        if role == Qt.DisplayRole:
+            value = self._data.iloc[index.row(), index.column()]
+            return str(value)
+
+    def rowCount(self, index):
+        return self._data.shape[0]
+
+    def columnCount(self, index):
+        return self._data.shape[1]
+
+    def headerData(self, section, orientation, role):
+        # section is the index of the column/row.
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return str(self._data.columns[section])
+
+            if orientation == Qt.Vertical:
+                return str(self._data.index[section])
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -47,18 +75,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.modelTable = modelSchema()
-        # self.modelContent = contentModel()
-        self.modelContent = modelContent()
+        self.modelContent = modelContent_DataFrame()
         self.load()
         self.browseButton.pressed.connect(self.browseTable)
         self.exitButton.pressed.connect(QtWidgets.qApp.quit)
         self.tableView.setModel(self.modelTable)
-        # self.contentView.setModel(self.modelContent)
         self.contentView.setModel(self.modelContent)
 
     def load(self):
         try:
-            self.modelTable.tables = list(map(lambda x: (False,x), cli_browse.schemaParse()))
+            self.modelTable.tables = list(map(lambda x: (False,x), Kosha_Subanta_Synonyms_Queries.schemaParse()))
         except Exception as e:
             print(e)
     def browseTable(self):
@@ -67,12 +93,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             index = indexes[0]
             row = index.row()
             status,tbl = self.modelTable.tables[row]
-            # self.modelTable.tables[row] = (True, tbl)
-            # self.modelTable.layoutChanged.emit()
-            # self.modelContent.content = list(map(lambda x: (False,x), cli_browse.tblSelect(tbl)))
-            self.modelContent._data = list(cli_browse.tblSelect(tbl))
-            # print(self.modelContent._data)
+            # self.modelContent._data = list(cli_browse.tblSelect(tbl))
+            cols, dbdata = Kosha_Subanta_Synonyms_Queries.tblSelect(tbl, maxrows=5, duplicate=False)
+            # print('%s\n%s' % (cols, dbdata))
+            self.modelContent._data = pandas.DataFrame(dbdata,columns=cols)
             self.modelContent.layoutChanged.emit()
+
 app = QtWidgets.QApplication(sys.argv)
 window = MainWindow()
 window.show()

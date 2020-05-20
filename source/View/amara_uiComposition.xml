@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect><x>0</x><y>0</y><width>1100</width><height>614</height></rect>
+  </property>
+  <property name="windowTitle">
+   <string>अमरकोश</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item><widget class="QWidget" name="widget" native="true">
+       <layout class="QHBoxLayout" name="hLayout_ListTable">
+       <item><widget class="QListView" name="listView">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+        </widget></item>
+       <item><widget class="QWidget" name="widget" native="true">
+       <layout class="QVBoxLayout" name="VLayoutTable">
+           <item><widget class="QWidget" name="widget" native="true">
+           <layout class="QHBoxLayout" name="HLayoutAntaLinga">
+               <item><widget class="QLabel" name="lblAnta">
+                   <property name="text"><string>anta</string></property>
+               </widget></item>
+               <item><widget class="QLabel" name="lblLinga">
+                   <property name="text"><string>linga</string></property>
+               </widget></item>
+           </layout></widget></item>
+        <item><widget class="QTableView" name="synonymView"></widget></item>
+        </layout></widget></item>
+   </layout></widget></item>
+     <item><widget class="QWidget" name="widget" native="true">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+      <item><widget class="QPushButton" name="synonymsButton">
+       <property name="text"><string>Synonyms</string></property>
+      </widget></item>
+    </layout>></widget></item>
+   </layout></widget>
+  <widget class="QMenuBar" name="Amara">
+   <property name="geometry">
+    <rect><x>0</x><y>0</y><width>275</width><height>22</height></rect>
+   </property>
+  </widget>
+  <widget class="QToolBar" name="toolbar"/></widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ <resources/>
+ <connections/>
+</ui>

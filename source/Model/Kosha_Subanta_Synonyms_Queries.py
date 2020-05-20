@@ -12,6 +12,14 @@ maxrows = 5
 
 mypar = Parser()
 mypar.set_script(1)
+def flatMap(f, li):
+    mapped = map(f, li)
+    flattened = flatten_single_dim(mapped)
+    yield from flattened
+def flatten_single_dim(mapped):
+    for item in mapped:
+        for subitem in item:
+            yield subitem
 
 # isascii = lambda s: len(s) == len(s.encode())
 def isascii(s):
@@ -24,7 +32,7 @@ def isascii(s):
         return False
 def iscii_unicode(iscii_string):
     flush = 0
-    x_as_List = [ord(char) for char in iscii_string]
+    x_as_List = [ord(char) for char in iscii_string+' ']
     n = mypar.iscii2utf8(x_as_List, flush)
     # y = x[n:]
     return ''.join([ch for ch in mypar.write_output()])
@@ -40,7 +48,33 @@ def schemaParse():
         if not (str(row.table_name).startswith("MSys") or str(row.table_name).startswith("Con")):
             tbls.append(row.table_name)
     return tbls
-def tblSelect(table_name,maxrows=5):
+def sqlQuery(sql,param,maxrows=5,duplicate=True):
+    current = 0
+    rowcursor.execute(sql, param)
+    try:
+        result = []
+        for r in rowcursor.fetchall():
+            # print(r)
+            resultRow = []
+            for field in r:
+                # resultRow.append(field)
+                if isascii(str(field)):
+                    resultRow.append(field)
+                    if duplicate: resultRow.append(field)
+                else:
+                    resultRow.append(iscii_unicode(str(field)))
+                    if duplicate: resultRow.append(field)
+            result += [resultRow]
+            current += 1
+            if maxrows > 0 and current > maxrows:
+                break
+    except IllegalInput as e:
+        logging.warning('%s' % e)
+
+    columns = [column[0] for column in rowcursor.description]
+    if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
+    return columns, result
+def tblSelect(table_name,maxrows=5,duplicate=True):
     current = 0
     rowcursor.execute('select * from ' + table_name)
     try:
@@ -51,18 +85,21 @@ def tblSelect(table_name,maxrows=5):
             for field in r:
                 if isascii(str(field)):
                     tblRow.append(field)
+                    if duplicate: tblRow.append(field)
                 else:
                     tblRow.append(iscii_unicode(str(field)))
+                    if duplicate: tblRow.append(field)
             tbl += [tblRow]
             current += 1
-            if current > maxrows:
+            if maxrows > 0 and current > maxrows:
                 break
     except IllegalInput as e:
         logging.warning('%s' % e)
-
-    return tbl
-    '''
     columns = [column[0] for column in rowcursor.description]
+    if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
+
+    return columns, tbl
+    '''
     # print(columns)
     qry = 'select ' + ','.join(columns) + ' from ' + row.table_name
     # print(qry)
@@ -91,6 +128,11 @@ def tblSelect(table_name,maxrows=5):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, filename='../../Amarakosha.log', format='%(asctime)s %(message)s',
                         datefmt='%d/%m/%Y %I:%M:%S %p')
-    table_names = schemaParse()
-    for tbl in ['Janani2']: # table_names:
-        print(tblSelect(tbl))
+    # table_names = schemaParse()
+    # for tbl in ['Amara_Words']: # table_names:
+    #     cols, tbl = tblSelect(tbl)
+    #     print('%s\n%s'%(cols, tbl))
+    # cols,lines = sqlQuery('Select * from Janani1 where EngWord like ?',"%A calf%")
+    # print('%s\n%s'%(cols, lines))
+    cols,lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
+    print('%s\n%s'%(cols, lines))
