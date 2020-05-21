@@ -1,15 +1,21 @@
 from source.Controller import Sandhi_Convt
 from source.Model import Kosha_Subanta_Synonyms_Queries
+from source.View import Transliterate
+
 
 def Amarakosha(amaraWord):
     qry = 'select * from Janani1 where Words like ?'
     param = '%' + amaraWord + '%'
     cols, dbdata = Kosha_Subanta_Synonyms_Queries.sqlQuery(qry, param, maxrows=0, duplicate=False)
     # print('%s\n%s' % (cols, dbdata))
+    KanWord = [item[cols.index('KanWord')] for item in dbdata]
+    EngWord = [item[cols.index('EngWord')] for item in dbdata]
+    HinWord = [item[cols.index('HinWord')] for item in dbdata]
     synonyms = (words.split(' ') for words in [r for r in [rec[1] for rec in dbdata] if
                                                Kosha_Subanta_Synonyms_Queries.iscii_unicode(amaraWord) in r.split(' ')])
     synonyms = to_2dList(list(synonyms)[0], 4)
-    return synonyms
+    KanWord = [Transliterate.transliterate_lines(item,'kannada') for item in list(map(lambda i : i or '', KanWord))]
+    return synonyms, KanWord, EngWord, HinWord
 def to_2dList(l, n):
     return [l[i:i + n] for i in range(0, len(l), n)]
 def Subanta(base):
