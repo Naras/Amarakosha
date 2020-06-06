@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt
-from source.Model import Kosha_Subanta_Synonyms_Queries
+from source.Model import AmaraKosha_Subanta_Krdanta_Queries
 import pandas
 
 qt_creator_file = "browseTables_uiComposition.xml"
@@ -74,6 +74,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
+        self.tableView.setUniformItemSizes(True)
+        self.tableView.setMaximumWidth(self.tableView.sizeHintForColumn(0) + 150)
         self.modelTable = modelSchema()
         self.modelContent = modelContent_DataFrame()
         self.load()
@@ -84,7 +86,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def load(self):
         try:
-            self.modelTable.tables = list(map(lambda x: (False,x), Kosha_Subanta_Synonyms_Queries.schemaParse()))
+            self.modelTable.tables = list(map(lambda x: (False,x), AmaraKosha_Subanta_Krdanta_Queries.schemaParse()))
         except Exception as e:
             print(e)
     def browseTable(self):
@@ -94,7 +96,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             row = index.row()
             status,tbl = self.modelTable.tables[row]
             # self.modelContent._data = list(cli_browse.tblSelect(tbl))
-            cols, dbdata = Kosha_Subanta_Synonyms_Queries.tblSelect(tbl, maxrows=5, duplicate=False)
+            cols, dbdata = AmaraKosha_Subanta_Krdanta_Queries.tblSelect(tbl, maxrows=5, duplicate=False)
             # print('%s\n%s' % (cols, dbdata))
             self.modelContent._data = pandas.DataFrame(dbdata,columns=cols)
             self.modelContent.layoutChanged.emit()
