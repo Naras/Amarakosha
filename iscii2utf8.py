@@ -394,7 +394,7 @@ iscii_modifying = {}
 _tmp = ISCII_SPECIALS + [ISCII_HALANT, ISCII_NUKTA, ISCII_DANDA]
 
 for i in range(0xFF + 1):
-    iscii_modifying[i] = int(i in _tmp)
+    iscii_modifying[i] = i in _tmp
 
 
 ## end of tmp code

@@ -48,9 +48,10 @@ def schemaParse():
         if not (str(row.table_name).startswith("MSys") or str(row.table_name).startswith("Con")):
             tbls.append(row.table_name)
     return tbls
-def sqlQuery(sql,param,maxrows=5,duplicate=True):
+def sqlQuery(sql, param=None, maxrows=5, duplicate=True):
     current = 0
-    rowcursor.execute(sql, param)
+    if param==None: rowcursor.execute(sql)
+    else:    rowcursor.execute(sql, param)
     try:
         result = []
         for r in rowcursor.fetchall():
@@ -132,7 +133,12 @@ if __name__ == '__main__':
     # for tbl in ['Amara_Words']: # table_names:
     #     cols, tbl = tblSelect(tbl)
     #     print('%s\n%s'%(cols, tbl))
+
     # cols,lines = sqlQuery('Select * from Janani1 where EngWord like ?',"%A calf%")
     # print('%s\n%s'%(cols, lines))
-    cols,lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
+
+    cols,lines = sqlQuery('select * from Sdhatu where field9 like ?', '_2_',duplicate=False) #×èÔÏè
     print('%s\n%s'%(cols, lines))
+
+    # cols,lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
+    # print('%s\n%s'%(cols, lines))

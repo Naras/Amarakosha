@@ -2,63 +2,104 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect><x>0</x><y>0</y><width>1100</width><height>614</height></rect>
-  </property>
-  <property name="windowTitle">
-   <string>अमरकोश</string>
-  </property>
+  <property name="geometry"><rect><x>10</x><y>10</y><width>660</width><height>914</height></rect></property>
+  <property name="windowTitle"><string>अमरकोश</string></property>
   <widget class="QWidget" name="centralwidget">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item><widget class="QWidget" name="widget" native="true">
-       <layout class="QHBoxLayout" name="hLayout_ListTable">
-       <item><widget class="QListView" name="listView">
-         <property name="selectionMode">
-          <enum>QAbstractItemView::SingleSelection</enum>
-         </property>
-        </widget></item>
-      <item><widget class="QPushButton" name="synonymsButton">
-       <property name="text"><string>Synonyms</string></property>
-      </widget></item>
-       <item><widget class="QWidget" name="widget" native="true">
-       <layout class="QVBoxLayout" name="VLayoutTable">
-           <item><widget class="QWidget" name="widget" native="true">
-           <layout class="QHBoxLayout" name="HLayoutLabels">
-               <item><widget class="QLabel" name="lbl1">
-                   <property name="text"><string>anta</string></property>
-               </widget></item>
-               <item><widget class="QLabel" name="lbl2">
-                   <property name="text"><string>linga</string></property>
-               </widget></item>
-               <item><widget class="QLabel" name="lbl3">
-                   <property name="text"><string>???</string></property>
-               </widget></item>
-           </layout></widget></item>
-           <item><widget class="QWidget" name="widget" native="true">
-           <layout class="QHBoxLayout" name="HLayoutTexts">
-               <item><widget class="QTextEdit" name="txt1">
-                   <property name="text"><string>अंत</string></property>
-               </widget></item>
-               <item><widget class="QTextEdit" name="txt2">
-                   <property name="text"><string>लिंग</string></property>
-               </widget></item>
-               <item><widget class="QTextEdit" name="txt3">
-                   <property name="text"><string>???</string></property>
-               </widget></item>
-           </layout></widget></item>
-        <item><widget class="QTableView" name="synonymView"></widget></item>
-        </layout></widget></item>
-   </layout></widget></item>
-<!--     <item><widget class="QWidget" name="widget" native="true">-->
-<!--       <layout class="QHBoxLayout" name="horizontalLayout">-->
-<!--    </layout>></widget></item>-->
-   </layout></widget>
-  <widget class="QMenuBar" name="Amara">
+   <property name="geometry"><rect><x>20</x><y>20</y><width>481</width><height>460</height></rect></property>
+   <layout class="QHBoxLayout" name="horizontalLayout_1">
+    <item><widget class="QListView" name="listView">
+     <property name="selectionMode"><enum>QAbstractItemView::SingleSelection</enum></property>
+    </widget></item>
+    <item><widget class="QPushButton" name="synonymsButton">
+     <property name="text"><string>पर्यायशब्द(Synonyms)</string></property>
+     <property name="enabled"><bool>False</bool></property>
+    </widget></item>
+    <item><widget class="QPushButton" name="page1Button">
+     <property name="text"><string>1</string></property>
+     <property name="enabled"><bool>False</bool></property>
+     <property name="visible"><bool>False</bool></property>
+     <property name="MaximumWidth"><number>19</number></property>
+    </widget></item>
+    <item><widget class="QPushButton" name="page2Button">
+     <property name="text"><string>2</string></property>
+     <property name="enabled"><bool>False</bool></property>
+     <property name="visible"><bool>False</bool></property>
+     <property name="MaximumWidth"><number>19</number></property>
+    </widget></item>
+    <item><widget class="QPushButton" name="page3Button">
+     <property name="text"><string>3</string></property>
+     <property name="enabled"><bool>False</bool></property>
+     <property name="visible"><bool>False</bool></property>
+     <property name="MaximumWidth"><number>19</number></property>
+    </widget></item>
+    <item><widget class="QWidget" name="verticalLayoutWidget">
+     <layout class="QVBoxLayout" name="verticalLayout_1">
+     <item><widget class="QWidget" name="horizontalLayoutWidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item><widget class="QWidget" name="formWidget_2">
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0"><widget class="QLabel" name="label"><property name="text"><string>कृदंत-विवरगळु</string></property></widget></item>
+      <item row="1" column="0"><widget class="QLabel" name="Label_13"><property name="text"><string>धातुः</string></property></widget></item>
+      <item row="1" column="1"><widget class="QLineEdit" name="txtDhatu"><property name="text"><string>अंश्</string></property></widget></item>
+      <item row="2" column="0"><widget class="QLabel" name="Label"><property name="text"><string>धात्वर्य:</string></property></widget></item>
+      <item row="2" column="1"><widget class="QLineEdit" name="txtDhatvarya"><property name="text"><string>स्माधाने</string></property></widget></item>
+      <item row="3" column="0"><widget class="QLabel" name="Label_2"><property name="text"><string>णिचि धातु:</string></property></widget></item>
+      <item row="3" column="1"><widget class="QLineEdit" name="txtNijiDhatu"><property name="text"><string>अंश्यु</string></property></widget></item>
+      <item row="4" column="0"><widget class="QLabel" name="Label_3"><property name="text"><string>सनि धातु:</string></property></widget></item>
+      <item row="4" column="1"><widget class="QLineEdit" name="txtShaniDhatu"><property name="text"><string>अंशि</string></property></widget></item>
+      <item row="5" column="0"><widget class="QLabel" name="Label_4"><property name="text"><string>गण:</string></property></widget></item>
+      <item row="5" column="1"><widget class="QLineEdit" name="txtGana"><property name="text"><string>चुरादिगण</string></property></widget></item>
+      <item row="6" column="0"><widget class="QLabel" name="Label_5"><property name="text"><string>कर्म:</string></property></widget></item>
+      <item row="6" column="1"><widget class="QLineEdit" name="txtKarma"><property name="text"><string>सकर्मक</string></property></widget></item>
+      <item row="7" column="0"><widget class="QLabel" name="Label_6"><property name="text"><string>इट्:</string></property></widget></item>
+      <item row="7" column="1"><widget class="QLineEdit" name="txtIt"><property name="text"><string>सेट्</string></property></widget></item>
+      <item row="8" column="0"><widget class="QLabel" name="Label_7"><property name="text"><string>कृदंतविद्ः</string></property></widget></item>
+      <item row="8" column="1"><widget class="QLineEdit" name="txtKrdanta"><property name="text"><string>विध्यर्थ्ः</string></property></widget></item>
+      <item row="9" column="0"><widget class="QLabel" name="Label_8"><property name="text"><string>प्रत्यय:</string></property></widget></item>
+      <item row="9" column="1"><widget class="QLineEdit" name="txtPratyaya"><property name="text"><string>तव्य</string></property></widget></item>
+      <item row="10" column="0"><widget class="QLabel" name="Label_9"><property name="text"><string>अंतः</string></property></widget></item>
+      <item row="10" column="1"><widget class="QLineEdit" name="txtAnta"><property name="text"><string>अकारांत:</string></property></widget></item>
+      <item row="11" column="0"><widget class="QLabel" name="Label_10"><property name="text"><string>लिंग्ः</string></property></widget></item>
+      <item row="11" column="1"><widget class="QLineEdit" name="txtLinga"><property name="text"><string>पुलिंग्ः </string></property></widget></item>
+      <item row="12" column="0"><widget class="QLabel" name="Label_11"><property name="text"><string>प्रतिपादिक्ं:</string></property></widget></item>
+      <item row="12" column="1"><widget class="QLineEdit" name="txtPratipadika"><property name="text"><string>अंश्यितव्य</string></property></widget></item>
+     </layout></widget>
+      <item><widget class="QWidget" name="formWidget_4">
+       <layout class="QFormLayout" name="formLayout_4">
+        <item row="0" column="0"><widget class="QLabel" name="label_2"><property name="text"><string>अंत/लिंग</string></property></widget></item>
+        <item row="1" column="0"><widget class="QLabel" name="antaLabel"><property name="text"><string>अंत</string></property></widget></item>
+        <item row="1" column="1"><widget class="QLineEdit" name="antaLineEdit"/></item>
+        <item row="2" column="0"><widget class="QLabel" name="lingaLabel"><property name="text"><string>अिंग</string></property></widget></item>
+        <item row="2" column="1"><widget class="QLineEdit" name="lingaLineEdit"/></item>
+       </layout></widget>
+      </item>
+      <item><widget class="QWidget" name="formWidget_5">
+       <layout class="QFormLayout" name="formLayout_5">
+        <item row="0" column="0"><widget class="QLabel" name="label_3"><property name="text"><string>Meanings</string></property></widget></item>
+        <item row="1" column="0"><widget class="QLabel" name="kannadaLabel"><property name="text"><string>ಕನ್ನಡ</string></property></widget></item>
+        <item row="1" column="1"><widget class="QTextEdit" name="kannadaEdit"/></item>
+        <item row="2" column="0"><widget class="QLabel" name="englishLabel"><property name="text"><string>English</string></property></widget></item>
+        <item row="2" column="1"><widget class="QTextEdit" name="englishEdit"/></item>
+        <item row="3" column="0"><widget class="QLabel" name="hindiLabel"><property name="text"><string>हिंदि</string></property></widget></item>
+        <item row="3" column="1"><widget class="QTextEdit" name="hindiEdit"/></item>
+       </layout></widget>
+      </item>
+    </item>
+   </layout>
+  </widget></item>
+     <item><widget class="QTableView" name="synonymView"></widget></item>
+  </layout>
+  </widget>
+   </item>
+   </layout>
+  </widget>
+ </widget>
+   <widget class="QMenuBar" name="Amara">
    <property name="geometry">
     <rect><x>0</x><y>0</y><width>275</width><height>22</height></rect>
    </property>
   </widget>
-  <widget class="QToolBar" name="toolbar"/></widget>
+  <widget class="QToolBar" name="toolbar"/>
   <widget class="QStatusBar" name="statusbar"/>
  <resources/>
  <connections/>
