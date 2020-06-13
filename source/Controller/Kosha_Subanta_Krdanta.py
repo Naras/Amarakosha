@@ -1,8 +1,5 @@
-import inspect
-
-from source.Controller import Sandhi_Convt
+from source.Controller import Sandhi_Convt, Transliterate
 from source.Model import AmaraKosha_Subanta_Krdanta_Queries
-from source.View import Transliterate
 
 Tganas = ["भ्वादिगणः", "अदादिगणः",  "जुहोत्यादिगणः",  "दिवादिगणः",  "स्वादिगणः",  "तुदादिगणः",  "रुधादिगणः",  "तनादिगणः",  "क्रयादिगणः",  "चुरादिगणः"]
 Tkarmas = ["सकर्मकः", "अकर्मकः",  "द्विकर्मकः"]
@@ -53,7 +50,7 @@ def Amarakosha(amaraWord):
     synonyms = (words.split(' ') for words in [r for r in [rec[1] for rec in dbdata] if
                                                AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(amaraWord) in r.split(' ')])
     synonyms = to_2dList(list(synonyms)[0], 4)
-    KanWord = [Transliterate.transliterate_lines(item,'kannada') for item in list(map(lambda i : i or '', KanWord))]
+    KanWord = [Transliterate.transliterate_lines(item, 'kannada') for item in list(map(lambda i : i or '', KanWord))]
     return synonyms, KanWord, EngWord, HinWord
 def to_2dList(l, n):
     return [l[i:i + n] for i in range(0, len(l), n)]
@@ -118,76 +115,145 @@ def krdanta_arthas_karmas(krdantaWord):
     for item in dataDhatu:
         arthas_karmas = item[cols.index('Field8')].split('/')
         arthas = [word[:-2] for word in arthas_karmas]
-        karmas = [int(word[len(word)-1]) for word in arthas_karmas]
+        karmas = [int(word[len(word)-1]) - 1 for word in arthas_karmas]
         karmas = [Tkarmas[karma] for karma in karmas]
         # print('arthas %s\nkarmas %s'%(arthas, karmas))
     dhatuNo = dataDhatu[0][cols.index('Field1') + 1]
-    return arthas, karmas, dhatuNo
-def Krdanta_SortedList(dhatuNo, DhatuVidah, KrdantaVidah, KrdMode):
+    # print('cols %s\nlendata %s\ndataDhatu %s'%(cols,len(dataDhatu),dataDhatu))
+    return arthas, karmas, dhatuNo, dataDhatu, cols
+def krdanta_Gana(gana):
+    qry = 'select * from Sdhatu where field9 like ?'
+    param = str(Tganas.index(gana)) + '__'
+    return getResults(qry, param)
+def krdanta_Padi(padi):
+    qry = 'select * from Sdhatu where field9 like ?'
+    param = '_' + str(Tpadis.index(padi) + 1) + '_'
+    return getResults(qry, param)
+def krdanta_Karma(karma):
+    qry = 'select * from Sdhatu where field8 like ?'
+    param = '%' + str(Tkarmas.index(karma) + 1) + '%'
+    return getResults(qry, param)
+def krdanta_It(it):
+    qry = 'select * from Sdhatu where field9 like ?'
+    param = '__' + str(Tyits.index(it) + 1)
+    return getResults(qry, param)
+def getResults(qry, param):
+    cols, dataDhatu = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, param, maxrows=0)
+    # print('Sdhatu param %s %s\n%s'%(param, cols, dataDhatu))
+    # return dataDhatu
+    arthas, karmas = [], []
+    for item in dataDhatu:
+        arthas_karmas = item[cols.index('Field8')].split('/')
+        # print('arthas_karmas %s'%arthas_karmas)
+        arthas += [word[:-2] for word in arthas_karmas]
+        karmaIndex = [int(word[len(word)-1]) - 1 for word in arthas_karmas]
+        karmas += [Tkarmas[karma] for karma in karmaIndex if karma < len(Tkarmas)]
+    # print('arthas %s\nkarmas %s'%(arthas, karmas))
+    dhatuNo = dataDhatu[0][cols.index('Field1') + 1]
+    # print('param %s cols %s\nlendata %s\ndataDhatu %s'%(param, cols,len(dataDhatu),dataDhatu))
+    return arthas, karmas, dhatuNo, dataDhatu, cols
+def KrdantaGeneration(dhatuNo, DhatuVidah, KrdantaVidah, KrdMode):
     # pratvidha = ["तव्य",  "अनीयर्",  "य",  "क्त",  "क्तवतु",  "शतृ",  "शानच्",  "स्यशतृ",  "स्यशानच्",  "तुमुन्",  "क्त्वा"].index(dialog.KrdMode.strip())
     # KrdVidha = ["विध्यर्थः",  "भूतः",  "वर्तमानः",  "भविष्यत्",  "कृदव्ययम्"].index(dialog.KrdantaVidah.strip())
-    KrdCodeDicts = {"विध्यर्थः": {"तव्य": "a", "अनीयर्": "a", "य": "c"}, "विभूतः": {"तव्य": "d", "अनीयर्": "e"},
-                    "य": {"तव्य": "f", "अनीयर्": "g"}, "क्त": {"तव्य": "h", "अनीयर्": "i"},
-                    "क्तवतु": {"तव्य": "A", "अनीयर्": "B"}}
-    KrdCode = KrdCodeDicts[KrdantaVidah][KrdMode] + \
-              {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah]
+    KrdCodeDicts = {"विध्यर्थः": {"तव्य": "a", "अनीयर्": "a", "य": "c"}, "भूतः": {"तव्य": "d", "अनीयर्": "e"},
+                    "वर्तमानः": {"तव्य": "f", "अनीयर्": "g"}, "भविष्यत्": {"तव्य": "h", "अनीयर्": "i"}, "कृदव्ययम्": {"तव्य": "A", "अनीयर्": "B"}}
+    if not KrdantaVidah == "कृदव्ययम्": KrdCode = KrdCodeDicts[KrdantaVidah][KrdMode] + {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah]
+    else: KrdCode = {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah] + KrdCodeDicts[KrdantaVidah][KrdMode]
     krdDatas = []
+    forms = []
     qry = 'select * from krud where field4=? and field5=?'
     # print('qry %s param %s'%(qry,(KrdCode, dhatuNo)))
     cols, dataKrud = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, (KrdCode, dhatuNo), maxrows=0)
     # print('krud field4=%s field5=%s %s\n%s'%(KrdCode,dhatuNo, cols, dataKrud))
     erbInColumn = cols.index('Field1') + 1  # pick duplicate col
     sabdaInColumn = cols.index('Field3') + 1
-    forms = []
     for item in dataKrud:
         krdDataInstance = krdData()
         krdDataInstance.dhatuVidhah = DhatuVidah
         krdDataInstance.krdantaVidhah = KrdantaVidah
         krdDataInstance.pratyayaVidhah = KrdMode
-        if not KrdantaVidah == "भविष्यत्":
-            qry = 'select * from Sufcode where code=?'
-            code = item[2][:4]
-            # print('Sufcode: qry %s code %s'%(qry,code))
-            cols, dataSufcode = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, code, duplicate=False, maxrows=0)
-            # print(('sufcode %s cols %s\n%s')%(param, cols, dataSufcode))
-            krdDataInstance.erb = item[erbInColumn]
-            krdDataInstance.sabda = AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(item[sabdaInColumn])
-            krdDataInstance.linga = AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(Sandhi_Convt.lingas[int(code[1])])
-            suffixes = str(dataSufcode[0][2]).split(' ')
-            # from VB SplitAndDisplay routine
-            subforms = []
-            for sufcode in suffixes:
-                subforms.append(Sandhi_Convt.Convt(sufcode))
-            # print('subforms %s'%([erb+item for item in subforms]))
-            # print([Kosha_Subanta_Synonyms_Queries.iscii_unicode(erb+item) for item in subforms])
-            subforms_with_sandhi = [AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(
-                Sandhi_Convt.Sandhi(krdDataInstance.erb + item)) for item in subforms]
-            # print([Sandhi_Convt.Sandhi(erb + item) for item in subforms])
-            forms += [subforms_with_sandhi[0:3], subforms_with_sandhi[3:6], subforms_with_sandhi[6:9],
-                     subforms_with_sandhi[9:12], subforms_with_sandhi[12:15], subforms_with_sandhi[15:18],
-                     subforms_with_sandhi[18:21], subforms_with_sandhi[21:24]]
-            # from VB GetAnalysedInfo routine
-            qry = 'Select * from Sdhatu where field1=?'
-            cols, dataAnalysed = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, dhatuNo, maxrows=0)
-            # print('%s\nData Analysed %s'%(cols, dataAnalysed))
-            # for item in dataAnalysed:
-            item = dataAnalysed[0]  # there will be only one record!
-            krdDataInstance.verb = item[cols.index('Field2')]
-            krdDataInstance.nijverb = item[cols.index('Field3')]
-            krdDataInstance.sanverb = item[cols.index('Field4')]
-            krdDataInstance.GPICode = item[cols.index('Field9')]
-            krdDataInstance.gana = Tganas[int(krdDataInstance.GPICode[0]) - 1]
-            krdDataInstance.padi = Tpadis[int(krdDataInstance.GPICode[1]) - 1]
-            krdDataInstance.it = Tyits[int(krdDataInstance.GPICode[2]) - 1]
-            krdDataInstance.combinedM = item[cols.index('Field10')]
-            krdDatas.append(krdDataInstance)
+        qry = 'select * from Sufcode where code=?'
+        code = item[2][:4]
+        for entry in Sandhi_Convt.antas:
+            if code[0] == entry[0]:
+                krdDataInstance.anta = AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(entry[2] + '³ÚÏÚÆèÂ£')
+                break
+        # print('Sufcode: qry %s code %s'%(qry,code))
+        cols, dataSufcode = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, code, duplicate=False, maxrows=0)
+        # print(('sufcode %s cols %s\n%s')%(param, cols, dataSufcode))
+        krdDataInstance.erb = item[erbInColumn]
+        krdDataInstance.sabda = AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(item[sabdaInColumn])
+        krdDataInstance.linga = AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(Sandhi_Convt.lingas[int(code[1])])
+        suffixes = str(dataSufcode[0][2]).split(' ')
+        # from VB SplitAndDisplay routine
+        subforms = []
+        for sufcode in suffixes:
+            subforms.append(Sandhi_Convt.Convt(sufcode))
+        # print('subforms %s'%([erb+item for item in subforms]))
+        # print([Kosha_Subanta_Synonyms_Queries.iscii_unicode(erb+item) for item in subforms])
+        subforms_with_sandhi = [AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(
+            Sandhi_Convt.Sandhi(krdDataInstance.erb + item)) for item in subforms]
+        # print([Sandhi_Convt.Sandhi(erb + item) for item in subforms])
+        forms += [subforms_with_sandhi[0:3], subforms_with_sandhi[3:6], subforms_with_sandhi[6:9],
+                 subforms_with_sandhi[9:12], subforms_with_sandhi[12:15], subforms_with_sandhi[15:18],
+                 subforms_with_sandhi[18:21], subforms_with_sandhi[21:24]]
+        # from VB GetAnalysedInfo routine
+        qry = 'Select * from Sdhatu where field1=?'
+        cols, dataAnalysed = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, dhatuNo, maxrows=0)
+        # print('%s\nData Analysed %s'%(cols, dataAnalysed))
+        # for item in dataAnalysed:
+        item = dataAnalysed[0]  # there will be only one record!
+        krdDataInstance.verb = item[cols.index('Field2')]
+        krdDataInstance.nijverb = item[cols.index('Field3')]
+        krdDataInstance.sanverb = item[cols.index('Field4')]
+        krdDataInstance.GPICode = item[cols.index('Field9')]
+        krdDataInstance.gana = Tganas[int(krdDataInstance.GPICode[0])]
+        krdDataInstance.padi = Tpadis[int(krdDataInstance.GPICode[1]) - 1]
+        krdDataInstance.it = Tyits[int(krdDataInstance.GPICode[2]) - 1]
+        krdDataInstance.combinedM = item[cols.index('Field10')]
+        krdDatas.append(krdDataInstance)
+
     vacanas = ['एकवचन', 'द्विवचन', 'बहुवचन']
-    vibhaktis = ['प्रथमा', 'द्वितीया', 'तृतीया', 'चतुर्थि', 'पंचमि', 'शष्टि', 'सप्तमि', 'सं प्रथम'] * 3
+    vibhaktis = ['प्रथमा', 'द्वितीया', 'तृतीया', 'चतुर्थि', 'पंचमि', 'शष्टि', 'सप्तमि', 'सं प्रथम']
     # print('no. of items %i subforms with sandhi %s' % (len(forms), forms))
     # for item in krdDatas:
     #     attributes = inspect.getmembers(item, lambda a: not (inspect.isroutine(a)))
     #     print([a for a in attributes if not (a[0].startswith('__') and a[0].endswith('__'))])
     return forms, vacanas, vibhaktis, krdDatas
+def Krdanta_SortedList_KrDantavyayam(dhatuNo, DhatuVidah, KrdantaVidah, KrdMode, dataDhatu, cols_dataDhatu):
+    KrdCodeDicts = {"विध्यर्थः": {"तव्य": "a", "अनीयर्": "a", "य": "c"}, "भूतः": {"तव्य": "d", "अनीयर्": "e"},
+                    "वर्तमानः": {"तव्य": "f", "अनीयर्": "g"}, "भविष्यत्": {"तव्य": "h", "अनीयर्": "i"},
+                    "कृदव्ययम्": {"तव्य": "A", "अनीयर्": "B"}}
+    if not KrdantaVidah == "कृदव्ययम्":KrdCode = KrdCodeDicts[KrdantaVidah][KrdMode] + {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah]
+    else: KrdCode = {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah] + KrdCodeDicts[KrdantaVidah][KrdMode]
+    krdDatas = []
+    forms = []
+    qry = 'select * from krudav where field2 = ? and field1 = ?'
+    cols, datakrdAvyaya = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, (KrdCode, dhatuNo), duplicate=False, maxrows=0)
+    for item in datakrdAvyaya:
+        krdDataInstance = krdData()
+        krdDataInstance.sabda = item[cols.index('Field3')]
+        # print(cols_dataDhatu.index('Field2'), len(dataDhatu))
+        krdDataInstance.dhatuVidhah = DhatuVidah
+        krdDataInstance.krdantaVidhah = KrdantaVidah
+        krdDataInstance.pratyayaVidhah = KrdMode
+        krdDataInstance.verb = dataDhatu[0][cols_dataDhatu.index('Field2')]
+        krdDataInstance.nijverb = dataDhatu[0][cols_dataDhatu.index('Field3')]
+        krdDataInstance.sanverb = dataDhatu[0][cols_dataDhatu.index('Field4')]
+
+        krdDataInstance.GPICode = dataDhatu[0][cols_dataDhatu.index('Field9')]
+        krdDataInstance.gana = Tganas[int(krdDataInstance.GPICode[0])]
+        krdDataInstance.padi = Tpadis[int(krdDataInstance.GPICode[1]) - 1]
+        krdDataInstance.it = Tyits[int(krdDataInstance.GPICode[2]) - 1]
+        krdDataInstance.combinedM = dataDhatu[0][cols_dataDhatu.index('Field10')]
+        arthas_karmas = dataDhatu[0][cols_dataDhatu.index('Field8')].split('/')
+        krdDataInstance.arthas = [word[:-2] for word in arthas_karmas]
+        krdDataInstance.karmas = [int(word[len(word) - 1]) for word in arthas_karmas]
+        krdDataInstance.karmas = [Tkarmas[karma] for karma in krdDataInstance.karmas]
+
+        # print('arthas %s\nkarmas %s'%(krdDataInstance.arthas, krdDataInstance.karmas))
+        krdDatas.append(krdDataInstance)
+    return krdDatas
 def Krdanta_Ganas(krdantaWord, DhatuVidah, KrdantaVidah, KrdMode, Gana):
     qry = 'select * from Sdhatu where field2 = ?'
     param = krdantaWord
