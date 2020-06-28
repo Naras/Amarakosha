@@ -4,7 +4,7 @@ import pyodbc
 from iscii2utf8 import *
 import pandas as pd
 
-conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=I:\VMBox-Shared-WinXP-VB\ChaamiMaama\Narasimhan\all_in_one_DAO\wordsdata.mdb;')
+conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=I:\VBtoPython\Amarakosha\wordsdata.mdb;')
 # conn = pyodbc.connect('DSN=Amarakosha')
 cursor = conn.cursor()
 rowcursor = conn.cursor()
@@ -49,6 +49,8 @@ def schemaParse():
             tbls.append(row.table_name)
     return tbls
 def sqlQuery(sql, param=None, maxrows=5, duplicate=True):
+    # lstParam = [x for x in param] if isinstance(param,tuple) else param
+    # print('sql=%s param=%s'%(sql, lstParam))
     current = 0
     if param==None: rowcursor.execute(sql)
     else:    rowcursor.execute(sql, param)
@@ -134,11 +136,14 @@ if __name__ == '__main__':
     #     cols, tbl = tblSelect(tbl)
     #     print('%s\n%s'%(cols, tbl))
 
-    # cols,lines = sqlQuery('Select * from Janani1 where EngWord like ?',"%A calf%")
+    # cols,lines = sqlQuery('select * from upacode where DhatuNo = ?',"383")
     # print('%s\n%s'%(cols, lines))
 
-    cols,lines = sqlQuery('select * from Sdhatu where field9 like ?', '_2_',duplicate=False) #×èÔÏè
-    print('%s\n%s'%(cols, lines))
+    # cols,lines = sqlQuery('select * from Sdhatu where field9 like ?', '_2_',duplicate=False) #×èÔÏè
+    # print('%s\n%s'%(cols, lines))
 
     # cols,lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
     # print('%s\n%s'%(cols, lines))
+
+    cols,lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?',(383, "1A"))
+    print('%s\n%s'%(cols, lines))

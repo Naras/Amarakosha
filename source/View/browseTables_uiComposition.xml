@@ -20,18 +20,15 @@
         <item><widget class="QTableView" name="contentView"></widget></item>
        </layout></widget></item>
      <item><widget class="QWidget" name="widget" native="true">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-      <widget class="QPushButton" name="browseButton">
-       <property name="text">
-        <string>Browse</string>
-       </property>
-      </widget></item>
-      <item><widget class="QPushButton" name="exitButton">
-       <property name="text">
-        <string>Exit</string>
-       </property>
-      </widget></item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+       <item><widget class="QPushButton" name="browseButton"><property name="text"><string>Browse</string></property></widget></item>
+       <item><widget class="QPushButton" name="deleteButton"><property name="text"><string>Delete row</string></property></widget></item>
+       <item><widget class="QPushButton" name="deleteRowsButton"><property name="text"><string>Delete many rows</string></property></widget></item>
+       <item><widget class="QLabel" name="lbl_deleteFrom"><property name="text"><string>From</string></property></widget></item>
+       <item><widget class="QLineEdit" name="deleteFrom"><property name="text"><string>?</string></property></widget></item>
+       <item><widget class="QLabel" name="lbl_deleteTo"><property name="text"><string>To</string></property></widget></item>
+       <item><widget class="QLineEdit" name="deleteTo"><property name="text"><string>?</string></property></widget></item>
+       <item><widget class="QPushButton" name="exitButton"><property name="text"><string>Exit</string></property></widget></item>
     </layout>></widget></item>
    </layout></widget>
   <widget class="QMenuBar" name="menubar">

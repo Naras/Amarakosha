@@ -16,7 +16,7 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item><widget class="QWidget" name="formWidget_2">
        <layout class="QFormLayout" name="formLayout_2">
-      <item row="0" column="0"><widget class="QLabel" name="label"><property name="text"><string>कृदंत-विवरगळु</string></property></widget></item>
+      <item row="0" column="0"><widget class="QLabel" name="label"><property name="text"><string>ವಿವರಗಳು</string></property></widget></item>
       <item row="1" column="0"><widget class="QLabel" name="Label_13"><property name="text"><string>धातुः</string></property></widget></item>
       <item row="1" column="1"><widget class="QLineEdit" name="txtDhatu"><property name="text"><string></string></property></widget></item>
       <item row="2" column="0"><widget class="QLabel" name="Label"><property name="text"><string>धात्वर्य:</string></property></widget></item>
@@ -35,10 +35,10 @@
       <item row="8" column="1"><widget class="QLineEdit" name="txtIt"><property name="text"><string></string></property></widget></item>
       <item row="9" column="0"><widget class="QLabel" name="Label_8"><property name="text"><string>धातुविधः</string></property></widget></item>
       <item row="9" column="1"><widget class="QLineEdit" name="txtDhatuVidah"><property name="text"><string></string></property></widget></item>
-      <item row="10" column="0"><widget class="QLabel" name="Label_9"><property name="text"><string>कृदन्तविधः</string></property></widget></item>
-      <item row="10" column="1"><widget class="QLineEdit" name="txtKrdantaVidah"><property name="text"><string></string></property></widget></item>
-      <item row="11" column="0"><widget class="QLabel" name="Label_10"><property name="text"><string>प्रत्ययः</string></property></widget></item>
-      <item row="11" column="1"><widget class="QLineEdit" name="txtPratyaya"><property name="text"><string></string></property></widget></item>
+      <item row="10" column="0"><widget class="QLabel" name="lblKrdantaVidah_prayoga"><property name="text"><string>कृदन्तविधः</string></property></widget></item>
+      <item row="10" column="1"><widget class="QLineEdit" name="txtKrdantaVidah_prayoga"><property name="text"><string></string></property></widget></item>
+      <item row="11" column="0"><widget class="QLabel" name="lblPratyaya_lakara"><property name="text"><string>प्रत्ययः</string></property></widget></item>
+      <item row="11" column="1"><widget class="QLineEdit" name="txtPratyaya_lakara"><property name="text"><string></string></property></widget></item>
       <item row="12" column="0"><widget class="QLabel" name="LabelAnta"><property name="text"><string>अन्तः</string></property></widget></item>
       <item row="12" column="1"><widget class="QLineEdit" name="txtAnta"><property name="text"><string></string></property></widget></item>
       <item row="13" column="0"><widget class="QLabel" name="LabelLinga"><property name="text"><string>लिङ्गः</string></property></widget></item>

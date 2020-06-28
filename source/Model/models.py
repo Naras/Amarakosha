@@ -3,41 +3,11 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt
 tick = QtGui.QImage('tick.png')
 
-class modelAmara(QtCore.QAbstractListModel):
+class modelDhatus(QtCore.QAbstractListModel):
     def __init__(self, *args, data=None, **kwargs):
-        super(modelAmara, self).__init__(*args, **kwargs)
+        super(modelDhatus, self).__init__(*args, **kwargs)
         self.data = data or []
         self.dataIscii= []
-    def data(self, index, role):
-        if role == Qt.DisplayRole:
-            _, text = self.data[index.row()]
-            return text
-        if role == Qt.DecorationRole:
-            status, _ = self.data[index.row()]
-            if status:
-                return tick
-    def rowCount(self, index):
-        return len(self.data)
-class modelSubanta(QtCore.QAbstractListModel):
-    def __init__(self, *args, data=None, **kwargs):
-        super(modelSubanta, self).__init__(*args, **kwargs)
-        self.data = data or []
-        self.dataIscii = []
-    def data(self, index, role):
-        if role == Qt.DisplayRole:
-            _, text = self.data[index.row()]
-            return text
-        if role == Qt.DecorationRole:
-            status, _ = self.data[index.row()]
-            if status:
-                return tick
-    def rowCount(self, index):
-        return len(self.data)
-class modelKrdanta(QtCore.QAbstractListModel):
-    def __init__(self, *args, data=None, **kwargs):
-        super(modelKrdanta, self).__init__(*args, **kwargs)
-        self.data = data or []
-        self.dataIscii = []
     def data(self, index, role):
         if role == Qt.DisplayRole:
             _, text = self.data[index.row()]

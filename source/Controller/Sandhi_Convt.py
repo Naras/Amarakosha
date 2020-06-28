@@ -1,3 +1,5 @@
+from source.Controller import blast
+
 global lingas, antas, vibstr, vachstr, Tganas, Tkarmas, Tpadis, Tyit, purstr, mesg, Voices
 lingas = ["×èÂèÏÜÑÛ·èµ£", "ÈÝÑèÑÛ·èµ£", "ÆÈÝ¢×³ÑÛ·èµ£", "×èÂèÏÜ.ÈÝ¢", "×èÂèÏÜ.ÆÈÝ¢", "ÈÝ¢.ÆÈÝ¢", "×èÂèÏÜ.ÈÝ¢.ÆÈÝ¢",
           "¤ÑÛ·èµ"]
@@ -855,6 +857,52 @@ def Sandhi(inword):
         i += 1
     # print('%s after %s %s %s'%(inword, outword, cli_browse.iscii_unicode(inword), cli_browse.iscii_unicode(outword)))
     return outword
+def doSandhi1(tigantaForm, upasarga):
+    aDict1 = {"¤":"¥", "¥":"¥", "¦":"¬", "§":"¬", "¨":"°", "©":"°", "ª":"¥Ïè", "¬":"­", "­":"­", "°":"±", "±":"±"}
+    bDict = {"¤": aDict1, "¥": aDict1,
+             "¦":{"¦":"§", "§":"§",
+                  "¤":"Íè", "¥":"Íè", "¨":"Íè", "©":"Íè", "ª":"Íè", "¬":"Íè", "­":"Íè", "°":"Íè", "±":"Íè"},
+             "¨":{"¨":"©", "©":"©", "¤":"Ôè", "¥":"Ôè", "¦":"Ôè", "§":"Ôè", "ª":"Ôè", "¬":"Ôè", "­":"Ôè", "°":"Ôè", "±":"Ôè"}    }
+    c = bDict.get(upasarga[0], '')
+    if c != '': c = c.get(tigantaForm[0], '')
+    flag = 1 if upasarga[0] in bDict else 0
+    if upasarga[0] == "¦" and tigantaForm[0] in ["¤", "¥", "¨", "©", "ª", "¬", "­", "°", "±"]: flag = 2
+    if upasarga[0] == "¨" and tigantaForm[0] in ["¤", "¥", "¦", "§", "ª", "¬", "­", "°", "±"]: flag = 1
+    if flag > 0:
+        sandhiForm = upasarga[:-1] + c
+        if flag == 2: sandhiForm += tigantaForm
+        else: sandhiForm += tigantaForm[1:]
+    else: sandhiForm = upasarga + tigantaForm
+    return sandhiForm
+def doSandhi2(tigantaForm, upasarga):
+    sandhiForm = upasarga
+    upasargaDict = {"×Ìè":{"³":"·", "´":"·", "µ":"·", "¶":"·", "·":"·"},
+                    "ÆÛÏè":{"³":"Ö", "´":"Ö", "½":"Ö", "¾":"Ö", "È":"Ö", "É":"Ö", "Ö":"Ö",
+                            "¸":"Õ", "¹":"Õ", "Õ":"Õ",
+                            "Â":"×", "Ã":"×", "×":"×"},
+                    "ÄÝÏè":{"³":"Ö", "´":"Ö", "½":"Ö", "¾":"Ö", "È":"Ö", "É":"Ö", "Ö":"Ö",
+                            "¸":"Õ", "¹":"Õ", "Õ":"Õ",
+                            "Â":"×", "Ã":"×", "×":"×"},
+                    "¨Âè":{"¤":"Ä", "¥":"Ä", "¦":"Ä", "§":"Ä", "¨":"Ä", "©":"Ä", "ª":"Ä", "¬":"Ä", "­":"Ä", "°":"Ä", "±":"Ä",
+                           "µ":"Ä", "¶":"Ä", "Ä":"Ä", "Å":"Ä", "Ê":"Ä", "Ë":"Ä", "Í":"Ä", "Ï":"Ä", "Ô":"Ä",
+                           "¸":"¸", "¹":"¸",
+                           "º":"º", "»":"º",
+                           "¾":"½",
+                           "Æ":"Æ", "Ì":"Æ",
+                           "Ñ":"Ñ",
+                           "Õ":"¸",
+                           "Ø":"Ä"}
+                   }
+    sandhiForm[0] = upasargaDict[tigantaForm[0]][upasarga[0]]
+    if  tigantaForm == "Ï": sandhiForm = {"ÆÛÏè":"ÆÜ", "ÄÝÏè":"ÄÞ"}[upasarga]
+    flag = 2 if upasarga == "¨Âè" and tigantaForm[0] == "Ø" else 0
+    if flag == 1: sandhiForm += "¹"
+    elif flag == 2: sandhiForm += tigantaForm[:-1]
+    else: sandhiForm += tigantaForm
+def doSandhiofUpasargaAndTigantaForm(tigantaForm, upasarga):
+    if upasarga in ["×Ìè", "ÆÛÏè", "ÄÝÏè", "¨Âè"]: sandhiForm = doSandhi2(tigantaForm, upasarga)
+    else: sandhiForm = doSandhi1(blast.performBlast(tigantaForm), blast.performBlast(upasarga) )
+    return blast.phoneticallyJoin(sandhiForm)
 
 if __name__ == '__main__':
-    print(Suffix[0:5], Suffix[234:245])
+     print(Suffix[0:5], Suffix[234:245])

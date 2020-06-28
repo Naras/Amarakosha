@@ -80,9 +80,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.modelContent = modelContent_DataFrame()
         self.load()
         self.browseButton.pressed.connect(self.browseTable)
+        self.deleteButton.pressed.connect(self.deleteRow)
+        self.deleteRowsButton.pressed.connect(self.deleteRows)
         self.exitButton.pressed.connect(QtWidgets.qApp.quit)
         self.tableView.setModel(self.modelTable)
         self.contentView.setModel(self.modelContent)
+        self.contentView.clicked.connect(self.detectCell)
 
     def load(self):
         try:
@@ -94,12 +97,50 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if indexes:
             index = indexes[0]
             row = index.row()
-            status,tbl = self.modelTable.tables[row]
+            status,self.tbl = self.modelTable.tables[row]
             # self.modelContent._data = list(cli_browse.tblSelect(tbl))
-            cols, dbdata = AmaraKosha_Subanta_Krdanta_Queries.tblSelect(tbl, maxrows=5, duplicate=False)
+            self.cols, dbdata = AmaraKosha_Subanta_Krdanta_Queries.tblSelect(self.tbl, maxrows=5, duplicate=False)
             # print('%s\n%s' % (cols, dbdata))
-            self.modelContent._data = pandas.DataFrame(dbdata,columns=cols)
+            self.modelContent._data = pandas.DataFrame(dbdata,columns=self.cols)
             self.modelContent.layoutChanged.emit()
+    def detectCell(self, item):
+        try:
+            indexes = self.contentView.selectedIndexes()
+            # print('clicked cell: row %s col %s value %s'%(item.row(), item.column(), self.modelContent.data(indexes[0], Qt.DisplayRole)))
+            self.rowId = self.modelContent.data(indexes[0], Qt.DisplayRole)
+            if str(self.deleteFrom.text()).strip() in ['', '?']: self.deleteFrom.setText(self.rowId)
+            else: self.deleteTo.setText(self.rowId)
+            self.colname = self.cols[item.column()]
+        except Exception as e:
+            print(e)
+    def deleteRow(self):
+        qry = 'delete * from ' + self.tbl + ' where ' + self.colname + '=?'
+        print('sql qry = %s id=%s'%(qry, self.rowId))
+        try:
+            delcursor = AmaraKosha_Subanta_Krdanta_Queries.conn.cursor()
+            delcursor.execute(qry, self.rowId)
+            delcursor.commit
+            delcursor.close()
+            qry = 'select * from ' + self.tbl + ' where ' + self.colname + '=?'
+            cols, result = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, param = self.rowId, duplicate=False)
+            print('cols %s\nresult %s'%(cols,result))  # should be empty
+        except Exception as e:
+            print(e)
+
+    def deleteRows(self):
+        qry = 'delete * from ' + self.tbl + ' where ' + self.colname + ' between ' + self.deleteFrom.text() + ' and ' + self.deleteTo.text()
+        print('sql qry = %s'%(qry))
+        try:
+            delcursor = AmaraKosha_Subanta_Krdanta_Queries.conn.cursor()
+            delcursor.execute(qry)
+            delcursor.commit
+            delcursor.close()
+            qry = 'select * from ' + self.tbl + ' where ' + self.colname + ' between ' + self.deleteFrom.text() + ' and ' + self.deleteTo.text()
+            cols, result = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, duplicate=False)
+            print('cols %s\nresult %s'%(cols,result))  # should be empty
+        except Exception as e:
+            print(e)
+
 
 app = QtWidgets.QApplication(sys.argv)
 window = MainWindow()

@@ -1,4 +1,4 @@
-from source.Controller import Sandhi_Convt, Transliterate
+from source.Controller import Sandhi_Convt, Transliterate, blast
 from source.Model import AmaraKosha_Subanta_Krdanta_Queries
 
 Tganas = ["भ्वादिगणः", "अदादिगणः",  "जुहोत्यादिगणः",  "दिवादिगणः",  "स्वादिगणः",  "तुदादिगणः",  "रुधादिगणः",  "तनादिगणः",  "क्रयादिगणः",  "चुरादिगणः"]
@@ -6,8 +6,13 @@ Tkarmas = ["सकर्मकः", "अकर्मकः",  "द्विक�
 Tpadis = ["परस्मैपदी",  "आत्मनेपदी",  "उभयपदी"]
 Tyits = ["सेट्", "अनिट्", "वेट्"]
 purushas = ["प्रथमपुरुषः", "मध्यमपुरुषः", "उत्तमपुरुषः"]
+vacanas = ['एकवचन', 'द्विवचन', 'बहुवचन']
+vibhaktis = ['प्रथमा', 'द्वितीया', 'तृतीया', 'चतुर्थि', 'पंचमि', 'शष्टि', 'सप्तमि', 'सं प्रथम']
+lakara = ["लट्", "लिट्", "लुट्", "लृट्", "लोट्", "लङ्", "विधिलिङ्", "अशीर्लिङ्", "लुङ्", "लृङ्"]
+voice = ["कर्तरि", "कर्मणि"]
+DhatuVidha = ["केवलकृदन्तः", "णिजन्तः", "सन्नन्तः"]
 
-# global krdData
+
 class krdData:
     def __init__(self):
         self.linga = None
@@ -124,20 +129,20 @@ def krdanta_arthas_karmas(krdantaWord):
 def krdanta_Gana(gana):
     qry = 'select * from Sdhatu where field9 like ?'
     param = str(Tganas.index(gana)) + '__'
-    return getResults(qry, param)
+    return krdantaResults(qry, param)
 def krdanta_Padi(padi):
     qry = 'select * from Sdhatu where field9 like ?'
     param = '_' + str(Tpadis.index(padi) + 1) + '_'
-    return getResults(qry, param)
+    return krdantaResults(qry, param)
 def krdanta_Karma(karma):
     qry = 'select * from Sdhatu where field8 like ?'
     param = '%' + str(Tkarmas.index(karma) + 1) + '%'
-    return getResults(qry, param)
+    return krdantaResults(qry, param)
 def krdanta_It(it):
     qry = 'select * from Sdhatu where field9 like ?'
     param = '__' + str(Tyits.index(it) + 1)
-    return getResults(qry, param)
-def getResults(qry, param):
+    return krdantaResults(qry, param)
+def krdantaResults(qry, param):
     cols, dataDhatu = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, param, maxrows=0)
     # print('Sdhatu param %s %s\n%s'%(param, cols, dataDhatu))
     # return dataDhatu
@@ -213,8 +218,6 @@ def KrdantaGeneration(dhatuNo, DhatuVidah, KrdantaVidah, KrdMode):
         krdDataInstance.combinedM = item[cols.index('Field10')]
         krdDatas.append(krdDataInstance)
 
-    vacanas = ['एकवचन', 'द्विवचन', 'बहुवचन']
-    vibhaktis = ['प्रथमा', 'द्वितीया', 'तृतीया', 'चतुर्थि', 'पंचमि', 'शष्टि', 'सप्तमि', 'सं प्रथम']
     # print('no. of items %i subforms with sandhi %s' % (len(forms), forms))
     # for item in krdDatas:
     #     attributes = inspect.getmembers(item, lambda a: not (inspect.isroutine(a)))
@@ -270,6 +273,136 @@ def Krdanta_Its(krdantaWord, DhatuVidah, KrdantaVidah, KrdMode, It):
     qry = 'select * from Sdhatu where field2 = ?'
     param = krdantaWord
     cols, data = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, param, maxrows=0)
+
+class tiganta:
+    def __init__(self):
+        self.upasarga, self.tigerr, self.tigsuf = None, None, None
+    def get(self):
+        return {'tigerr': self.tigerr, 'upasarga': self.upasarga, 'tigsuf:': self.tigsuf}
+    def __str__(self):
+        return ','.join(self.get())
+class tigantaData:
+    def __init__(self):
+        self.tigform = ''
+        self.verb = None
+        self.nijverb = None
+        self.sanverb = None
+        self.GPICode = None
+        self.gana = None
+        self.padi = None
+        self.it = None
+        self.dhatuVidhah = None
+        self.karma = None
+        self.meaning = None
+        self.vacana = None
+        self.purusha = None
+        self.base = None
+        self.dhatuVidah = None
+        self.lakara = None
+        self.Dno = None
+    def get(self):
+        return {'tigform':self.tigform, 'verb':self.verb, 'nijverb':self.nijverb, 'sanverb':self.sanverb, 'GPICode':self.GPICode, 'gana':self.gana,
+                'padi':self.padi, 'it':self.it, 'dhatuVidhah':self.dhatuVidhah, 'pratyayaVidhah':self.pratyayaVidhah, 'karma':self.karma,
+                'meaning':self.meaning, 'vacana':self.vacana, 'purusha':self.purusha, 'lakara':self.lakara}
+    def __str__(self):
+        return ','.join(self.get())
+class tigResult:
+    def __init__(self):
+        self.tigforms = [''] * 9
+        self.roopam = None
+    def get(self):
+        return {'tigforms': self.tigforms, 'roopam': self.roopam}
+    def __str__(self):
+        return ','.join(self.get())
+
+def TigantaGeneration(dhatuNo, DhatuVidah, voice, lakara, prefixUpasarga = False):
+    lakaraIndex = ["लट्", "लिट्", "लुट्", "लृट्", "लोट्", "लङ्", "विधिलिङ्", "अशीर्लिङ्", "लुङ्", "लृङ्"].index(lakara.strip())
+    voiceIndex = ["कर्तरि", "कर्मणि"].index(voice.strip())
+    dhatuVidhaIndex = {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah]
+    lvstr = dhatuVidhaIndex + chr(2 * lakaraIndex + voiceIndex + ord('A'))
+    tigDatas = []
+    forms = []
+    qry = 'select * from upacode where DhatuNo=?'
+    # print('qry %s dhatuNo %s'%(qry,dhatuNo))
+    colsUpacode, dataUpacode = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, dhatuNo, maxrows=0)
+    # print('upacode dhatuNo=%s %s\n%s'%(dhatuNo, cols, dataUpacode))
+    tiggenData = []
+    tigDataInstance = tigantaData()
+    if len(dataUpacode) == 0:
+        tigDataInstance.upasarga = ''
+    else:
+        upacode = dataUpacode[0][colsUpacode.index('UpaCode') + 1]
+        if prefixUpasarga and not upacode == None:
+            qry = 'select * from upasarga'
+            colsUpasarga, dataUpasarga = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, param=None, maxrows=0)
+            lstUpa = []
+            for ch in upacode:
+                for uparec in dataUpasarga:
+                    if ord(ch) - ord('a') + 1 == uparec[colsUpasarga.index('ID')]: lstUpa.append[uparec[colsUpasarga.index('ID')]]
+    tigDatas.append(tigDataInstance)
+
+    # from VB Function TigantaSetAll
+    tiggenDataInstance = tiganta()
+    tigResforms = []
+    qry = 'select * from stinnew where field2 = ? and field3 like ?'
+    colsStinnew, dataStinnew = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, (dhatuNo, '%'+lvstr+'%'), maxrows=0)
+    for stinrec in dataStinnew:
+        tiggenDataInstance.tigerr = stinrec[colsStinnew.index('Field1') + 1]
+        tiggenDataInstance.tigsuf = stinrec[colsStinnew.index('Field3') + 1]
+        tiggenDataInstance.upasarga = upacode if prefixUpasarga else ''
+        tiggenData.append(tiggenDataInstance)
+    # VB Function strtgencb
+    qry = 'select * from stinfin where field2 = ? and field3 = ?'
+    colsStinfin, dataStinfin = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, (dhatuNo, lvstr), maxrows=0)
+    tigResformsInstance = tigResult()
+    for stinfinRec in dataStinfin:
+        tigResformsInstance.tigforms[int(colsStinfin.index('Field4'))] = stinfinRec[colsStinfin.index('Field1')]
+        tigResforms.append(tigResformsInstance)
+    if len(dataStinfin) == 0: tigResforms.append(tigResformsInstance)
+    # VB Function tigantaForms
+    for tiggenDataInstance in tiggenData:
+        words = tiggenDataInstance.tigsuf.split(' ')
+        # print('words=%s'%words)
+        for word in words:  # only if padi=2 and dhatuVidhaIndex=2?
+            tigResformsInstance.roopam = "" if word[:1] == lvstr and dhatuVidhaIndex == 2 else "¥ÂèÌÆáÈÄÛÆÛ ÏÞÈÌè" if word[2] == "0" else "ÈÏ×èÌâÈÄÛÆÛ ÏÞÈÌè "
+            suffixCode = word[3:len(word) - len(lvstr)] if dhatuVidhaIndex == 2 and lvstr[1] == "O" else word[2:len(word) - len(lvstr)]
+            if word[:2] == lvstr:
+                qry = 'select * from stinsuf where field1 = ?'  # VB genTigforms
+                colsStinsuf, dataStinsuf = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, lvstr[0], maxrows=0)
+                for sufrec in dataStinsuf:
+                    tstr = sufrec[colsStinsuf.index('Field2')+1].split(' ')
+                    # print('tstr=%s\n%s'%(tstr, [AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(c) for c in tstr]))
+                    for x, wrd in enumerate(tstr):
+                        if '/' in wrd:
+                            subwrd = wrd.split('/')
+                            for s in subwrd:
+                                tstr1 = blast.performBlast(tiggenDataInstance.tigerr) + blast.performBlast(s)
+                                tigantaForm = blast.phoneticallyJoin(tstr1)
+                                if tigDataInstance.upasarga != '':
+                                    tigantaForm = blast.phoneticallyJoin(
+                                        Sandhi_Convt.doSandhiofUpasargaAndTigantaForm(tigantaForm, tigDataInstance.upasarga))
+                                tigResformsInstance.tigform[x] += tigantaForm
+                        else:
+                            tstr1 = blast.performBlast(tiggenDataInstance.tigerr)
+                            # print('tstr1=%s %s'%(tstr1, AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(tstr1)))
+                            tstr2 = blast.performBlast(wrd)
+                            # print('tstr2=%s %s'%(tstr2, AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(tstr2)))
+                            tstr1 += tstr2
+                            tigantaForm = blast.phoneticallyJoin(tstr1)
+                            # print('tiganthaform=%s'%AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(tigantaForm))
+                            if not (tiggenDataInstance.upasarga == '' or tiggenDataInstance.upasarga == None):
+                                tigantaForm = blast.phoneticallyJoin(
+                                    Sandhi_Convt.doSandhiofUpasargaAndTigantaForm(tigantaForm, tiggenDataInstance.upasarga))
+                            # print('tiganthaform=%s %s'%(tigantaForm, AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(tigantaForm)))
+                            tigResformsInstance.tigforms[x] += AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(tigantaForm)
+    for tigResformsInstance in tigResforms:
+        forms += [tigResformsInstance.tigforms[:3], tigResformsInstance.tigforms[3:6], tigResformsInstance.tigforms[6:9]] #to_2dList(tigResformsInstance.tigforms,3)
+    # print('tigData %s\n%s\ntiggenData %s\n%s\n tgResforms %s\n%s'%(colsUpacode, tigDatas, colsStinnew, tiggenData, colsStinfin, forms))
+    # print('no. of items %i subforms with sandhi %s' % (len(forms), forms))
+    # for item in tigDatas:
+    #     attributes = inspect.getmembers(item, lambda a: not (inspect.isroutine(a)))
+    #     print([a for a in attributes if not (a[0].startswith('__') and a[0].endswith('__'))])
+    return forms, vacanas, purushas, tigDatas
 
 
 
