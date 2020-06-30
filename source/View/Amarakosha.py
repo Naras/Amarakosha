@@ -1,4 +1,5 @@
 import inspect
+import logging
 import sys
 
 import pandas
@@ -7,13 +8,15 @@ from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtWidgets import QDialog, QPushButton, QVBoxLayout, QRadioButton, QGridLayout, QGroupBox, QHBoxLayout, QListView
 
 from source.Controller import Kosha_Subanta_Krdanta_Tiganta
-from source.Model import AmaraKosha_Subanta_Krdanta_Queries, models
+from source.Controller.Transliterate import *
+from source.Model import AmaraKosha_Database_Queries, models
 
 qt_creator_file = "amara_uiComposition.xml"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qt_creator_file)
 class modalDialog_Krdanta(QDialog):
-    def __init__(self, parent, krdantaWord):
+    def __init__(self, parent, krdantaWord, requested_script):
      super(modalDialog_Krdanta, self).__init__(parent)
+     self.script = requested_script
      self.krdantaWord = krdantaWord
      self.mainLayout = QVBoxLayout(self)
      self.initialGrid()
@@ -136,7 +139,7 @@ class modalDialog_Krdanta(QDialog):
             self.listView_meanings.setUniformItemSizes(True)
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
             self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
-            arthas, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.krdanta_arthas_karmas(self.krdantaWord)
+            arthas, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.krdanta_arthas_karmas(self.krdantaWord, requested_script=self.script)
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
@@ -226,6 +229,7 @@ class modalDialog_Krdanta(QDialog):
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
             # self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = Kosha_Subanta_Krdanta_Tiganta.krdanta_Gana(self.gana)
+            self.arthas = [transliterate_lines(item, IndianLanguages[self.script-1]) for item in self.arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
@@ -254,6 +258,7 @@ class modalDialog_Krdanta(QDialog):
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
             # self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = Kosha_Subanta_Krdanta_Tiganta.krdanta_Padi(self.padi)
+            self.arthas = [transliterate_lines(item, IndianLanguages[self.script-1]) for item in self.arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
@@ -282,6 +287,7 @@ class modalDialog_Krdanta(QDialog):
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
             # self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = Kosha_Subanta_Krdanta_Tiganta.krdanta_Karma(self.karma)
+            self.arthas = [transliterate_lines(item, IndianLanguages[self.script-1]) for item in self.arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
@@ -310,6 +316,7 @@ class modalDialog_Krdanta(QDialog):
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
             # self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = Kosha_Subanta_Krdanta_Tiganta.krdanta_It(self.it)
+            self.arthas = [transliterate_lines(item, IndianLanguages[self.script-1]) for item in self.arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
@@ -329,8 +336,9 @@ class modalDialog_Krdanta(QDialog):
             self.okBtn.setEnabled(True)
             self.cancelBtn.setEnabled(True)
 class modalDialog_Tiganta(QDialog):
-    def __init__(self, parent, tigantaWord):
+    def __init__(self, parent, tigantaWord, requested_script):
      super(modalDialog_Tiganta, self).__init__(parent)
+     self.script = requested_script
      self.tigantaWord = tigantaWord
      self.mainLayout = QVBoxLayout(self)
      self.initialGrid()
@@ -453,7 +461,7 @@ class modalDialog_Tiganta(QDialog):
             self.listView_meanings.setUniformItemSizes(True)
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
             self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
-            dhatus, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.krdanta_arthas_karmas(self.tigantaWord)
+            dhatus, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.krdanta_arthas_karmas(self.tigantaWord, requested_script=self.script)
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), dhatus))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
@@ -704,8 +712,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.statusBar().showMessage('Ready')
     def loadAmara(self):
         self.menuItemChosen = 'Amara'
-        cols, data = AmaraKosha_Subanta_Krdanta_Queries.tblSelect('Amara_Words', maxrows=0)
-        self.modelDhatus.data = list(map(lambda item: (False, item[2]), data))
+        self.wanted_script = self.scriptSelector.currentIndex()
+        cols, data = AmaraKosha_Database_Queries.tblSelect('Amara_Words', maxrows=0)
+        self.modelDhatus.data = list(map(lambda item: (False, transliterate_lines(item[2], IndianLanguages[self.wanted_script])), data))
         self.modelDhatus.dataIscii = list(map(lambda item: (False, item[3]), data))
         self.listView.setModel(self.modelDhatus)
         self.modelDhatus.layoutChanged.emit()
@@ -719,7 +728,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.synonymsButton.setEnabled(True)
     def loadSubanta(self):
         self.menuItemChosen = 'Subanta'
-        cols, data = AmaraKosha_Subanta_Krdanta_Queries.tblSelect('Subanta', maxrows=0)
+        self.wanted_script = self.scriptSelector.currentIndex()
+        self.wanted_script = 0 if self.wanted_script == 5 else self.wanted_script  # ban tamil, always screws up things!
+        cols, data = AmaraKosha_Database_Queries.tblSelect('Subanta', maxrows=0, script=self.wanted_script + 1)
         self.modelDhatus.data = list(map(lambda item: (False, item[2]), data))
         self.modelDhatus.dataIscii = list(map(lambda item: (False, item[3]), data))
         self.listView.setModel(self.modelDhatus)
@@ -732,10 +743,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.page3Button.setVisible(False)
     def loadKrdanta(self):
         self.menuItemChosen = 'Krdanta'
+        self.wanted_script = self.scriptSelector.currentIndex()
+        self.wanted_script = 0 if self.wanted_script == 5 else self.wanted_script  # ban tamil, always screws up things!
         qry = 'select * from Sdhatu'
         param = None
         try:
-            cols, data = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, param, maxrows=0)
+            cols, data = AmaraKosha_Database_Queries.sqlQuery(qry, param, maxrows=0, script=self.wanted_script + 1)
             # print('%s\n%s'%(cols, data))
             self.modelDhatus.data = list(map(lambda item: (False, item[4]), data))
             self.modelDhatus.dataIscii = list(map(lambda item: (False, item[5]), data))
@@ -750,8 +763,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.menuItemChosen = 'Tiganta'
         qry = 'select * from Sdhatu'
         param = None
+        self.wanted_script = self.scriptSelector.currentIndex()
+        self.wanted_script = 0 if self.wanted_script == 5 else self.wanted_script  # ban tamil, always screws up things!
         try:
-            self.colsSdhatudata, self.Sdhatudata = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, param, maxrows=0)
+            self.colsSdhatudata, self.Sdhatudata = AmaraKosha_Database_Queries.sqlQuery(qry, param, maxrows=0, script=self.wanted_script + 1)
             self.modelDhatus.data = list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2')]), self.Sdhatudata))
             self.modelDhatus.dataIscii = list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2') + 1]), self.Sdhatudata))
             # print('loadTiganta gana=%i padi=%i it=%i'%(self.gana, self.padi, self.it))
@@ -774,7 +789,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 row = index.row()
                 try:
                     status, amaraWord = self.modelDhatus.dataIscii[row]
-                    synonyms, KanWord, EngWord, HinWord = Kosha_Subanta_Krdanta_Tiganta.Amarakosha(amaraWord)
+                    synonyms, KanWord, EngWord, HinWord = Kosha_Subanta_Krdanta_Tiganta.Amarakosha(amaraWord, self.wanted_script+1)
                     text = list(map(lambda i : i or '', KanWord))
                     text = [item for item in text if not item=='']
                     self.kannadaEdit.setText('\n'.join(text))
@@ -802,10 +817,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 row = index.row()
                 status, base = self.modelDhatus.dataIscii[row]
                 try:
-                    forms, vacanas, vibhaktis, anta, linga = Kosha_Subanta_Krdanta_Tiganta.Subanta(base)
-                    self.antaLineEdit.setText(AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(anta))
-                    self.lingaLineEdit.setText(AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(linga))
-                    self.modelFinalResults._data = pandas.DataFrame(forms, columns=vacanas, index=vibhaktis)
+                    forms, vacanas, vibhaktis, anta, linga = Kosha_Subanta_Krdanta_Tiganta.Subanta(base, self.wanted_script+1)
+                    self.antaLineEdit.setText(AmaraKosha_Database_Queries.iscii_unicode(anta, self.wanted_script+1))
+                    self.lingaLineEdit.setText(AmaraKosha_Database_Queries.iscii_unicode(linga, self.wanted_script+1))
+                    self.labelSubanta.setText(transliterate_lines("अंत/लिंग", IndianLanguages[self.wanted_script]))
+                    self.antaLabel.setText(transliterate_lines("अंत", IndianLanguages[self.wanted_script]))
+                    self.lingaLabel.setText(transliterate_lines("लिंग", IndianLanguages[self.wanted_script]))
+                    self.modelFinalResults._data = pandas.DataFrame(forms,
+                                                                    columns=[transliterate_lines(vacana, IndianLanguages[self.wanted_script]) for vacana in vacanas],
+                                                                    index=[transliterate_lines(vibhakti, IndianLanguages[self.wanted_script]) for vibhakti in vibhaktis],)
                     self.modelFinalResults.layoutChanged.emit()
                 except Exception as e:
                     print(e)
@@ -818,7 +838,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     index = indexes[0]
                     row = index.row()
                     status, krdantaWord = self.modelDhatus.dataIscii[row]
-                dialog = modalDialog_Krdanta(self, krdantaWord)
+                dialog = modalDialog_Krdanta(self, krdantaWord, self.wanted_script + 1)
                 # print('%s DhatuVidha %s KrdantaVidha %s Krdanta Mode %s'%(dialog.ok, dialog.DhatuVidah, dialog.KrdantaVidah, dialog.KrdMode))
                 if dialog.okClicked:
                         if dialog.mainOption == 'Sorted List':
@@ -857,16 +877,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         else:
                             self.arthas, self.karmas = dialog.arthas, dialog.karmas
                             self.finalResults(dialog.dhatuNo, dialog)
-                        # elif dialog.mainOption == 'Padis':
-                        #     self.arthas, self.karmas = dialog.arthas, dialog.karmas
-                        #     self.finalResults(dialog.dhatuNo, dialog)
-                        # elif dialog.mainOption == 'Karmas':
-                        #     self.arthas, self.karmas = dialog.arthas, dialog.karmas
-                        #     self.finalResults(dialog.dhatuNo, dialog)
-                        # elif dialog.mainOption == 'Its':
-                        #     self.arthas, self.karmas = dialog.arthas, dialog.karmas
-                        #     self.finalResults(dialog.dhatuNo, dialog)
-                        # print(krdData)
             except Exception as e:
                         print(e)
         elif self.menuItemChosen == 'Tiganta':
@@ -881,7 +891,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.gana = int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][0])
                     self.padi = int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][1])
                     self.it = int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][2])
-                dialog = modalDialog_Tiganta(self, tigantaWord)
+                dialog = modalDialog_Tiganta(self, tigantaWord, requested_script=self.wanted_script+1)
                 # print('%s DhatuVidha %s KrdantaVidha %s Krdanta Mode %s'%(dialog.ok, dialog.DhatuVidah, dialog.KrdantaVidah, dialog.KrdMode))
                 if dialog.okClicked:
                     if dialog.mainOption == 'Sorted List(अकारादि)':
@@ -913,10 +923,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             indx = ['page1Button', 'page2Button', 'page3Button', 'page4Button', 'page5Button', 'page6Button'].index(self.sender().objectName())
             if self.menuItemChosen == 'Krdanta':
                 self.setTexts(zip([self.txtLinga, self.txtAnta], [self.krdData[indx].linga, self.krdData[indx].anta]))
-                self.modelFinalResults._data = pandas.DataFrame(self.forms[indx * 8: indx * 8 + 8], columns=self.vacanas, index=self.vibhaktis)
+                self.modelFinalResults._data = pandas.DataFrame(self.forms[indx * 8: indx * 8 + 8],
+                                                                columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in self.vacanas],
+                                                                index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in self.vibhaktis])
                 self.modelFinalResults.layoutChanged.emit()
             else:
-                self.modelFinalResults._data = pandas.DataFrame(self.forms[indx * 3: indx * 3 + 3], columns=self.vacanas, index=self.purushas)
+                self.modelFinalResults._data = pandas.DataFrame(self.forms[indx * 3: indx * 3 + 3],
+                                                                columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in self.vacanas],
+                                                                index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in self.purushas])
+
                 self.modelFinalResults.layoutChanged.emit()
 
         except Exception as e:
@@ -926,52 +941,61 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.forms, self.vacanas, self.vibhaktis, self.krdData = Kosha_Subanta_Krdanta_Tiganta.KrdantaGeneration(dhatuNo,
                                                                                                                      dialog.DhatuVidah,
                                                                                                                      dialog.KrdantaVidah,
-                                                                                                                     dialog.KrdMode)
-            self.modelFinalResults._data = pandas.DataFrame(self.forms[:8], columns=self.vacanas, index=self.vibhaktis)
+                                                                                                                     dialog.KrdMode,
+                                                                                                                     requested_script=self.wanted_script+1)
+            self.modelFinalResults._data = pandas.DataFrame(self.forms[:8],
+                                                            columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in self.vacanas],
+                                                            index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in self.vibhaktis])
             self.modelFinalResults.layoutChanged.emit()
             self.setTexts(zip(
                 [self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu,
                  self.txtGana, self.txtPadi, self.txtKarma, self.txtIt, self.txtDhatuVidah,
                  self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara, self.txtSabda, self.txtAnta, self.txtLinga,
                  self.txtPratipadika],
-                [self.krdData[0].verb, self.arthas[0], self.krdData[0].nijverb,
+                [self.krdData[0].verb, transliterate_lines(self.arthas[0], IndianLanguages[self.wanted_script]), self.krdData[0].nijverb,
                  self.krdData[0].sanverb, self.krdData[0].gana, self.krdData[0].padi,
-                 self.karmas[0], self.krdData[0].it, self.krdData[0].dhatuVidhah,
+                 transliterate_lines(self.karmas[0], IndianLanguages[self.wanted_script]), self.krdData[0].it, self.krdData[0].dhatuVidhah,
                  self.krdData[0].krdantaVidhah, self.krdData[0].pratyayaVidhah,
                  self.krdData[0].sabda, self.krdData[0].anta, self.krdData[0].linga,
                  self.krdData[0].sabda]))
             self.lblPratyaya_lakara.setText('प्रत्ययः')
-            self.lblKrdantaVidah_prayoga.setText('कृदन्तविधः')
+            self.lblKrdantaVidah_prayoga.setText('कृदंतविधः')
         else: # Tiganta
             self.forms, self.vacanas, self.purushas, self.tigData = Kosha_Subanta_Krdanta_Tiganta.TigantaGeneration(dhatuNo,
                                                                                                                     dialog.DhatuVidah,
                                                                                                                     dialog.voice,
-                                                                                                                    dialog.lakara)
-            self.modelFinalResults._data = pandas.DataFrame(self.forms[:9], columns=self.vacanas, index=self.purushas)
+                                                                                                                    dialog.lakara,
+                                                                                                                    requested_script=self.wanted_script+1)
+            self.modelFinalResults._data = pandas.DataFrame(self.forms[:9],
+                                                            columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in self.vacanas],
+                                                            index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in self.purushas])
             self.modelFinalResults.layoutChanged.emit()
             self.setTexts(zip(
                 [self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu,
                  self.txtGana, self.txtPadi, self.txtKarma, self.txtIt, self.txtDhatuVidah,
                  self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara],
-                [AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(dialog.tigantaWord), self.arthas[0],
-                 self.Sdhatudata[0][self.colsSdhatudata.index('Field3')], self.Sdhatudata[0][self.colsSdhatudata.index('Field4')],
-                 Kosha_Subanta_Krdanta_Tiganta.Tganas[self.gana], Kosha_Subanta_Krdanta_Tiganta.Tganas[self.padi], self.karmas[0], Kosha_Subanta_Krdanta_Tiganta.Tganas[self.it],
-                 dialog.DhatuVidah, dialog.voice, dialog.lakara]
+                [transliterate_lines(txt, IndianLanguages[self.wanted_script]) for txt in [AmaraKosha_Database_Queries.iscii_unicode(dialog.tigantaWord), self.arthas[0],
+                                                                                           self.Sdhatudata[0][self.colsSdhatudata.index('Field3')], self.Sdhatudata[0][self.colsSdhatudata.index('Field4')],
+                                                                                           Kosha_Subanta_Krdanta_Tiganta.Tganas[self.gana], Kosha_Subanta_Krdanta_Tiganta.Tganas[self.padi], self.karmas[0],
+                                                                                           Kosha_Subanta_Krdanta_Tiganta.Tganas[self.it],
+                                                                                           dialog.DhatuVidah, dialog.voice, dialog.lakara]]
             ))
             self.lblPratyaya_lakara.setText('लकारः')
             self.lblKrdantaVidah_prayoga.setText('प्रयोगः')
-
-
+        for lbl in [self.lblDhatu, self.lblDhatvarya, self.lblNijidhatu, self.lblSaniDhatu, self.lblGana,  self.lblPadi,  self.lblKarma,  self.lblIt,
+                    self.lblDhatuVidah,  self.lblKrdantaVidah_prayoga,  self.lblPratyaya_lakara,  self.lblAnta,  self.lblLinga,  self.lblPratipadika,
+                    self.lblSabda]:
+            lbl.setText(transliterate_lines(lbl.text(), IndianLanguages[self.wanted_script]))
         self.formWidget_2.setVisible(True)
         self.synonymView.setVisible(True)
         if self.menuItemChosen == 'Krdanta':
-            self.LabelAnta.setVisible(True)
+            self.lblAnta.setVisible(True)
             self.txtAnta.setVisible(True)
-            self.LabelLinga.setVisible(True)
+            self.lblLinga.setVisible(True)
             self.txtLinga.setVisible(True)
-            self.LabelPratipadika.setVisible(True)
+            self.lblPratipadika.setVisible(True)
             self.txtPratipadika.setVisible(True)
-            self.LabelSabda.setVisible(True)
+            self.lblSabda.setVisible(True)
             self.txtSabda.setVisible(True)
             self.page1Button.setEnabled(True)
             self.page1Button.setVisible(True)
@@ -986,14 +1010,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.page5Button.setVisible(True)
                 self.page6Button.setEnabled(True)
                 self.page6Button.setVisible(True)
+            else:
+                self.page4Button.setEnabled(False)
+                self.page4Button.setVisible(False)
+                self.page5Button.setEnabled(False)
+                self.page5Button.setVisible(False)
+                self.page6Button.setEnabled(False)
+                self.page6Button.setVisible(False)
         else:
-            self.LabelAnta.setVisible(False)
+            self.lblAnta.setVisible(False)
             self.txtAnta.setVisible(False)
-            self.LabelLinga.setVisible(False)
+            self.lblLinga.setVisible(False)
             self.txtLinga.setVisible(False)
-            self.LabelPratipadika.setVisible(False)
+            self.lblPratipadika.setVisible(False)
             self.txtPratipadika.setVisible(False)
-            self.LabelSabda.setVisible(False)
+            self.lblSabda.setVisible(False)
             self.txtSabda.setVisible(False)
             self.page1Button.setEnabled(False)
             self.page1Button.setVisible(False)
@@ -1009,6 +1040,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.page6Button.setVisible(False)
 
 
+logging.basicConfig(level=logging.DEBUG, filename='../../Amarakosha.log', format='%(asctime)s %(message)s',
+                    datefmt='%d/%m/%Y %I:%M:%S %p')
 app = QtWidgets.QApplication(sys.argv)
 window = MainWindow()
 window.show()

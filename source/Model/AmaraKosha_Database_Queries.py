@@ -2,9 +2,8 @@ import logging
 
 import pyodbc
 from iscii2utf8 import *
-import pandas as pd
 
-conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=I:\VBtoPython\Amarakosha\wordsdata.mdb;')
+conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=..\..\wordsdata.mdb;')
 # conn = pyodbc.connect('DSN=Amarakosha')
 cursor = conn.cursor()
 rowcursor = conn.cursor()
@@ -30,7 +29,8 @@ def isascii(s):
         return True
     except UnicodeEncodeError:
         return False
-def iscii_unicode(iscii_string):
+def iscii_unicode(iscii_string, script=1):
+    mypar.set_script(script)
     flush = 0
     x_as_List = [ord(char) for char in iscii_string+' ']
     n = mypar.iscii2utf8(x_as_List, flush)
@@ -48,7 +48,7 @@ def schemaParse():
         if not (str(row.table_name).startswith("MSys") or str(row.table_name).startswith("Con")):
             tbls.append(row.table_name)
     return tbls
-def sqlQuery(sql, param=None, maxrows=5, duplicate=True):
+def sqlQuery(sql, param=None, maxrows=5, duplicate=True, script=1):
     # lstParam = [x for x in param] if isinstance(param,tuple) else param
     # print('sql=%s param=%s'%(sql, lstParam))
     current = 0
@@ -65,7 +65,7 @@ def sqlQuery(sql, param=None, maxrows=5, duplicate=True):
                     resultRow.append(field)
                     if duplicate: resultRow.append(field)
                 else:
-                    resultRow.append(iscii_unicode(str(field)))
+                    resultRow.append(iscii_unicode(str(field), script))
                     if duplicate: resultRow.append(field)
             result += [resultRow]
             current += 1
@@ -77,7 +77,7 @@ def sqlQuery(sql, param=None, maxrows=5, duplicate=True):
     columns = [column[0] for column in rowcursor.description]
     if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
     return columns, result
-def tblSelect(table_name,maxrows=5,duplicate=True):
+def tblSelect(table_name,maxrows=5,duplicate=True, script=1):
     current = 0
     rowcursor.execute('select * from ' + table_name)
     try:
@@ -90,7 +90,7 @@ def tblSelect(table_name,maxrows=5,duplicate=True):
                     tblRow.append(field)
                     if duplicate: tblRow.append(field)
                 else:
-                    tblRow.append(iscii_unicode(str(field)))
+                    tblRow.append(iscii_unicode(str(field), script))
                     if duplicate: tblRow.append(field)
             tbl += [tblRow]
             current += 1
