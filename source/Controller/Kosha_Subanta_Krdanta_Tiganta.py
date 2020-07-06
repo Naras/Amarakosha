@@ -13,6 +13,12 @@ lakara = ["लट्", "लिट्", "लुट्", "लृट्", "लो�
 voice = ["कर्तरि", "कर्मणि"]
 DhatuVidha = ["केवलकृदन्तः", "णिजन्तः", "सन्नन्तः"]
 
+class RecordNotFound(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+         return repr(self.value)
+
 
 class krdData:
     def __init__(self):
@@ -48,16 +54,27 @@ class krdData:
 def Amarakosha(amaraWord, requested_script=1):
     qry = 'select * from Janani1 where Words like ?'
     param = '%' + amaraWord + '%'
-    cols, dbdata = AmaraKosha_Database_Queries.sqlQuery(qry, param, maxrows=0, duplicate=False, script=requested_script)
-    # print('%s\n%s' % (cols, dbdata))
-    KanWord = [item[cols.index('KanWord')] for item in dbdata]
-    EngWord = [item[cols.index('EngWord')] for item in dbdata]
-    HinWord = [item[cols.index('HinWord')] for item in dbdata]
-    synonyms = (words.split(' ') for words in [r for r in [rec[1] for rec in dbdata] if
-                                               AmaraKosha_Database_Queries.iscii_unicode(amaraWord, script=requested_script) in r.split(' ')])
-    synonyms = to_2dList(list(synonyms)[0], 4)
-    KanWord = [Transliterate.transliterate_lines(item, 'kannada') for item in list(map(lambda i : i or '', KanWord))]
-    HinWord = [Transliterate.transliterate_lines(item, 'devanagari') for item in list(map(lambda i : i or '', HinWord))]
+    cols, dbJanani1 = AmaraKosha_Database_Queries.sqlQuery(qry, param, maxrows=0, duplicate=True, script=requested_script)
+    # print(amaraWord, AmaraKosha_Database_Queries.iscii_unicode(amaraWord))
+    synonyms = []
+    for rec in dbJanani1:
+        wordsJanani1 = rec[cols.index('Words') + 1].split(' ')
+        if amaraWord in wordsJanani1:
+            # print('%s\n%s' % (cols, rec))
+            # print(wordsJanani1, rec[cols.index('ID') + 1])
+            # print([AmaraKosha_Database_Queries.iscii_unicode(word) for word in wordsJanani1])
+            qryMn = 'select * from Janani1 where ID=?'
+            colsMn, dbAmara = AmaraKosha_Database_Queries.sqlQuery(qryMn, str(rec[cols.index('ID') + 1]), maxrows=0, duplicate=False, script=requested_script)
+
+            KanWord = [item[colsMn.index('KanWord')] for item in dbAmara]
+            EngWord = [item[colsMn.index('EngWord')] for item in dbAmara]
+            HinWord = [item[colsMn.index('HinWord')] for item in dbAmara]
+            # synonyms = (words.split(' ') for words in [r for r in [rec[1] for rec in dbJanani1] if AmaraKosha_Database_Queries.iscii_unicode(amaraWord, script=requested_script) in r.split(' ')])
+            synonyms.append(to_2dList(list([AmaraKosha_Database_Queries.iscii_unicode(word, requested_script) for word in wordsJanani1]), 4))
+            KanWord = [Transliterate.transliterate_lines(item, 'kannada') for item in list(map(lambda i: i or '', KanWord))]
+            HinWord = [Transliterate.transliterate_lines(item, 'devanagari') for item in list(map(lambda i: i or '', HinWord))]
+    if synonyms == []:
+        raise RecordNotFound('No Synonyms found in database(Janani1)')
     return synonyms, KanWord, EngWord, HinWord
 def to_2dList(l, n):
     return [l[i:i + n] for i in range(0, len(l), n)]
@@ -389,7 +406,16 @@ def TigantaGeneration(dhatuNo, DhatuVidah, voice, lakara, prefixUpasarga = False
     #     attributes = inspect.getmembers(item, lambda a: not (inspect.isroutine(a)))
     #     print([a for a in attributes if not (a[0].startswith('__') and a[0].endswith('__'))])
     return forms, vacanas, purushas, tigDatas
-
-
+def nishpatthi(amaraWord):
+    qry = 'select Nishpatti from N_Sanskrit N, Amara_Words A where N.IdNo = A.ID and A.Word = ?'
+    # print('amaraword:', amaraWord)
+    cols, dbdata = AmaraKosha_Database_Queries.sqlQuery(qry, param=amaraWord, maxrows=0, duplicate=False)
+    return dbdata
+def vyutpatthi(amaraWord, language='Sanskrit'):
+    table = ['V_Sanskrit', 'V_Hindi', 'V_Odiya'][['Sanskrit', 'Hindi', 'Odiya'].index(language)]
+    qry = 'select Vytpatti from '+ table + ' V, Amara_Words A where V.IdNo = A.ID and A.Word = ?'
+    # print('amaraword:', amaraWord)
+    cols, dbdata = AmaraKosha_Database_Queries.sqlQuery(qry, param=amaraWord, maxrows=0, duplicate=False)
+    return dbdata
 
 

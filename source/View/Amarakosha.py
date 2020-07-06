@@ -666,6 +666,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.modelFinalResults = models.modelFinalResults_DataFrame()
         self.synonymView.setModel(self.modelFinalResults)
         self.synonymsButton.pressed.connect(self.findSynonyms)
+        self.nishpathiButton.pressed.connect(self.Nishpatthi)
+        self.vyutpathiButton.pressed.connect(self.Vyutpatthi)
+        self.lblNishpatthi.setVisible(False)
+        self.txtNishpatthi.setVisible(False)
 
         self.formWidget_2.setVisible(False)
         self.formWidget_4.setVisible(False)
@@ -718,17 +722,45 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.modelDhatus.dataIscii = list(map(lambda item: (False, item[3]), data))
         self.listView.setModel(self.modelDhatus)
         self.modelDhatus.layoutChanged.emit()
+
         self.listView.clicked.connect(self.enableSynonymsButton)
         self.synonymsButton.setText('पर्यायशब्द(Synonyms)')
         self.synonymsButton.setEnabled(False)
+        self.nishpathiButton.setVisible(False)
+        self.nishpathiButton.setEnabled(False)
+        self.lblNishpatthi.setVisible(False)
+        self.txtNishpatthi.setVisible(False)
+
         self.page1Button.setVisible(False)
         self.page2Button.setVisible(False)
         self.page3Button.setVisible(False)
     def enableSynonymsButton(self):
         self.synonymsButton.setEnabled(True)
+        if self.menuItemChosen == 'Amara':
+            self.nishpathiButton.setVisible(True)
+            self.nishpathiButton.setEnabled(True)
+            self.vyutpathiButton.setVisible(True)
+            self.vyutpathiButton.setEnabled(True)
+            self.vyutpathiSelector.setVisible(True)
+            self.vyutpathiSelector.setEnabled(True)
+        else:
+            self.nishpathiButton.setVisible(False)
+            self.nishpathiButton.setEnabled(False)
+            self.vyutpathiButton.setVisible(False)
+            self.vyutpathiButton.setEnabled(False)
+            self.vyutpathiSelector.setVisible(False)
+            self.vyutpathiSelector.setEnabled(False)
     def loadSubanta(self):
         self.menuItemChosen = 'Subanta'
         self.wanted_script = self.scriptSelector.currentIndex()
+        self.nishpathiButton.setVisible(False)
+        self.nishpathiButton.setEnabled(False)
+        self.vyutpathiButton.setVisible(False)
+        self.vyutpathiButton.setEnabled(False)
+        self.vyutpathiSelector.setVisible(False)
+        self.vyutpathiSelector.setEnabled(False)
+        self.lblNishpatthi.setVisible(False)
+        self.txtNishpatthi.setVisible(False)
         self.wanted_script = 0 if self.wanted_script == 5 else self.wanted_script  # ban tamil, always screws up things!
         cols, data = AmaraKosha_Database_Queries.tblSelect('Subanta', maxrows=0, script=self.wanted_script + 1)
         self.modelDhatus.data = list(map(lambda item: (False, item[2]), data))
@@ -745,6 +777,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.menuItemChosen = 'Krdanta'
         self.wanted_script = self.scriptSelector.currentIndex()
         self.wanted_script = 0 if self.wanted_script == 5 else self.wanted_script  # ban tamil, always screws up things!
+        self.nishpathiButton.setVisible(False)
+        self.nishpathiButton.setEnabled(False)
+        self.vyutpathiButton.setVisible(False)
+        self.vyutpathiButton.setEnabled(False)
+        self.vyutpathiSelector.setVisible(False)
+        self.vyutpathiSelector.setEnabled(False)
+        self.lblNishpatthi.setVisible(False)
+        self.txtNishpatthi.setVisible(False)
         qry = 'select * from Sdhatu'
         param = None
         try:
@@ -765,6 +805,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         param = None
         self.wanted_script = self.scriptSelector.currentIndex()
         self.wanted_script = 0 if self.wanted_script == 5 else self.wanted_script  # ban tamil, always screws up things!
+        self.nishpathiButton.setVisible(False)
+        self.nishpathiButton.setEnabled(False)
+        self.vyutpathiButton.setVisible(False)
+        self.vyutpathiButton.setEnabled(False)
+        self.vyutpathiSelector.setVisible(False)
+        self.vyutpathiSelector.setEnabled(False)
+        self.lblNishpatthi.setVisible(False)
+        self.txtNishpatthi.setVisible(False)
         try:
             self.colsSdhatudata, self.Sdhatudata = AmaraKosha_Database_Queries.sqlQuery(qry, param, maxrows=0, script=self.wanted_script + 1)
             self.modelDhatus.data = list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2')]), self.Sdhatudata))
@@ -788,8 +836,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 index = indexes[0]
                 row = index.row()
                 try:
-                    status, amaraWord = self.modelDhatus.dataIscii[row]
-                    synonyms, KanWord, EngWord, HinWord = Kosha_Subanta_Krdanta_Tiganta.Amarakosha(amaraWord, self.wanted_script+1)
+                    status, self.amaraWord = self.modelDhatus.dataIscii[row]
+                    self.Amarasynonyms, KanWord, EngWord, HinWord = Kosha_Subanta_Krdanta_Tiganta.Amarakosha(self.amaraWord, self.wanted_script+1)
                     text = list(map(lambda i : i or '', KanWord))
                     text = [item for item in text if not item=='']
                     self.kannadaEdit.setText('\n'.join(text))
@@ -802,10 +850,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     text = [item for item in text if not item=='']
                     self.hindiEdit.setText('\n'.join(text))
                     self.autoResize(self.hindiEdit)
-                    self.modelFinalResults._data = pandas.DataFrame(synonyms)
+                    self.modelFinalResults._data = pandas.DataFrame(self.Amarasynonyms[0])
+                    for i in range(6):
+                      Button = [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button][i]
+                      Button.setEnabled(False)
+                      Button.setVisible(False)
+                    for i in range(len(self.Amarasynonyms)):
+                      Button = [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button][i]
+                      Button.setEnabled(True)
+                      Button.setVisible(True)
                     self.modelFinalResults.layoutChanged.emit()
                 except Exception as e:
-                    print(e)
+                    # print('%s for amara word %s'%(e, AmaraKosha_Database_Queries.iscii_unicode(amaraWord)))
+                    self.statusBar().showMessage(str('%s for amara word %s'%(e, AmaraKosha_Database_Queries.iscii_unicode(amaraWord, self.wanted_script))))
         elif self.menuItemChosen == 'Subanta':
             self.formWidget_2.setVisible(False)
             self.formWidget_4.setVisible(True)
@@ -921,7 +978,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def displayPage(self):
         try:
             indx = ['page1Button', 'page2Button', 'page3Button', 'page4Button', 'page5Button', 'page6Button'].index(self.sender().objectName())
-            if self.menuItemChosen == 'Krdanta':
+            if self.menuItemChosen == 'Amara':
+                self.modelFinalResults._data = pandas.DataFrame(self.Amarasynonyms[indx])
+            elif self.menuItemChosen == 'Krdanta':
                 self.setTexts(zip([self.txtLinga, self.txtAnta], [self.krdData[indx].linga, self.krdData[indx].anta]))
                 self.modelFinalResults._data = pandas.DataFrame(self.forms[indx * 8: indx * 8 + 8],
                                                                 columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in self.vacanas],
@@ -1038,7 +1097,41 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.page5Button.setVisible(False)
             self.page6Button.setEnabled(False)
             self.page6Button.setVisible(False)
-
+    def Nishpatthi(self):
+        indexes = self.listView.selectedIndexes()
+        if indexes:
+            index = indexes[0]
+            row = index.row()
+            try:
+                status, self.amaraWord = self.modelDhatus.dataIscii[row]
+                nishpatthi = Kosha_Subanta_Krdanta_Tiganta.nishpatthi(self.amaraWord)  # don't ask for non-devanagari script, invalid results!
+                if len(nishpatthi) > 0:
+                    txtNishpatthi = '\n'.join([item[0] for item in nishpatthi])
+                    self.txtNishpatthi.setText(txtNishpatthi)
+                    self.autoResize(self.txtNishpatthi)
+                    self.lblNishpatthi.setVisible(True)
+                    self.txtNishpatthi.setVisible(True)
+                    self.lblNishpatthi.setText('निश्पत्ति')
+            except Exception as e:
+                 self.statusBar().showMessage('Nishpatthi:%s'%e)
+    def Vyutpatthi(self):
+        indexes = self.listView.selectedIndexes()
+        if indexes:
+            index = indexes[0]
+            row = index.row()
+            try:
+                status, self.amaraWord = self.modelDhatus.dataIscii[row]
+                vyupatthi = Kosha_Subanta_Krdanta_Tiganta.vyutpatthi(self.amaraWord,
+                                                                     ['Sanskrit', 'Hindi', 'Odiya'][self.vyutpathiSelector.currentIndex()])
+                if len(vyupatthi) > 0:
+                    txtNishpatthi = '\n'.join([item[0] for item in vyupatthi])
+                    self.txtNishpatthi.setText(txtNishpatthi)
+                    self.autoResize(self.txtNishpatthi)
+                    self.lblNishpatthi.setVisible(True)
+                    self.txtNishpatthi.setVisible(True)
+                    self.lblNishpatthi.setText('व्युत्त्पत्ति')
+            except Exception as e:
+                 self.statusBar().showMessage('Vyutpatthi:%s'%e)
 
 logging.basicConfig(level=logging.DEBUG, filename='../../Amarakosha.log', format='%(asctime)s %(message)s',
                     datefmt='%d/%m/%Y %I:%M:%S %p')
