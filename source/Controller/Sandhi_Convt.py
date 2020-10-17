@@ -823,10 +823,11 @@ def Convt(sufcode):   # copied from old VB code and changed to get the suffix, r
     # print('sufcode % sConvt %i'%(sufcode, res))
     return Suffix[res]
 def Sandhi(inword):
-    # print('iscii %s devanagari %s'%(inword, cli_browse.iscii_unicode(inword)))
+    # print('iscii %s devanagari %s'%(inword, Amarakosha_Database_Queries.iscii_unicode(inword)))
     halanth = chr(232)
     # inword = inword.split()
     outword = ''
+    if inword == '': return ''
     i = 0
     while i < len(inword):
         ch = inword[i]
@@ -903,6 +904,39 @@ def doSandhiofUpasargaAndTigantaForm(tigantaForm, upasarga):
     if upasarga in ["×Ìè", "ÆÛÏè", "ÄÝÏè", "¨Âè"]: sandhiForm = doSandhi2(tigantaForm, upasarga)
     else: sandhiForm = doSandhi1(blast.performBlast(tigantaForm), blast.performBlast(upasarga) )
     return blast.phoneticallyJoin(sandhiForm)
+def visandhi(inword):
+    # print('iscii %s devanagari %s'%(inword, cli_browse.iscii_unicode(inword)))
+    halanth = chr(232)
+    # inword = inword.split()
+    outword = ''
+    i = 0
+    while i < len(inword):
+        ch = inword[i]
+        if ord(ch) in range(164,178): outword+= ch
+        elif ord(ch) in range(179,217):
+            if (i < len(inword) - 1):
+                ch1 = inword[i + 1]
+                outword += ch + halanth
+                if ord(ch1) == halanth: i += 1
+                else:
+                    if ord(ch1) in range(218,231):
+                        i += 1
+                        outword += chr(ord(ch1) - (218 - 165))
+                    else: outword += chr(164)
+            else: i += 1
+        else: outword+= ch
+        i += 1
+    return outword
+def decode(code):
+    if code in range(10): return '0' + str(code)
+    elif code in range(11,36): return '0' + chr(code + 87)
+    else:
+        code, rem = code // 36, code % 36
+        if code in range(10): res = str(code)
+        elif code in range(11, 36): res = chr(code + 87)
+        if rem in range(10): res += str(rem)
+        elif rem in range(10, 36): res += chr(rem + 87)
+        return res
 
 if __name__ == '__main__':
      print(Suffix[0:5], Suffix[234:245])
