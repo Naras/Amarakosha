@@ -1,7 +1,7 @@
 anusvara, visarga, halanth, nukta, virama = 162, 163, 232, 233, 234
 
 def vowelModifierOf(anIndLangVowel):
-    if anIndLangVowel in range(164,179):
+    if ord(anIndLangVowel) in range(164,179):
         return {164:"¤", 165:"Ú", 166:"Û", 167:"Ü", 168:"Ý", 169:"Þ", 170:"ß", 171:"à", 172:"á", 173:"â", 174:"ã", 175:"ä", 176:"å", 177:"æ", 178:"ç"}[ord(anIndLangVowel)]
     else: return anIndLangVowel
 def vowelFor(s):
@@ -46,8 +46,8 @@ def performBlast(s):
     return answer
 def phoneticallyJoin(phoneticallySplitWord):
     output, i = '', 0
-    while i < len(phoneticallySplitWord) - 1:
-        c1, c2 = phoneticallySplitWord[i], phoneticallySplitWord[i+1]
+    while i <= len(phoneticallySplitWord) - 1:
+        c1, c2 = phoneticallySplitWord[i], phoneticallySplitWord[i+1] if i < len(phoneticallySplitWord)-1 else ''
         c = 0 if c1 == '' else ord(c1)
         d = 0 if c2 == '' else ord(c2)
         if c == halanth and d in range(164,179): # halath and vowel
