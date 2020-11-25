@@ -3,7 +3,6 @@ import json
 from source.Controller import Sandhi_Convt, Transliterate, blast
 from source.Controller.Transliterate import transliterate_lines, IndianLanguages
 from source.Model import AmaraKosha_Database_Queries
-from source.Controller import blast
 
 Tganas = ["भ्वादिगणः", "अदादिगणः",  "जुहोत्यादिगणः",  "दिवादिगणः",  "स्वादिगणः",  "तुदादिगणः",  "रुधादिगणः",  "तनादिगणः",  "क्रयादिगणः",  "चुरादिगणः"]
 Tkarmas = ["सकर्मकः", "अकर्मकः",  "द्विकर्मकः"]
@@ -40,8 +39,10 @@ class krdData:
         self.combinedM = None  # SDhatu.field10
         self.wtype = None
         self.pratyayaVidhah = None
+        self.karmaCode = None
         self.karma = None
         self.meaning = None
+        self.vibvach = None
         self.vacana = None
         self.vibhakti = None
         self.sabda = None      #KRUD.field3
@@ -49,6 +50,7 @@ class krdData:
         self.det = None        #KRUD.field2
         self.ddet = None        #KRUD.field4
         self.Dno = None        #int(KRUD.Field5)
+        self.CombinedM = None  #KRUD.field10
     def get(self):
         return {'linga':self.linga, 'verb':self.verb, 'nijverb':self.nijverb, 'sanverb':self.sanverb, 'GPICode':self.GPICode, 'gana':self.gana,
                 'padi':self.padi, 'it':self.it, 'dhatuVidhah':self.dhatuVidhah, 'krdantaVidhah':self.krdantaVidhah, 'combinedM':self.combinedM,
@@ -253,22 +255,27 @@ def getAnalysedinfo(krdDetail, dhatuNo, requested_script=1):
         cols, dataAnalysed = AmaraKosha_Database_Queries.sqlQuery(qry, dhatuNo, maxrows=0)
     # print('getAnalysedinfo cols %s\nData Analysed %s'%(cols, dataAnalysed))
     # for item in dataAnalysed:
-    arthas, karmas = [], []
+    arthas, karmas, arthas_iscii = [], [], []
     for item in dataAnalysed:  # there will be only one record!
         krdDetail.verb = item[cols.index('Field2')]
         krdDetail.nijverb = transliterate_lines(item[cols.index('Field3')], IndianLanguages[requested_script - 1])
         krdDetail.sanverb = transliterate_lines(item[cols.index('Field4')], IndianLanguages[requested_script - 1])
+        krdDetail.verb_iscii, krdDetail.nijverb_iscii, krdDetail.sanverb_iscii = item[cols.index('Field2')+1], item[cols.index('Field3')+1], item[cols.index('Field4')+1]
         krdDetail.GPICode = item[cols.index('Field9')]
         krdDetail.gana = transliterate_lines(Tganas[int(krdDetail.GPICode[0])], IndianLanguages[requested_script - 1])
         krdDetail.padi = transliterate_lines(Tpadis[int(krdDetail.GPICode[1]) - 1], IndianLanguages[requested_script - 1])
         krdDetail.it = transliterate_lines(Tyits[int(krdDetail.GPICode[2]) - 1], IndianLanguages[requested_script - 1])
-        krdDetail.combinedM = item[cols.index('Field10')]
+        krdDetail.CombinedM = item[cols.index('Field10')]
         arthas_karmas = item[cols.index('Field8')].split('/')
+        arthas_karmas_iscii = item[cols.index('Field8')+1].split('/')
         # print('getAnalysedinfo arthas_karmas %s'%arthas_karmas)
         arthas += [transliterate_lines(word[:-2], Transliterate.IndianLanguages[requested_script - 1]) for word in arthas_karmas]
-        karmaIndex = [int(word[len(word)-1]) - 1 for word in arthas_karmas]
-        karmas += [transliterate_lines(Tkarmas[karma], Transliterate.IndianLanguages[requested_script - 1]) for karma in karmaIndex if karma < len(Tkarmas)]
+        arthas_iscii += [word[:-2] for word in arthas_karmas_iscii]
+        karmaCodes = [int(word[len(word)-1]) - 1 for word in arthas_karmas]
+        krdDetail.karmaCode = ''.join([str(code) for code in karmaCodes])
+        karmas += [transliterate_lines(Tkarmas[karma], Transliterate.IndianLanguages[requested_script - 1]) for karma in karmaCodes if karma < len(Tkarmas)]
         krdDetail.meaning = ' '.join(arthas)
+        krdDetail.meaning_iscii = ' '.join(arthas_iscii)
         krdDetail.karma = ' '.join(karmas)
     return krdDetail
 def krdanta_SortedList_KrDantavyayam(dhatuNo, DhatuVidah, KrdantaVidah, KrdMode, dataDhatu, cols_dataDhatu, requested_script=1):
@@ -373,8 +380,12 @@ def subanta_Analysis(word, requested_script=1):
                                         for tstr in subformItem.split('/'):
                                             if Sandhi_Convt.Sandhi(subDetailsRec.erb + tstr) == word:
                                                 subDetail = subantaDetails()
+                                                subDetail.vibvach = subformItemNo
                                                 subDetail.vib = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.vibstr[subformItemNo // 3], requested_script)
                                                 subDetail.vach = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.vachstr[subformItemNo % 3], requested_script)
+                                                subDetail.base = subantaDetailRec[cols_subanta.index('Base') + 1]
+                                                subDetail.erb = subantaDetailRec[cols_subanta.index('Erb') + 1]
+                                                subDetail.det = subantaDetailRec[cols_subanta.index('Code') + 1]
                                                 for entry in Sandhi_Convt.antas:
                                                     if subantaDetailRec[cols_subanta.index('Code')][0] == entry[0]:
                                                         subDetail.anta = entry[2]  # equivalent of Right$(antas(i), Len(antas(i)) - 2) in VB code
@@ -398,7 +409,10 @@ def subanta_Analysis(word, requested_script=1):
              subforms_with_sandhi[12:15], subforms_with_sandhi[15:18], subforms_with_sandhi[18:21],
              # subforms_with_sandhi[21:24]]
              list(map(lambda word: 'हे ' + word, subforms_with_sandhi[0:3]))]
-        return forms, subDetail.anta, subDetail.linga, subforms_with_sandhi[0], subDetail.vib, subDetail.vach
+        # for wids, subDet in enumerate(subDetails):
+
+        return forms, subDetail.anta, subDetail.linga, subforms_with_sandhi[0], subDetail.vib, subDetail.vach, \
+               subDetail.base, subDetail.erb, subDetail.det, subDetail.vibvach
 def krdanta_Analysis(word, requested_script=1):
     word_visandhi = Sandhi_Convt.visandhi(word)
     halanth = chr(232)
@@ -436,12 +450,16 @@ def krdanta_Analysis(word, requested_script=1):
                                     for tstr in subformItem.split('/'):
                                         if Sandhi_Convt.Sandhi(krdAnalyDetail.erb + tstr) == word:
                                             krdDetail = krdData()
+                                            krdDetail.vibvach = subformItemNo
                                             krdDetail.vib = Sandhi_Convt.vibstr[subformItemNo // 3]
                                             krdDetail.vach = Sandhi_Convt.vachstr[subformItemNo % 3]
                                             krdDetail.sabda = transliterate_lines(krdDetailRec[cols_krdanta.index('Field3')], IndianLanguages[requested_script-1])
                                             krdDetail.erb = krdDetailRec[cols_krdanta.index('Field1')]
+                                            krdDetail.sabda_iscii = krdDetailRec[cols_krdanta.index('Field3')+1]
+                                            krdDetail.erb_iscii = krdDetailRec[cols_krdanta.index('Field1')+1]
                                             krdDetail.det = krdDetailRec[cols_krdanta.index('Field2')]
                                             krdDetail.ddet = krdDetailRec[cols_krdanta.index('Field4')]
+                                            krdDetail.Dno = krdDetailRec[cols_krdanta.index('Field5')]
                                             krdDetail.linga = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.lingas[int(code[1])], requested_script)
                                             for entry in Sandhi_Convt.antas:
                                                 if code[0] == entry[0]:
@@ -496,7 +514,7 @@ def tiganta_Analysis(word, requested_script=1):
         for tiggen in data_stinnew:
             dhatu = tiggen[cols_stinnew.index('Field2')]
             suffixStr = tiggen[cols_stinnew.index('Field3')]
-            for s, sufwrd in enumerate(suffixStr.split(' ')):  #VB Function SearcForSuffix
+            for sufwrd in suffixStr.split(' '):  #VB Function SearcForSuffix
                 start = 1 if (dhatu==2 and sufwrd[0:1]=='O1') else 2
                 scode = sufwrd[start:]
                 qry = 'select * from stinsuf where Field1=?'
@@ -504,9 +522,9 @@ def tiganta_Analysis(word, requested_script=1):
                 # print('tigAnaly 3 scode %s cols_stinsuf %s data_stinsuf %s' % (scode, cols_stinsuf, data_stinsuf))
                 for sufrec in data_stinsuf:
                     for sufxStr in sufrec[cols_stinsuf.index('Field2')+1].split('/'):
-                        for sufx in sufxStr.split(' '):
+                        for s, sufx in enumerate(sufxStr.split(' ')):
                           if sufx == tiggenData.tigsuf:
-                            tigData = WriteAnalysedInformation(sufwrd, dhatu, s, word, tiggen[cols_stinnew.index('Field1')])
+                            tigData = WriteAnalysedInformation(sufwrd, dhatu, s, word, tiggen[cols_stinnew.index('Field1')+1])
                             tigDatas.append(tigData)
                             tigResform = genTigforms(sufwrd, tigData, tiggenData, tigData.dhatuVidah, tigData.voice, tigData.lakara, requested_script)
                             tigResforms.append(tigResform)
@@ -522,23 +540,27 @@ def WriteAnalysedInformation(pralak, dhatuNo, purvach, word, base, requested_scr
     # tigDatas = []
     for tigDetRec in data_sdhatu:
         tigData = tigantaData()
-        tigData.base = base
+        tigData.base, tigData.base_iscii = AmaraKosha_Database_Queries.iscii_unicode(base), base
         tigData.Dno = tigDetRec[cols_sdhatu.index('Field1')]
         tigData.tigform = word
         tigData.verb = tigDetRec[cols_sdhatu.index('Field2')]
         tigData.nijverb = tigDetRec[cols_sdhatu.index('Field3')]
         tigData.sanverb = tigDetRec[cols_sdhatu.index('Field4')]
+        tigData.verb_iscii = tigDetRec[cols_sdhatu.index('Field2')+1]
+        tigData.nijverb_iscii = tigDetRec[cols_sdhatu.index('Field3')+1]
+        tigData.sanverb_iscii = tigDetRec[cols_sdhatu.index('Field4')+1]
         tigData.GPICode = tigDetRec[cols_sdhatu.index('Field9')]
         tigData.CombinedM = tigDetRec[cols_sdhatu.index('Field10')]
         tigData.pralak = pralak
+        tigData.purvach = purvach + 1
         tigData.purusha = purushas[purusha]
         tigData.vacana = vacanas[vacana]
         tigData.meaning, tigData.karma = '', ''
         for arthas_karmas in tigDetRec[cols_sdhatu.index('Field8')+1].split('/'):
             tigData.meaning += arthas_karmas + '/'
             karmaIndex = int(arthas_karmas[len(arthas_karmas) - 1]) - 1
-            tigData.karma += transliterate_lines(Tkarmas[karmaIndex],
-                                                 Transliterate.IndianLanguages[requested_script - 1])
+            tigData.karmaCode = karmaIndex + 1
+            tigData.karma += transliterate_lines(Tkarmas[karmaIndex], Transliterate.IndianLanguages[requested_script - 1])
         tigData.gana = Tganas[int(tigData.GPICode[0])]
         tigData.padi = Tpadis[int(tigData.GPICode[1]) - 1]
         tigData.it = Tyits[int(tigData.GPICode[2]) - 1]
@@ -566,13 +588,15 @@ class tigantaData:
         self.gana = None
         self.padi = None
         self.it = None
-        # self.dhatuVidhah = None
+        self.karmaCode = None
         self.karma = None
         self.meaning = None
+        self.purvach = None
         self.vacana = None
         self.purusha = None
         self.base = None
         self.dhatuVidah = None
+        self.pralak = None
         self.lakara = None
         self.Dno = None
         self.combinedM = None
@@ -702,5 +726,11 @@ def vyutpatthi(amaraWord, language='Sanskrit'):
     # print('amaraword:', amaraWord)
     cols, dbdata = AmaraKosha_Database_Queries.sqlQuery(qry, param=amaraWord, maxrows=0, duplicate=False)
     return dbdata
-
-
+def avyayaAnalysis(word, requested_script=1):
+    qry = 'select * from avyaya where field2=?'
+    cols, avySuffix = AmaraKosha_Database_Queries.sqlQuery(qry, param=word, maxrows=0, script=requested_script)
+    avyayas =[]
+    for avyaya in avySuffix:
+        avyaya.inpword = word
+        avyaya.Avycode = avySuffix[cols.index('Field1') + 1]
+        avyayas.append(avyaya)

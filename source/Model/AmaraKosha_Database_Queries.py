@@ -1,9 +1,9 @@
-import logging
+import os
 
 import pyodbc
 from iscii2utf8 import *
 
-conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=..\..\wordsdata.mdb;')
+conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + os.getcwd() + '\wordsdata.mdb;')
 # conn = pyodbc.connect('DSN=Amarakosha')
 cursor = conn.cursor()
 rowcursor = conn.cursor()
@@ -145,5 +145,9 @@ if __name__ == '__main__':
     # cols,lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
     # print('%s\n%s'%(cols, lines))
 
-    cols,lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?',(383, "1A"))
+    # cols,lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?',(383, "1A"))
+    # print('%s\n%s'%(cols, lines))
+
+    cols,lines = sqlQuery('Select * from Subfin where Finform = ?', "ÏÚÌ£")
     print('%s\n%s'%(cols, lines))
+

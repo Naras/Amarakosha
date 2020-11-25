@@ -1,18 +1,17 @@
 # import inspect
 import logging
-import sys
+import sys, os
 
 import pandas
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtGui import QFontMetrics
-from PyQt5.QtWidgets import QDialog, QPushButton, QVBoxLayout, QRadioButton, QGridLayout, QGroupBox, QHBoxLayout, \
-    QListView, QFileDialog
-
+from PyQt5.QtWidgets import QDialog, QPushButton, QVBoxLayout, QRadioButton, QGridLayout, QGroupBox, QHBoxLayout, QListView, QFileDialog
+# sys.path.append(os.getcwd())
 from source.Controller import Kosha_Subanta_Krdanta_Tiganta
 from source.Controller.Transliterate import *
 from source.Model import AmaraKosha_Database_Queries, models
 
-qt_creator_file = "amara_uiComposition.xml"
+qt_creator_file = os.path.join(os.getcwd(), "source/View", "amara_uiComposition.xml")
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qt_creator_file)
 class modalDialog_Krdanta(QDialog):
     def __init__(self, parent, krdantaWord, requested_script):
@@ -1011,12 +1010,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 try:
                     self.subforms, self.tigforms, self.krdforms = [], [], []
                     self.Subantas, self.Krdantas, self.Tigantas = [], [], []
-                    for word in base.split(' '):
+                    syntaxInputFile = []
+                    for i, word in enumerate(base.split(' ')):
+                        wids = 1
                         try:
-                            forms, anta, linga, rupam, vibhakti, vacana = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word, self.wanted_script+1)
+                            forms, anta, linga, rupam, vibhakti, vacana, base, erb, det, vibvach = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word, self.wanted_script+1)
                             if not forms==[]:
                                 self.subforms += forms
                                 self.Subantas.append([rupam, anta, linga, vibhakti, vacana])
+                                syntaxInputFile.append([i, word, wids, 1, base, erb, det, vibvach+1])
+                                wids += 1
                             self.setTexts(zip([self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
                                                self.lblSaniDhatu, self.txtSaniDhatu, self.lblGana, self.txtGana],
                                 [rupam, 'अंतः', anta, 'लिंगः', linga, 'विभक्तिः', vibhakti, 'वचनः', vacana]))
@@ -1043,15 +1046,29 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                             control.setEnabled(True)
                             control.setVisible(True)
                         try:
-                            forms, tigData = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word, self.wanted_script + 1)
-                            if not forms==[]:
-                                self.tigforms += forms
-                            if not tigData == []: self.Tigantas.append(tigData)
+                            forms, tigDatas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word, self.wanted_script + 1)
+                            if not forms==[]: self.tigforms += forms
+                            if not tigDatas == []:
+                                self.Tigantas.append(tigDatas)
+                                for tigData in tigDatas:
+                                    syntaxInputFile.append([i, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
+                                                            tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning,
+                                                            tigData.GPICode, tigData.pralak, tigData.purvach,
+                                                            tigData.CombinedM, tigData.karmaCode])
+                                    wids += 1
                             # print('UI-Analysis tigforms %s'%self.tigforms)
                             forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word, self.wanted_script + 1)
-                            if not forms==[]:
-                                self.krdforms += forms
-                            if not krdData == []: self.Krdantas.append(krdData)
+                            if not forms==[]: self.krdforms += forms
+                            if not krdData == []:
+                                self.Krdantas.append(krdData)
+                                for krdDetail in krdData:
+                                    syntaxInputFile.append(
+                                        [i, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
+                                         krdDetail.vibvach + 1, krdDetail.ddet,
+                                         krdDetail.Dno, krdDetail.verb_iscii, krdDetail.nijverb_iscii,
+                                         krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode,
+                                         krdDetail.CombinedM, krdDetail.karmaCode])
+                                    wids += 1
                             # print('UI-Analysis krdforms %s'%self.krdforms)
                         except Exception as e:
                             print(e)
@@ -1060,6 +1077,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     # for krdData in self.Krdantas:
                     #     for item in krdData: print('UI-Analysis krdanta Details %s'%item.get())
                     # print('UI-Analysis subanta %i %s\ntiganta %i %s\nkrdanta %i %s'%(len(self.subforms), self.subforms, len(self.tigforms), self.tigforms, len(self.krdforms), self.krdforms))
+                    # for sub_tig_krd in syntaxInputFile: print(sub_tig_krd)
                 except Exception as e:
                     self.statusBar().showMessage(str(e))
         else: raise NameError('Invalid Category')
@@ -1126,8 +1144,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                          self.txtGana, self.txtPadi, self.txtKarma, self.txtIt, self.txtDhatuVidah,
                          self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara],
                         [transliterate_lines(txt, IndianLanguages[self.wanted_script]) for txt in
-                         [self.Tigantas[indx-1][0].verb, self.Tigantas[indx-1][0].base,self.Tigantas[indx-1][0].sanverb,
-                          self.Tigantas[indx-1][0].nijverb, self.Tigantas[indx-1][0].gana,self.Tigantas[indx-1][0].padi, self.Tigantas[indx-1][0].karma,
+                         [self.Tigantas[indx-1][0].verb, self.Tigantas[indx-1][0].base,self.Tigantas[indx-1][0].nijverb,
+                          self.Tigantas[indx-1][0].sanverb, self.Tigantas[indx-1][0].gana,self.Tigantas[indx-1][0].padi, self.Tigantas[indx-1][0].karma,
                           self.Tigantas[indx-1][0].it,self.Tigantas[indx-1][0].dhatuVidah, self.Tigantas[indx-1][0].voice, self.Tigantas[indx-1][0].lakara]]
                     ))
                     self.lblPratyaya_lakara.setText(transliterate_lines('लकारः', IndianLanguages[self.wanted_script]))
