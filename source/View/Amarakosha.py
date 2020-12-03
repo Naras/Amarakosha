@@ -853,7 +853,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.resetToolbarItems()
         self.analysisAction.setChecked(True)
         self.wanted_script = self.scriptSelector.currentIndex()
-        fname = QFileDialog.getOpenFileName(self, 'Open file', 'I:/VMBox-Shared-WinXP-VB/ChaamiMaama/Narasimhan/all_in_one_DAO/Bandarkar')
+        fname = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
         if fname[0]:
             f = open(fname[0], 'r')
             self.synonymsButton.setText('ಪದರೂಪ ವಿಶ್ಲೇಷಣೆ(Morphological Analysis)')
