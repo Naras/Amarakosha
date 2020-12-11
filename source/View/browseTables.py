@@ -1,10 +1,13 @@
-import sys
+import os, sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt
-from source.Model import AmaraKosha_Subanta_Krdanta_Queries
+sys.path.append(os.getcwd())
+from source.Model import AmaraKosha_Database_Queries
+from source.Controller import Transliterate
 import pandas
 
-qt_creator_file = "browseTables_uiComposition.xml"
+from source.Model.AmaraKosha_Database_Queries import isascii
+qt_creator_file = os.path.join(os.getcwd(), "source/View", "browseTables_uiComposition.xml")
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qt_creator_file)
 tick = QtGui.QImage('tick.png')
 
@@ -89,18 +92,30 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def load(self):
         try:
-            self.modelTable.tables = list(map(lambda x: (False,x), AmaraKosha_Subanta_Krdanta_Queries.schemaParse()))
+            self.modelTable.tables = list(map(lambda x: (False,x), AmaraKosha_Database_Queries.schemaParse()))
         except Exception as e:
             print(e)
     def browseTable(self):
+        scriptSelect = self.languageSelector.currentIndex()
         indexes = self.tableView.selectedIndexes()
         if indexes:
             index = indexes[0]
             row = index.row()
-            status,self.tbl = self.modelTable.tables[row]
+            status, self.tbl = self.modelTable.tables[row]
             # self.modelContent._data = list(cli_browse.tblSelect(tbl))
-            self.cols, dbdata = AmaraKosha_Subanta_Krdanta_Queries.tblSelect(self.tbl, maxrows=5, duplicate=False)
+            self.cols, dbdata = AmaraKosha_Database_Queries.tblSelect(self.tbl, maxrows=0, duplicate=True) #, script=int(scriptSelect)+1)
             # print('%s\n%s' % (cols, dbdata))
+            # try:
+            #     rows = []
+            #     for item in dbdata:
+            #         rowofcols = []
+            #         for col in item:
+            #             if isascii(str(col)): x = col
+            #             else: x = Transliterate.transliterate_lines(col, Transliterate.IndianLanguages[scriptSelect])
+            #             rowofcols.append(x)
+            #         rows.append(rowofcols)
+            # except Exception as e:
+            #     print(e)
             self.modelContent._data = pandas.DataFrame(dbdata,columns=self.cols)
             self.modelContent.layoutChanged.emit()
     def detectCell(self, item):
@@ -117,12 +132,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         qry = 'delete * from ' + self.tbl + ' where ' + self.colname + '=?'
         print('sql qry = %s id=%s'%(qry, self.rowId))
         try:
-            delcursor = AmaraKosha_Subanta_Krdanta_Queries.conn.cursor()
+            delcursor = AmaraKosha_Database_Queries.conn.cursor()
             delcursor.execute(qry, self.rowId)
             delcursor.commit
             delcursor.close()
             qry = 'select * from ' + self.tbl + ' where ' + self.colname + '=?'
-            cols, result = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, param = self.rowId, duplicate=False)
+            cols, result = AmaraKosha_Database_Queries.sqlQuery(qry, param=self.rowId, duplicate=False)
             print('cols %s\nresult %s'%(cols,result))  # should be empty
         except Exception as e:
             print(e)
@@ -131,13 +146,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         qry = 'delete * from ' + self.tbl + ' where ' + self.colname + ' between ' + self.deleteFrom.text() + ' and ' + self.deleteTo.text()
         print('sql qry = %s'%(qry))
         try:
-            delcursor = AmaraKosha_Subanta_Krdanta_Queries.conn.cursor()
+            delcursor = AmaraKosha_Database_Queries.conn.cursor()
             delcursor.execute(qry)
             delcursor.commit
             delcursor.close()
             qry = 'select * from ' + self.tbl + ' where ' + self.colname + ' between ' + self.deleteFrom.text() + ' and ' + self.deleteTo.text()
-            cols, result = AmaraKosha_Subanta_Krdanta_Queries.sqlQuery(qry, duplicate=False)
+            cols, result = AmaraKosha_Database_Queries.sqlQuery(qry, duplicate=False)
             print('cols %s\nresult %s'%(cols,result))  # should be empty
+            self.deleteFrom.setText('?')
+            self.deleteTo.setText('?')
         except Exception as e:
             print(e)
 

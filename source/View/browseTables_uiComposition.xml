@@ -21,6 +21,18 @@
        </layout></widget></item>
      <item><widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
+         <item><widget class="QComboBox" name="languageSelector">
+           <property name="geometry"><rect><x>90</x><y>50</y><width>141</width><height>22</height></rect></property>
+           <item><property name="text"><string>Devanagari</string></property></item>
+           <item><property name="text"><string>Bengali/Assamese</string></property></item>
+           <item><property name="text"><string>Gurumukhi</string></property></item>
+           <item><property name="text"><string>Gujarati</string></property></item>
+           <item><property name="text"><string>Odiya</string></property></item>
+           <item><property name="text"><string>Tamizh</string></property></item>
+           <item><property name="text"><string>Telugu</string></property></item>
+           <item><property name="text"><string>Kannada</string></property></item>
+           <item><property name="text"><string>Malayalam</string></property></item>
+      </widget></item>
        <item><widget class="QPushButton" name="browseButton"><property name="text"><string>Browse</string></property></widget></item>
        <item><widget class="QPushButton" name="deleteButton"><property name="text"><string>Delete row</string></property></widget></item>
        <item><widget class="QPushButton" name="deleteRowsButton"><property name="text"><string>Delete many rows</string></property></widget></item>

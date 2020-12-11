@@ -6,7 +6,7 @@ import pandas
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtWidgets import QDialog, QPushButton, QVBoxLayout, QRadioButton, QGridLayout, QGroupBox, QHBoxLayout, QListView, QFileDialog
-# sys.path.append(os.getcwd())
+sys.path.append(os.getcwd())
 from source.Controller import Kosha_Subanta_Krdanta_Tiganta
 from source.Controller.Transliterate import *
 from source.Model import AmaraKosha_Database_Queries, models

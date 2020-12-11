@@ -1,10 +1,8 @@
 import os
 
-import pyodbc
+import peewee
 from iscii2utf8 import *
-
-conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + os.getcwd() + '\wordsdata.mdb;')
-# conn = pyodbc.connect('DSN=Amarakosha')
+conn = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
 cursor = conn.cursor()
 rowcursor = conn.cursor()
 maxrows = 5
@@ -37,23 +35,21 @@ def iscii_unicode(iscii_string, script=1):
     # y = x[n:]
     return ''.join([ch for ch in mypar.write_output()])
 def schemaParse():
-    conn = pyodbc.connect(
-        r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=I:\VMBox-Shared-WinXP-VB\ChaamiMaama\Narasimhan\all_in_one_DAO\wordsdata.mdb;')
-    # conn = pyodbc.connect('DSN=Amarakosha')
-    cursor = conn.cursor()
+    cursor = conn.get_tables()
     mypar = Parser()
     mypar.set_script(1)
     tbls = []
-    for row in cursor.tables():
-        if not (str(row.table_name).startswith("MSys") or str(row.table_name).startswith("Con")):
-            tbls.append(row.table_name)
+    for row in cursor:
+        tbls.append(row)
     return tbls
 def sqlQuery(sql, param=None, maxrows=5, duplicate=True, script=1):
     # lstParam = [x for x in param] if isinstance(param,tuple) else param
     # print('sql=%s param=%s'%(sql, lstParam))
     current = 0
-    if param==None: rowcursor.execute(sql)
-    else:    rowcursor.execute(sql, param)
+    if param==None: rowcursor = conn.execute_sql(sql)
+    else:
+        if not isinstance(param,tuple): param = (param,)
+        rowcursor = conn.execute_sql(sql, param)
     try:
         result = []
         for r in rowcursor.fetchall():
@@ -79,7 +75,7 @@ def sqlQuery(sql, param=None, maxrows=5, duplicate=True, script=1):
     return columns, result
 def tblSelect(table_name,maxrows=5,duplicate=True, script=1):
     current = 0
-    rowcursor.execute('select * from ' + table_name)
+    rowcursor = conn.execute_sql('select * from ' + table_name)
     try:
         tbl = []
         for r in rowcursor.fetchall():
@@ -127,27 +123,17 @@ def tblSelect(table_name,maxrows=5,duplicate=True, script=1):
     # tblDF.at[i, k] = iscii_unicode(str(v))
     # print(tblDF.head())
     '''
-
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG, filename='../../Amarakosha.log', format='%(asctime)s %(message)s',
-                        datefmt='%d/%m/%Y %I:%M:%S %p')
-    # table_names = schemaParse()
-    # for tbl in ['Amara_Words']: # table_names:
-    #     cols, tbl = tblSelect(tbl)
-    #     print('%s\n%s'%(cols, tbl))
-
-    # cols,lines = sqlQuery('select * from upacode where DhatuNo = ?',"383")
-    # print('%s\n%s'%(cols, lines))
-
-    # cols,lines = sqlQuery('select * from Sdhatu where field9 like ?', '_2_',duplicate=False) #×èÔÏè
-    # print('%s\n%s'%(cols, lines))
-
-    # cols,lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
-    # print('%s\n%s'%(cols, lines))
-
-    # cols,lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?',(383, "1A"))
-    # print('%s\n%s'%(cols, lines))
-
-    cols,lines = sqlQuery('Select * from Subfin where Finform = ?', "ÏÚÌ£")
+    cols,lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
     print('%s\n%s'%(cols, lines))
+
+    cols, lines = sqlQuery('Select * from SubFin where Finform = ?', "ÏÚÌ£")
+    print('%s\n%s' % (cols, lines))
+
+    cols, lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?', (383, "1A"))
+    print('%s\n%s' % (cols, lines))
+
+    tbls = schemaParse()
+    print('tables %s' % tbls)
+
 
