@@ -1,4 +1,4 @@
-import json
+import json #, icecream as ic
 
 from source.Controller import Sandhi_Convt, Transliterate, blast
 from source.Controller.Transliterate import transliterate_lines, IndianLanguages
@@ -54,8 +54,8 @@ class krdData:
     def get(self):
         return {'linga':self.linga, 'verb':self.verb, 'nijverb':self.nijverb, 'sanverb':self.sanverb, 'GPICode':self.GPICode, 'gana':self.gana,
                 'padi':self.padi, 'it':self.it, 'dhatuVidhah':self.dhatuVidhah, 'krdantaVidhah':self.krdantaVidhah, 'combinedM':self.combinedM,
-                'wtype':self.wtype, 'pratyayaVidhah':self.pratyayaVidhah, 'karma':self.karma, 'meaning':self.meaning, 'vacana':self.vacana,
-                'vibhakti':self.vibhakti, 'sabda':self.sabda, 'erb':self.erb, 'det':self.det, 'ddet':self.ddet, 'Dno':self.Dno}
+                'wtype':self.wtype, 'pratyayaVidhah':self.pratyayaVidhah, 'karma':self.karma, 'meaning':self.meaning, 'vibvach':self.vibvach,
+                'vacana':self.vacana, 'vibhakti':self.vibhakti, 'sabda':self.sabda, 'erb':self.erb, 'det':self.det, 'ddet':self.ddet, 'Dno':self.Dno}
     def __str__(self):
         return json.dumps(self.get())
 class krdAnalyData:
@@ -313,6 +313,7 @@ def krdanta_SortedList_KrDantavyayam(dhatuNo, DhatuVidah, KrdantaVidah, KrdMode,
 
 def subanta_Analysis(word, requested_script=1):
     # print('word %s %s'%(word, AmaraKosha_Database_Queries.iscii_unicode(word)))
+    if word != '' and ord(word[len(word) - 1]) == 162: word = word[:len(word) - 1] + 'Ìè'
     qry ='select * from subfin where Finform=?'
     cols_subfin, dbdata_subfin = AmaraKosha_Database_Queries.sqlQuery(qry, word, maxrows=0, script=requested_script)
     for row in dbdata_subfin:
@@ -340,6 +341,7 @@ def subanta_Analysis(word, requested_script=1):
                     subDetail.erb = None
                     subDetails.append(subDetail)
     word_visandhi = Sandhi_Convt.visandhi(word)
+    # ic.ic(word, word_visandhi, AmaraKosha_Database_Queries.iscii_unicode(word),AmaraKosha_Database_Queries.iscii_unicode(word_visandhi))
     # print('subAnaly-visandhi %s %s'%(word_visandhi,AmaraKosha_Database_Queries.iscii_unicode(word_visandhi)))
     halanth = chr(232)
     subDetails = []
@@ -352,12 +354,14 @@ def subanta_Analysis(word, requested_script=1):
             # print('subAnaly erb %s -> %s(%s) suf %s -> %s(%s)'%(word_visandhi[:-(i+1)], subDetail.erb, AmaraKosha_Database_Queries.iscii_unicode(subDetail.erb), word_visandhi[len(word_visandhi)-(i+1):], subDetail.suf, AmaraKosha_Database_Queries.iscii_unicode(subDetail.suf)))
             # splits += 1
             subDetails.append(subDetail)
+    # ic.ic([AmaraKosha_Database_Queries.iscii_unicode(det.erb) for det in subDetails], [[det.suf,AmaraKosha_Database_Queries.iscii_unicode(det.suf)] for det in subDetails])
     subforms_with_sandhi = []
     for subDetailsRec in subDetails:
         # print('subAnaly erb %s(%s) suf %s(%s)' % (subDetailsRec.erb, AmaraKosha_Database_Queries.iscii_unicode(subDetailsRec.erb), subDetailsRec.suf, AmaraKosha_Database_Queries.iscii_unicode(subDetailsRec.suf)))
         for j, scode in enumerate(Sandhi_Convt.Suffix):
             if scode != '' and subDetailsRec.suf == scode:
                 chCode = Sandhi_Convt.decode(j)
+                # ic.ic(j, scode, AmaraKosha_Database_Queries.iscii_unicode(scode), chCode)
                 qry = 'select * from subanta where erb = ?'
                 if "'" in subDetailsRec.erb:
                     param = subDetailsRec.erb.split("'")
@@ -451,8 +455,8 @@ def krdanta_Analysis(word, requested_script=1):
                                         if Sandhi_Convt.Sandhi(krdAnalyDetail.erb + tstr) == word:
                                             krdDetail = krdData()
                                             krdDetail.vibvach = subformItemNo
-                                            krdDetail.vib = Sandhi_Convt.vibstr[subformItemNo // 3]
-                                            krdDetail.vach = Sandhi_Convt.vachstr[subformItemNo % 3]
+                                            krdDetail.vibhakti = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.vibstr[subformItemNo // 3])
+                                            krdDetail.vacana = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.vachstr[subformItemNo % 3])
                                             krdDetail.sabda = transliterate_lines(krdDetailRec[cols_krdanta.index('Field3')], IndianLanguages[requested_script-1])
                                             krdDetail.erb = krdDetailRec[cols_krdanta.index('Field1')]
                                             krdDetail.sabda_iscii = krdDetailRec[cols_krdanta.index('Field3')+1]
@@ -481,7 +485,7 @@ def krdanta_Analysis(word, requested_script=1):
         forms += [subforms_with_sandhi[indx:indx+3], subforms_with_sandhi[indx+3:indx+6],subforms_with_sandhi[indx+6:indx+9],
                   subforms_with_sandhi[indx+9:indx+12],subforms_with_sandhi[indx+12:indx+15], subforms_with_sandhi[indx+15:indx+18],
                   subforms_with_sandhi[indx+18:indx+21], subforms_with_sandhi[indx+21:indx+24]]
-
+    # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(word), len(subforms_with_sandhi), subforms_with_sandhi, len(forms), forms)
     return forms, krdDetails
 def tiganta_Analysis(word, requested_script=1):
     halanth = chr(232)
@@ -601,11 +605,10 @@ class tigantaData:
         self.Dno = None
         self.combinedM = None
         self.voice = None
-
     def get(self):
         return {'tigform':self.tigform, 'verb':self.verb, 'nijverb':self.nijverb, 'sanverb':self.sanverb, 'GPICode':self.GPICode, 'gana':self.gana,
                 'padi':self.padi, 'it':self.it, 'dhatuVidah':self.dhatuVidah, 'karma':self.karma,
-                'meaning':self.meaning, 'vacana':self.vacana, 'purusha':self.purusha, 'lakaras':self.lakara}
+                'meaning':self.meaning, 'vacana':self.vacana, 'purusha':self.purusha, 'purvach':self.purvach, 'lakaras':self.lakara}
     def __str__(self):
         return json.dumps(self.get())
 class tigResult:

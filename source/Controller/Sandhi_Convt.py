@@ -929,11 +929,11 @@ def visandhi(inword):
     return outword
 def decode(code):
     if code in range(10): return '0' + str(code)
-    elif code in range(11,36): return '0' + chr(code + 87)
+    elif code in range(10,36): return '0' + chr(code + 87)
     else:
         code, rem = code // 36, code % 36
         if code in range(10): res = str(code)
-        elif code in range(11, 36): res = chr(code + 87)
+        elif code in range(10, 36): res = chr(code + 87)
         if rem in range(10): res += str(rem)
         elif rem in range(10, 36): res += chr(rem + 87)
         return res

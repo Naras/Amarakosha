@@ -42,6 +42,9 @@ class modelFinalResults_DataFrame(QtCore.QAbstractTableModel):
         if role == Qt.DisplayRole:
             value = self._data.iloc[index.row(), index.column()]
             return str(value)
+        if role == Qt.ForegroundRole:
+            value = self._data.iloc[index.row(), index.column()]
+            if value != None and value[0] == '(' and value[len(value) - 1] == ')': return QtGui.QColor('blue')
 
     def rowCount(self, index):
         return self._data.shape[0]
