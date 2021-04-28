@@ -667,14 +667,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vyutpathiButton.pressed.connect(self.Vyutpatthi)
         self.lblNishpatthi.setVisible(False)
         self.txtNishpatthi.setVisible(False)
+        self.syntaxButton.pressed.connect(self.syntaxAnalysis)
 
         self.formWidget_2.setVisible(False)
         self.formWidget_4.setVisible(False)
         self.formWidget_5.setVisible(False)
         self.synonymView.setVisible(False)
 
-        for pg in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button, self.page7Button,
-                   self.page8Button, self.page9Button, self.page10Button]:
+        for pg in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
+                            self.page7Button, self.page8Button, self.page9Button, self.page10Button, self.page11Button,
+                            self.page12Button, self.page13Button, self.page14Button, self.page15Button, self.page16Button,
+                            self.page17Button, self.page18Button, self.page19Button, self.page20Button, self.page21Button, self.page22Button,
+                            self.page23Button, self.page24Button]:
             pg.pressed.connect(self.generationPageDisplay)
 
         self.toolbar = self.addToolBar('Amara')
@@ -854,6 +858,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if fname[0]:
             f = open(fname[0], 'r')
             self.synonymsButton.setText('ಪದರೂಪ ವಿಶ್ಲೇಷಣೆ(Morphological Analysis)')
+            # self.syntaxButton.setVisible(True)
             self.wanted_script = self.scriptSelector.currentIndex()
             self.listView.clicked.connect(self.enableSynonymsButton)
             with f:
@@ -999,13 +1004,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.formWidget_4.setVisible(False)
             self.formWidget_5.setVisible(False)
             self.synonymView.setVisible(True)
+            self.syntaxButton.setVisible(True)
+            self.syntaxButton.setEnabled(True)
             self.wanted_script = self.scriptSelector.currentIndex()
             indexes = self.listView.selectedIndexes()
             if indexes:
                 index = indexes[0]
                 row = index.row()
                 status, base = self.modelDhatus.dataIscii[row]
-                # ic.ic(base)
                 try:
                     self.subforms, self.tigforms, self.krdforms = [], [], []
                     self.Subantas, self.Krdantas, self.Tigantas = [], [], []
@@ -1023,17 +1029,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     #               self.txtPratipadika, self.txtSabda]
                     numpages = 0
                     for i, word in enumerate(bas.split(' ')):
-                        # ic.ic(i, word, AmaraKosha_Database_Queries.iscii_unicode(word))
                         wids = 1
                         try:
                             forms, anta, linga, rupam, vibhakti, vacana, base, erb, det, vibvach = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word, self.wanted_script+1)
-                            # ic.ic(forms)
                             if not forms==[]:
                                 self.subforms += forms
                                 numpages += 1
                                 self.Subantas.append([rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(base),
                                                                                  IndianLanguages[self.wanted_script]), anta, linga, vibhakti, vacana, vibvach])
-                                # ic.ic(self.Subantas[len(self.Subantas) - 1])
                                 syntaxInputFile.append([i, word, wids, 1, base, erb, det, vibvach+1])
                                 wids += 1
                             self.setTexts(zip([self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
@@ -1046,7 +1049,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                                                             columns=[transliterate_lines(vacana,IndianLanguages[self.wanted_script]) for vacana in Kosha_Subanta_Krdanta_Tiganta.vacanas],
                                                                             index=[transliterate_lines(vibhakti,IndianLanguages[self.wanted_script]) for vibhakti in Kosha_Subanta_Krdanta_Tiganta.vibhaktis])
                             self.modelFinalResults.layoutChanged.emit()
-                            # ic.ic(self.Subantas)
                         except Exception as e:
                             print(e)
                         for control in [self.synonymView, self.formWidget_2]: control.setVisible(True)
@@ -1066,10 +1068,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                                             tigData.GPICode, tigData.pralak, tigData.purvach,
                                                             tigData.CombinedM, tigData.karmaCode])
                                     wids += 1
-                            # print('UI-Analysis tigforms %s'%self.tigforms)
-                            # ic.ic(self.Tigantas)
                             forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word, self.wanted_script + 1)
-                            # ic.ic(forms, [item.get() for item in krdData])
                             if not forms==[]: self.krdforms += forms
                             if not krdData == []:
                                 self.Krdantas += krdData
@@ -1079,21 +1078,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                          krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii, krdDetail.nijverb_iscii,
                                          krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
                                     wids += 1
-                            # print('UI-Analysis krdforms %s'%self.krdforms)
                         except Exception as e:
                             print(e)
-                    # for tigData in self.Tigantas: print('UI-Analysis tiganta Details %s'%tigData.get())
-                    # for krdData in self.Krdantas: print('UI-Analysis krdanta Details %s'%krdData.get())
-                    # print('UI-Analysis subanta %i %s\ntiganta %i %s\nkrdanta %i %s'%(len(self.subforms), self.subforms, len(self.tigforms), self.tigforms, len(self.krdforms), self.krdforms))
-                    # for sub_tig_krd in syntaxInputFile: print(sub_tig_krd)
-                    # tigantas = [item.get() for item in self.Tigantas]
-                    # krdantas = [item.get() for item in self.Krdantas]
-                    # numpages = len(self.Subantas) + len(tigantas) + len(krdantas)
-                    # ic.ic(numpages)
                     for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
-                                    self.page7Button, self.page8Button, self.page9Button, self.page10Button][:numpages]:
+                                    self.page7Button, self.page8Button, self.page9Button, self.page10Button, self.page11Button,
+                                    self.page12Button, self.page13Button, self.page14Button, self.page15Button, self.page16Button,
+                                    self.page17Button, self.page18Button, self.page19Button, self.page20Button, self.page21Button, self.page22Button,
+                                    self.page23Button, self.page24Button][:numpages]:
                         control.setEnabled(True)
                         control.setVisible(True)
+                    for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
+                                    self.page7Button, self.page8Button, self.page9Button, self.page10Button, self.page11Button,
+                                    self.page12Button, self.page13Button, self.page14Button, self.page15Button, self.page16Button,
+                                    self.page17Button, self.page18Button, self.page19Button, self.page20Button,
+                                    self.page21Button, self.page22Button, self.page23Button, self.page24Button][numpages:]:
+                        control.setEnabled(False)
+                        control.setVisible(False)
 
                 except Exception as e:
                     self.statusBar().showMessage(str(e))
@@ -1114,8 +1114,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for txt, value in zipLists: txt.setText(value)
     def generationPageDisplay(self):
         try:
-            indx = ['page1Button', 'page2Button', 'page3Button', 'page4Button', 'page5Button', 'page6Button',
-                    'page7Button', 'page8Button', 'page9Button', 'page10Button'].index(self.sender().objectName())
+            indx = ['page1Button', 'page2Button', 'page3Button', 'page4Button', 'page5Button', 'page6Button', 'page7Button',
+                    'page8Button', 'page9Button', 'page10Button',  'page11Button', 'page12Button',  'page13Button',
+                    'page14Button', 'page15Button', 'page16Button', 'page17Button','page18Button',  'page19Button',
+                    'page20Button',  'page21Button', 'page22Button',  'page23Button', 'page24Button'
+                    ].index(self.sender().objectName())
             listOfControls = [self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
                               self.lblSaniDhatu, self.txtSaniDhatu, self.lblGana, self.txtGana, self.lblPadi, self.txtPadi,
                               self.lblKarma, self.txtKarma, self.lblIt, self.txtIt, self.lblDhatuVidah, self.txtDhatuVidah,
@@ -1143,76 +1146,91 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 self.modelFinalResults.layoutChanged.emit(self.forms[indx * 3: indx * 3 + 3],)
             else: #Analysis
-                subantas, tigantas, krdantas = ['सुबंतः'] * len(self.Subantas), ['तिगंतः'] * len(self.Tigantas), ['कृदंतः'] * len(self.Krdantas)
-                # ic.ic(subantas, tigantas, krdantas)
-                lst = subantas + tigantas + krdantas
-                self.Categories.setText(transliterate_lines(lst[indx], IndianLanguages[self.wanted_script]))
-                if self.Categories.text() == transliterate_lines('सुबंतः', IndianLanguages[self.wanted_script]): #indx == 0:
-                    for control in [self.synonymView, self.formWidget_2] + listOfControls[:11]: control.setVisible(True)
-                    for control in listOfControls[12:]: control.setVisible(False)
-                    self.setTexts(zip(listofLbls[:6],
-                                      [transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in
-                                       ['रूपं', 'प्रातिपदिकं', 'अंतः', 'लिंगः', 'विभक्तिः', 'वचनः']]))
-                    self.setTexts(zip([self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu, self.txtGana, self.txtPadi],
-                                      self.Subantas[indx][:-1]))
-                    for r in range(len(self.subforms)):
-                        for c in range(3):
-                            if self.subforms[r][c][0] == '(': self.subforms[r][c] = self.subforms[r][c][1:-1]
-                    r, c = indx * 8 + self.Subantas[indx][-1] // 3, self.Subantas[indx][-1] % 3
-                    # ic.ic(self.Subantas[indx][-1], r, c, self.subforms)
-                    if self.subforms[r][c][0] != '(': self.subforms[r][c] = '(' + self.subforms[r][c] + ')'
-                    self.modelFinalResults._data = pandas.DataFrame(self.subforms[indx * 8: indx * 8 + 8],
-                                                                columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vacanas],
-                                                                index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vibhaktis])
-                elif self.Categories.text() == transliterate_lines('तिगंतः', IndianLanguages[self.wanted_script]): #indx in [1,2]:
-                    indx = indx - len(subantas)
-                    for control in listOfControls: control.setVisible(True)
-                    self.setTexts(zip(listofLbls[:10], [transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in
-                                   ['धातुः','धात्वर्य:','णिजि धातु:','सनि धातु:','गण:','पदिः','कर्मः','इट्','धातुविधः','प्रयोगः','लकारः']]))
-                    self.setTexts(zip([self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu,
-                         self.txtGana, self.txtPadi, self.txtKarma, self.txtIt, self.txtDhatuVidah,
-                         self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara],
-                        [transliterate_lines(txt, IndianLanguages[self.wanted_script]) for txt in
-                         [self.Tigantas[indx].verb, self.Tigantas[indx].base,self.Tigantas[indx].nijverb, self.Tigantas[indx].sanverb,
-                          self.Tigantas[indx].gana,self.Tigantas[indx].padi, self.Tigantas[indx].karma, self.Tigantas[indx].it,
-                          self.Tigantas[indx].dhatuVidah, self.Tigantas[indx].voice, self.Tigantas[indx].lakara]]
-                    ))
-                    self.Categories.setText(transliterate_lines('तिगंतः', IndianLanguages[self.wanted_script]))
-                    for control in listOfControls[22:]: control.setVisible(False)
-                    for lbl in listofLbls: lbl.setText(transliterate_lines(lbl.text(), IndianLanguages[self.wanted_script]))
-                    for r in range(len(self.tigforms)):
-                        for c in range(3):
-                            if self.tigforms[r][c][0] == '(': self.tigforms[r][c] = self.tigforms[r][c][1:-1]
-                    r, c = (indx * 9 + self.Tigantas[indx].purvach - 1) // 3, (self.Tigantas[indx].purvach - 1) % 3
-                    if self.tigforms[r][c] != '(': self.tigforms[r][c] = '(' + self.tigforms[r][c] + ')'
-                    # ic.ic(self.Tigantas[indx].get(), indx, r, c, self.tigforms)
-                    self.modelFinalResults._data = pandas.DataFrame(self.tigforms[indx * 3: indx * 3 + 3],
-                                                                columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vacanas],
-                                                                index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.purushas])
+                if self.Categories.text() == 'Syntax':
+                    self.modelFinalResults._data = pandas.DataFrame(self.cells[indx * 5 :indx * 5 + 5],
+                                            columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', 'लिंग',  'विभक्ति',  'वचन' ]],
+                                            index=[' '] * 5)
+                    for i, conclusion in enumerate(self.conclusions[indx]):
+                        listofTxts[i].setText(conclusion)
+                        listofTxts[i].setVisible(True)
+                    for control in listofLbls: control.setVisible(False)
+                    for control in listofTxts[i + 1:]: control.setVisible(False)
+                    numpages = min(len(self.conclusions), 21)
+                    for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
+                            self.page7Button, self.page8Button, self.page9Button, self.page10Button, self.page11Button,
+                            self.page12Button, self.page13Button, self.page14Button, self.page15Button, self.page16Button,
+                            self.page17Button, self.page18Button, self.page19Button, self.page20Button, self.page21Button, self.page22Button,
+                            self.page23Button, self.page24Button][:numpages]:
+                        control.setEnabled(True)
+                        control.setVisible(True)
                 else:
-                    indx = indx - len(subantas) - len(tigantas)
-                    self.setTexts(zip(listofLbls, [transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in
-                               ['धातुः','धात्वर्य:','णिजि धातु:','सनि धातु:','गण:','पदिः','कर्मः','इट्','धातुविधः','कृदंतविधः','प्रत्ययः','अंतः','लिंगः','प्रातिपदिकं','रूपं']]))
-                    ind = min(indx, len(self.Krdantas) - 1)
-                    strt = min(indx * 8, len(self.krdforms) - 8)
-                    krdData = self.Krdantas[ind]
-                    for r in range(len(self.krdforms)):
-                        for c in range(3):
-                            if self.krdforms[r][c][0] == '(': self.krdforms[r][c] = self.krdforms[r][c][1:-1]
-                    r, c = strt + (krdData.vibvach - 1) // 3, (krdData.vibvach - 1) % 3
-                    # ic.ic(krdData.get(), r, c, ind, indx, len(self.krdforms), self.krdforms)
-                    if self.krdforms[r][c][0] != '(': self.krdforms[r][c] = '(' + self.krdforms[r][c] + ')'
-                    self.setTexts(zip(listofTxts, [krdData.verb, krdData.meaning, krdData.nijverb, krdData.sanverb, krdData.gana, krdData.padi,
-                                                   krdData.karma, krdData.it,  krdData.dhatuVidhah, krdData.krdantaVidhah, krdData.pratyayaVidhah,
-                                                   krdData.anta, krdData.linga, krdData.sabda,
-                                                   self.krdforms[ind][0]]))
+                    subantas, tigantas, krdantas = ['सुबंतः'] * len(self.Subantas), ['तिगंतः'] * len(self.Tigantas), ['कृदंतः'] * len(self.Krdantas)
+                    lst = subantas + tigantas + krdantas
+                    self.Categories.setText(transliterate_lines(lst[indx], IndianLanguages[self.wanted_script]))
+                    if self.Categories.text() == transliterate_lines('सुबंतः', IndianLanguages[self.wanted_script]): #indx == 0:
+                        for control in [self.synonymView, self.formWidget_2] + listOfControls[:11]: control.setVisible(True)
+                        for control in listOfControls[12:]: control.setVisible(False)
+                        self.setTexts(zip(listofLbls[:6],
+                                          [transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in
+                                           ['रूपं', 'प्रातिपदिकं', 'अंतः', 'लिंगः', 'विभक्तिः', 'वचनः']]))
+                        self.setTexts(zip([self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu, self.txtGana, self.txtPadi],
+                                          self.Subantas[indx][:-1]))
+                        for r in range(len(self.subforms)):
+                            for c in range(3):
+                                if self.subforms[r][c][0] == '(': self.subforms[r][c] = self.subforms[r][c][1:-1]
+                        r, c = indx * 8 + self.Subantas[indx][-1] // 3, self.Subantas[indx][-1] % 3
+                        if self.subforms[r][c][0] != '(': self.subforms[r][c] = '(' + self.subforms[r][c] + ')'
+                        self.modelFinalResults._data = pandas.DataFrame(self.subforms[indx * 8: indx * 8 + 8],
+                                                                    columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vacanas],
+                                                                    index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vibhaktis])
+                    elif self.Categories.text() == transliterate_lines('तिगंतः', IndianLanguages[self.wanted_script]): #indx in [1,2]:
+                        indx = indx - len(subantas)
+                        for control in listOfControls: control.setVisible(True)
+                        self.setTexts(zip(listofLbls[:10], [transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in
+                                       ['धातुः','धात्वर्य:','णिजि धातु:','सनि धातु:','गण:','पदिः','कर्मः','इट्','धातुविधः','प्रयोगः','लकारः']]))
+                        self.setTexts(zip([self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu,
+                             self.txtGana, self.txtPadi, self.txtKarma, self.txtIt, self.txtDhatuVidah,
+                             self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara],
+                            [transliterate_lines(txt, IndianLanguages[self.wanted_script]) for txt in
+                             [self.Tigantas[indx].verb, self.Tigantas[indx].base,self.Tigantas[indx].nijverb, self.Tigantas[indx].sanverb,
+                              self.Tigantas[indx].gana,self.Tigantas[indx].padi, self.Tigantas[indx].karma, self.Tigantas[indx].it,
+                              self.Tigantas[indx].dhatuVidah, self.Tigantas[indx].voice, self.Tigantas[indx].lakara]]
+                        ))
+                        self.Categories.setText(transliterate_lines('तिगंतः', IndianLanguages[self.wanted_script]))
+                        for control in listOfControls[22:]: control.setVisible(False)
+                        for lbl in listofLbls: lbl.setText(transliterate_lines(lbl.text(), IndianLanguages[self.wanted_script]))
+                        for r in range(len(self.tigforms)):
+                            for c in range(3):
+                                if self.tigforms[r][c][0] == '(': self.tigforms[r][c] = self.tigforms[r][c][1:-1]
+                        r, c = (indx * 9 + self.Tigantas[indx].purvach - 1) // 3, (self.Tigantas[indx].purvach - 1) % 3
+                        if self.tigforms[r][c] != '(': self.tigforms[r][c] = '(' + self.tigforms[r][c] + ')'
+                        self.modelFinalResults._data = pandas.DataFrame(self.tigforms[indx * 3: indx * 3 + 3],
+                                                                    columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vacanas],
+                                                                    index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.purushas])
+                    elif self.Categories.text() == transliterate_lines('कृदंतः', IndianLanguages[self.wanted_script]):
+                        indx = indx - len(subantas) - len(tigantas)
+                        self.setTexts(zip(listofLbls, [transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in
+                                   ['धातुः','धात्वर्य:','णिजि धातु:','सनि धातु:','गण:','पदिः','कर्मः','इट्','धातुविधः','कृदंतविधः','प्रत्ययः','अंतः','लिंगः','प्रातिपदिकं','रूपं']]))
+                        ind = min(indx, len(self.Krdantas) - 1)
+                        strt = min(indx * 8, len(self.krdforms) - 8)
+                        krdData = self.Krdantas[ind]
+                        for r in range(len(self.krdforms)):
+                            for c in range(3):
+                                if self.krdforms[r][c][0] == '(': self.krdforms[r][c] = self.krdforms[r][c][1:-1]
+                        r, c = strt + (krdData.vibvach - 1) // 3, (krdData.vibvach - 1) % 3
+                        if self.krdforms[r][c][0] != '(': self.krdforms[r][c] = '(' + self.krdforms[r][c] + ')'
+                        self.setTexts(zip(listofTxts, [krdData.verb, krdData.meaning, krdData.nijverb, krdData.sanverb, krdData.gana, krdData.padi,
+                                                       krdData.karma, krdData.it,  krdData.dhatuVidhah, krdData.krdantaVidhah, krdData.pratyayaVidhah,
+                                                       krdData.anta, krdData.linga, krdData.sabda,
+                                                       self.krdforms[ind][0]]))
 
-                    for lbl in listofLbls: lbl.setText(transliterate_lines(lbl.text(), IndianLanguages[self.wanted_script]))
-                    for control in listOfControls: control.setVisible(True)
+                        for lbl in listofLbls: lbl.setText(transliterate_lines(lbl.text(), IndianLanguages[self.wanted_script]))
+                        for control in listOfControls: control.setVisible(True)
 
-                    self.modelFinalResults._data = pandas.DataFrame(self.krdforms[strt: strt + 8],
-                                                                columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vacanas],
-                                                                index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vibhaktis])
+                        self.modelFinalResults._data = pandas.DataFrame(self.krdforms[strt: strt + 8],
+                                                                    columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vacanas],
+                                                                    index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vibhaktis])
+
                 self.modelFinalResults.layoutChanged.emit()
 
         except Exception as e:
@@ -1328,6 +1346,73 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.lblNishpatthi.setText('व्युत्त्पत्ति')
             except Exception as e:
                  self.statusBar().showMessage('Vyutpatthi:%s'%e)
+    def syntaxAnalysis(self):
+        self.synonymsButton.setEnabled(False)
+        typeList = ['Noun(s)', 'Pronoun(s)', 'Adjective(s)', 'Krdanta(s)', 'KrdAvyaya(s)', 'Avyaya(s)']
+        subtypeList = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)', 'Vocative(s)', 'Verb(s)', 'Verb']
+        # fresult = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
+        # if fresult[0]:
+        #     f = open(fresult[0], 'r')
+        #     with f:
+        fresult = open('result.aci', 'r')
+        result = fresult.readlines()
+        self.cells, self.conclusions, sentence_no = [], [[]], 0
+        try:
+            for line_no, line in enumerate(result):
+                line = line.replace('\t', '').replace('\n', '').strip()
+                words = line.split(' ')
+                word = words[0]
+                # if word == "ÔÚ³èÍÌè": sentence = line
+                # if word in ["ÔÚ³èÍÌè", "", "The"] or "VOICE" in word or "can be assumed to be the" in line: pass
+                if word == "ÔÚ³èÍÌè": sentence = line
+                if word in ["ÔÚ³èÍÌè", ""]: pass
+                elif word == "The" or "VOICE" in words or "Considering the verb" in line: self.conclusions[sentence_no].append(line)
+                elif "can be assumed to be the" in line: self.conclusions[sentence_no].append(AmaraKosha_Database_Queries.iscii_unicode(line, self.wanted_script+1))
+                elif word in typeList:
+                    if len(words) <= 1: parts = ''
+                    else: parts = line[line.index(' ( ') + 2:].split(' / ')
+                    if parts == '': self.cells.append([word, '', '', ''])
+                    else: self.cells.append([AmaraKosha_Database_Queries.iscii_unicode(w, self.wanted_script + 1) for w in [word, parts[0], parts[1], parts[2][:-2]]])
+                elif word in subtypeList or 'Verb(s) are : ' in result[line_no - 1]:
+                    parts = line[line.index(' ( ') + 2:].split(' / ')
+                    if 'Verb(s) are : ' in result[line_no - 1]: word = 'Verb(s)'
+                    self.cells.append([AmaraKosha_Database_Queries.iscii_unicode(w, self.wanted_script + 1) for w in [word, parts[0], parts[1], parts[2][:-2]]])
+                elif word[0] == '-':
+                    self.conclusions.append([])
+                    sentence_no += 1
+                # elif 'Verb(s) are : ' in result[line_no - 1]: pass
+                else: raise NameError(line + '-' + word + ' -> Invalid Category')
+            self.modelFinalResults._data = pandas.DataFrame(self.cells[:5],
+                                            columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', 'लिंग',  'विभक्ति',  'वचन' ]],
+                                            index=[' '] * 5) #[transliterate_lines(role, IndianLanguages[self.wanted_script]) for role in subtypeList[:5]])
+            self.Categories.setText('Syntax')
+            listOfControls = [self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
+                              self.lblSaniDhatu, self.txtSaniDhatu, self.lblGana, self.txtGana, self.lblPadi, self.txtPadi,
+                              self.lblKarma, self.txtKarma, self.lblIt, self.txtIt, self.lblDhatuVidah, self.txtDhatuVidah,
+                              self.lblKrdantaVidah_prayoga, self.txtKrdantaVidah_prayoga, self.lblPratyaya_lakara, self.txtPratyaya_lakara,
+                              self.lblAnta, self.txtAnta, self.lblLinga, self.txtLinga, self.lblPratipadika, self.txtPratipadika,
+                              self.lblSabda, self.txtSabda]
+            listofLbls = [self.lblDhatu, self.lblDhatvarya, self.lblNijidhatu, self.lblSaniDhatu, self.lblGana, self.lblPadi, self.lblKarma,
+                          self.lblIt, self.lblDhatuVidah, self.lblKrdantaVidah_prayoga, self.lblPratyaya_lakara, self.lblAnta, self.lblLinga,
+                          self.lblPratipadika, self.lblSabda]
+            listofTxts = [self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu, self.txtGana, self.txtPadi, self.txtKarma,
+                          self.txtIt, self.txtDhatuVidah, self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara, self.txtAnta, self.txtLinga,
+                          self.txtPratipadika, self.txtSabda]
+            for i, conclusion in enumerate(self.conclusions[0]): listofTxts[i].setText(conclusion)
+            for control in listofLbls: control.setVisible(False)
+            for control in listofTxts[i + 1:]: control.setVisible(False)
+            numpages = min(len(self.conclusions), 21)
+            for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
+                            self.page7Button, self.page8Button, self.page9Button, self.page10Button, self.page11Button,
+                            self.page12Button, self.page13Button, self.page14Button, self.page15Button, self.page16Button,
+                            self.page17Button, self.page18Button, self.page19Button, self.page20Button, self.page21Button, self.page22Button,
+                            self.page23Button, self.page24Button][:numpages]:
+                control.setEnabled(True)
+                control.setVisible(True)
+
+            self.modelFinalResults.layoutChanged.emit()
+        except Exception as e:
+            self.statusBar().showMessage(str(e))
 
 logging.basicConfig(level=logging.DEBUG, filename='../../Amarakosha.log', format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p')
 app = QtWidgets.QApplication(sys.argv)

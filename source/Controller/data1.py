@@ -46,11 +46,6 @@ Anta=["¤","¥","¦","§","¨","©","ª","ª","*","¦é",
 			   "×","Ø","ÔèÍ¼èºÆ","Ñ"]
 engLinga=["Feminine","Masculine","Neuter","Fem.Mas","Fem.Neu","Mas.Neu","Fem.Mas.Neu","No Gender"]
 
-Case=["ÈèÏÃÌÚÔÛË³èÂÛ£","ÄèÔÛÂÜÍÚÔÛË³èÂÛ£",
-		       "ÂßÂÜÍÚÔÛË³èÂÛ£","¸ÂÝÏèÃÜÔÛË³èÂÛ£",
-		       "È¼è¸ÌÜÔÛË³èÂÛ£","ÖÖè¾ÜÔÛË³èÂÛ£",
-		       "×ÈèÂÌÜÔÛË³èÂÛ£","×¢/ÈèÏÃÌÚÔÛË³èÂÛ£"]
+Case=["ÈèÏÃÌÚÔÛË³èÂÛ£", "ÄèÔÛÂÜÍÚÔÛË³èÂÛ£", "ÂßÂÜÍÚÔÛË³èÂÛ£","¸ÂÝÏèÃÜÔÛË³èÂÛ£", "È¼è¸ÌÜÔÛË³èÂÛ£","ÖÖè¾ÜÔÛË³èÂÛ£", "×ÈèÂÌÜÔÛË³èÂÛ£", "×¢/ÈèÏÃÌÚÔÛË³èÂÛ£"]
 
-engCase=["( Nominative )","( Accusative )", "( Instrumental )",
-			  " ( Dative )","( Ablative )","( Genetive )",
-			  " ( Locative )","( Vocative )"]
+engCase=["( Nominative )","( Accusative )", "( Instrumental )", " ( Dative )","( Ablative )","( Genetive )", " ( Locative )","( Vocative )"]

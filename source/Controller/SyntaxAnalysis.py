@@ -1,4 +1,4 @@
-import json, source.Controller.data1 as data1, source.Controller.disp as dsp, functools as ft, icecream as ic
+import json, source.Controller.data1 as data1, source.Controller.disp as dsp, functools as ft #, icecream as ic
 
 class subanta:
     def __init__(self):
@@ -111,7 +111,7 @@ class tiganta_data:
         self.numofVerbs = 0  # type: int
     def instance(self,i):
         v = VERB()
-        v.wordPos, v.vacana, v.purusha, v.prayoga, v.karma, v.dhatu = self.wordNum[i], self.vacana[i], self.purusha[i], self.prayoga[i], self.karma[i], self.dhatu[i]
+        v.wordPos, v.vacana, v.purusha, v.prayoga, v.karma, v.dhatu, v.verb = self.wordNum[i], self.vacana[i], self.purusha[i], self.prayoga[i], self.karma[i], self.dhatu[i], self.tiganta[i]
         return v
     def get(self):
         return {'dhatuVidha':self.dhatuVidha[:self.numofVerbs], 'vacana':self.vacana[:self.numofVerbs], 'lakara':self.lakara[:self.numofVerbs],
@@ -398,15 +398,16 @@ def checkForSyntacticCompatibility(rec: record): # -> list[str]:
         listKarmas = splitSen[9].split('/')
         for count, temp in enumerate(listKarmas):
             verb.artha[verb.numofVerbs] = temp  # 'Meaning'
-            if len(temp) > 1: tmp = temp[len(temp) - 1]
-            else: tmp = temp
-            if tmp in range(ord('0'),ord('9')): verb.karma[verb.numofVerbs] = ord(tmp) - 48
-            else: verb.karma[verb.numofVerbs] = karthari
+            # if len(temp) > 1: tmp = temp[len(temp) - 1]
+            # else: tmp = temp
+            # if tmp in range(ord('0'),ord('9')): verb.karma[verb.numofVerbs] = ord(tmp) - 48
+            # else: verb.karma[verb.numofVerbs] = karthari
+        verb.karma[verb.numofVerbs] = int(splitSen[14]) - 1
         verb.dhatuVidha[verb.numofVerbs] = ord(splitSen[11][0]) - 48
         verb.prayoga[verb.numofVerbs] = (ord(splitSen[11][1]) - 65) % 2
         verb.lakara[verb.numofVerbs] = (ord(splitSen[11][1]) - 65) // 2
-        verb.purusha[verb.numofVerbs] = (int(splitSen[12])) // 3
-        verb.vacana[verb.numofVerbs] = (int(splitSen[12])) % 3
+        verb.purusha[verb.numofVerbs] = (int(splitSen[12]) - 1) // 3
+        verb.vacana[verb.numofVerbs] = int(splitSen[12]) % 3
         verb.gana[verb.numofVerbs] = ord(splitSen[10][0]) - 48
         verb.padi[verb.numofVerbs] = ord(splitSen[10][1]) - 48
         verb.it[verb.numofVerbs] = ord(splitSen[10][2]) - 48
@@ -442,91 +443,102 @@ def checkCompatibility1(rec: record, noun: subanta_data, verb: tiganta_data, par
     flag = [None] * 9  # type: list[str]
     dvithiya = None # type: str
     def assign_prathama_vibhakti() -> None:
-        if verb.prayoga == karthari:
-            subject.vibhakti[subject.numofWords] = noun.subanta[i]
-            subject.vacana[subject.numofWords] = noun.vacana[i]
-            subject.purusha[subject.numofWords] = noun.purusha[i]
-            subject.linga[subject.numofWords] = noun.linga[i]
-            subject.wordPos[subject.numofWords] = noun.wordNum[i]
+        if verb.prayoga[i] == karthari:
+            subject.word[subject.numofWords] = noun.subanta[j]
+            subject.vibhakti[subject.numofWords] = noun.vibhakti[j]
+            subject.vacana[subject.numofWords] = noun.vacana[j]
+            subject.purusha[subject.numofWords] = noun.purusha[j]
+            subject.linga[subject.numofWords] = noun.linga[j]
+            subject.wordPos[subject.numofWords] = noun.wordNum[j]
             subject.numofWords += 1
         elif verb.prayoga[i] == karmani:
-            object.vibhakti[object.numofWords] = noun.subanta[i]
-            object.vacana[object.numofWords] = noun.vacana[i]
-            object.purusha[object.numofWords] = noun.purusha[i]
-            object.linga[object.numofWords] = noun.linga[i]
-            object.wordPos[object.numofWords] = noun.wordNum[i]
+            object.word[object.numofWords] = noun.subanta[j]
+            object.vibhakti[object.numofWords] = noun.vibhakti[j]
+            object.vacana[object.numofWords] = noun.vacana[j]
+            object.purusha[object.numofWords] = noun.purusha[j]
+            object.linga[object.numofWords] = noun.linga[j]
+            object.wordPos[object.numofWords] = noun.wordNum[j]
             object.numofWords += 1
         return
     def assign_dvithiya_vibhakti() -> None:
         if verb.prayoga[i] == karthari:
-            object.vibhakti[object.numofWords] = noun.vibhakti[i]
-            object.vacana[object.numofWords] = noun.vacana[i]
-            object.purusha[object.numofWords] = noun.purusha[i]
-            object.linga[object.numofWords] = noun.linga[i]
-            object.wordPos[object.numofWords] = noun.wordNum[i]
+            object.word[object.numofWords] = noun.subanta[j]
+            object.vibhakti[object.numofWords] = noun.vibhakti[j]
+            object.vacana[object.numofWords] = noun.vacana[j]
+            object.purusha[object.numofWords] = noun.purusha[j]
+            object.linga[object.numofWords] = noun.linga[j]
+            object.wordPos[object.numofWords] = noun.wordNum[j]
             object.numofWords += 1
         elif verb.prayoga[i] == karmani:
-            second.vibhakti[second.numofWords] = noun.subanta[i]
-            second.vacana[second.numofWords] = noun.vacana[i]
-            second.purusha[second.numofWords] = noun.purusha[i]
-            second.linga[second.numofWords] = noun.linga[i]
-            second.wordPos[second.numofWords] = noun.wordNum[i]
+            second.word[second.numofWords] = noun.subanta[j]
+            second.vibhakti[second.numofWords] = noun.vibhakti[j]
+            second.vacana[second.numofWords] = noun.vacana[j]
+            second.purusha[second.numofWords] = noun.purusha[j]
+            second.linga[second.numofWords] = noun.linga[j]
+            second.wordPos[second.numofWords] = noun.wordNum[j]
             second.numofWords += 1
         return
     def assign_trithiya_vibhakti() -> None:
-        if verb.prayoga == karthari:
-            instrument.vibhakti[instrument.numofWords] = noun.subanta[i]
-            instrument.vacana[instrument.numofWords] = noun.vacana[i]
-            instrument.purusha[instrument.numofWords] = noun.purusha[i]
-            instrument.linga[instrument.numofWords] = noun.linga[i]
-            instrument.wordPos[instrument.numofWords] = noun.wordNum[i]
+        if verb.prayoga[i] == karthari:
+            instrument.word[instrument.numofWords] = noun.subanta[j]
+            instrument.vibhakti[instrument.numofWords] = noun.vibhakti[j]
+            instrument.vacana[instrument.numofWords] = noun.vacana[j]
+            instrument.purusha[instrument.numofWords] = noun.purusha[j]
+            instrument.linga[instrument.numofWords] = noun.linga[j]
+            instrument.wordPos[instrument.numofWords] = noun.wordNum[j]
             instrument.numofWords += 1
         elif verb.prayoga[i] == karmani:
-            third.vibhakti[third.numofWords] = noun.subanta[i]
-            third.vacana[third.numofWords] = noun.vacana[i]
-            third.purusha[third.numofWords] = noun.purusha[i]
-            third.linga[third.numofWords] = noun.linga[i]
-            third.wordPos[third.numofWords] = noun.wordNum[i]
+            third.word[third.numofWords] = noun.subanta[j]
+            third.vibhakti[third.numofWords] = noun.vibhakti[j]
+            third.vacana[third.numofWords] = noun.vacana[j]
+            third.purusha[third.numofWords] = noun.purusha[j]
+            third.linga[third.numofWords] = noun.linga[j]
+            third.wordPos[third.numofWords] = noun.wordNum[j]
             third.numofWords += 1
         return
     def assign_chaturthi_vibhakti() -> None:
-        dative.vibhakti[dative.numofWords] = noun.subanta[i]
-        dative.vacana[dative.numofWords] = noun.vacana[i]
-        dative.purusha[dative.numofWords] = noun.purusha[i]
-        dative.linga[dative.numofWords] = noun.linga[i]
-        dative.wordPos[dative.numofWords] = noun.wordNum[i]
+        dative.word[dative.numofWords] = noun.subanta[j]
+        dative.vibhakti[dative.numofWords] = noun.vibhakti[j]
+        dative.vacana[dative.numofWords] = noun.vacana[j]
+        dative.purusha[dative.numofWords] = noun.purusha[j]
+        dative.linga[dative.numofWords] = noun.linga[j]
+        dative.wordPos[dative.numofWords] = noun.wordNum[j]
         dative.numofWords += 1
         return
     def assign_pancami_vibhakti() -> None:
-        ablative.vibhakti[ablative.numofWords] = noun.subanta[i]
-        ablative.vacana[ablative.numofWords] = noun.vacana[i]
-        ablative.purusha[ablative.numofWords] = noun.purusha[i]
-        ablative.linga[ablative.numofWords] = noun.linga[i]
-        ablative.wordPos[ablative.numofWords] = noun.wordNum[i]
+        ablative.word[ablative.numofWords] = noun.subanta[j]
+        ablative.vibhakti[ablative.numofWords] = noun.vibhakti[j]
+        ablative.vacana[ablative.numofWords] = noun.vacana[j]
+        ablative.purusha[ablative.numofWords] = noun.purusha[j]
+        ablative.linga[ablative.numofWords] = noun.linga[j]
+        ablative.wordPos[ablative.numofWords] = noun.wordNum[j]
         ablative.numofWords += 1
         return
     def assign_shashti_vibhakti() -> None:
-        genitive.vibhakti[genitive.numofWords] = noun.subanta[i]
-        genitive.vacana[genitive.numofWords] = noun.vacana[i]
-        genitive.purusha[genitive.numofWords] = noun.purusha[i]
-        genitive.linga[genitive.numofWords] = noun.linga[i]
-        genitive.wordPos[genitive.numofWords] = noun.wordNum[i]
+        genitive.word[genitive.numofWords] = noun.subanta[j]
+        genitive.vibhakti[genitive.numofWords] = noun.vibhakti[j]
+        genitive.vacana[genitive.numofWords] = noun.vacana[j]
+        genitive.purusha[genitive.numofWords] = noun.purusha[j]
+        genitive.linga[genitive.numofWords] = noun.linga[j]
+        genitive.wordPos[genitive.numofWords] = noun.wordNum[j]
         genitive.numofWords += 1
         return
     def assign_saptami_vibhakti() -> None:
-        locative.vibhakti[locative.numofWords] = noun.subanta[i]
-        locative.vacana[locative.numofWords] = noun.vacana[i]
-        locative.purusha[locative.numofWords] = noun.purusha[i]
-        locative.linga[locative.numofWords] = noun.linga[i]
-        locative.wordPos[locative.numofWords] = noun.wordNum[i]
+        locative.word[locative.numofWords] = noun.subanta[j]
+        locative.vibhakti[locative.numofWords] = noun.vibhakti[j]
+        locative.vacana[locative.numofWords] = noun.vacana[j]
+        locative.purusha[locative.numofWords] = noun.purusha[j]
+        locative.linga[locative.numofWords] = noun.linga[j]
+        locative.wordPos[locative.numofWords] = noun.wordNum[j]
         locative.numofWords += 1
         return
     def assign_ashtami_vibhakti() -> None:
-        vocative.vibhakti[vocative.numofWords] = noun.subanta[i]
-        vocative.vacana[vocative.numofWords] = noun.vacana[i]
-        vocative.purusha[vocative.numofWords] = noun.purusha[i]
-        vocative.linga[vocative.numofWords] = noun.linga[i]
-        vocative.wordPos[vocative.numofWords] = noun.wordNum[i]
+        vocative.word[vocative.numofWords] = noun.subanta[j]
+        vocative.vibhakti[vocative.numofWords] = noun.vibhakti[j]
+        vocative.vacana[vocative.numofWords] = noun.vacana[j]
+        vocative.purusha[vocative.numofWords] = noun.purusha[j]
+        vocative.linga[vocative.numofWords] = noun.linga[j]
+        vocative.wordPos[vocative.numofWords] = noun.wordNum[j]
         vocative.numofWords += 1
         return
     qflag, result = False, []
@@ -534,14 +546,16 @@ def checkCompatibility1(rec: record, noun: subanta_data, verb: tiganta_data, par
     object, locative, dative, ablative, vocative, genitive = VIBHAKTI(), VIBHAKTI(), VIBHAKTI(), VIBHAKTI(), VIBHAKTI(), VIBHAKTI()
     for i in range(verb.numofVerbs):
         vrb = verb.instance(i)
+        if vrb.karma == karthari: subject, instrument = VIBHAKTI(), VIBHAKTI()
+        elif vrb.karma == karmani: second, third = VIBHAKTI(), VIBHAKTI()
         krdtemp = getKrdantadata(participle, verb.tiganta[i])
-        if not verb.tiganta == noun.subanta:
-            func = [assign_prathama_vibhakti, assign_dvithiya_vibhakti, assign_trithiya_vibhakti, assign_chaturthi_vibhakti,
-                    assign_pancami_vibhakti, assign_shashti_vibhakti, assign_saptami_vibhakti, assign_ashtami_vibhakti][noun.vibhakti[i] - 1]
-            func()
-        counter = ord('a') - 1
         for j in range(noun.numofNouns):
-            if verb.karma[i] == 0 and object.numofWords > 0:
+            if not verb.tiganta == noun.subanta[j]:
+                func = [assign_prathama_vibhakti, assign_dvithiya_vibhakti, assign_trithiya_vibhakti, assign_chaturthi_vibhakti,
+                    assign_pancami_vibhakti, assign_shashti_vibhakti, assign_saptami_vibhakti, assign_ashtami_vibhakti][noun.vibhakti[j] - 1]
+                func()
+        counter = ord('a') - 1
+        if verb.karma[i] == 0 and object.numofWords > 0:
                 karmaFlag = 0
                 while verb.karma[i] < 3:
                     verb.karma[i] += 1
@@ -579,10 +593,10 @@ def checkCompatibility1(rec: record, noun: subanta_data, verb: tiganta_data, par
                                                    genitive, krdtemp, verb, participle.numofKrdantas, counter, dvithiya, karmaFlag, word)
                     else:
                         counter += 1
-                        if participle != None: qflag, result = syntacticCheck(rec, adj, pro, krdav, indeclinable, vrb, subject, object, locative,instrument, dative, ablative, vocative,
-                                               genitive, krdtemp, verb, participle.numofKrdantas, counter, dvithiya, karmaFlag, word)
+                        qflag, result = syntacticCheck(rec, adj, pro, krdav, indeclinable, vrb, subject, object, locative,instrument, dative, ablative, vocative,
+                                               genitive, krdtemp, verb, verb.numofVerbs, counter, dvithiya, karmaFlag, word)
                 verb.karma[i] = 0
-            else:
+        else:
                 karmaFlag = verb.karma[i]
                 dvithiya = ''
                 if verb.prayoga[i] == karmani:
@@ -741,8 +755,6 @@ def checkCompatibility2(rec: record, noun: subanta_data, participle: krdanta_dat
     elif participle.prayoga[i] == karmani: third, second = VIBHAKTI(), VIBHAKTI()
     object, locative, dative, ablative, vocative, genitive = VIBHAKTI(), VIBHAKTI(), VIBHAKTI(), VIBHAKTI(), VIBHAKTI(), VIBHAKTI()
     krdanta = participle.instance(i)
-    # krdanta.krdanta, krdanta.vibhakti, krdanta.vacana, krdanta.linga, krdanta.prayoga, krdanta.karma, krdanta.krdType =\
-    #     participle.krdanta[i], participle.vibhakti[i], participle.vacana[i], participle.linga[i], participle.prayoga[i], participle.karma[i], participle.krdType[i]
     for i in range(noun.numofNouns):
         if krdanta.krdanta == noun.subanta[i]: continue
         func = [assign_prathama_vibhakti, assign_dvithiya_vibhakti, assign_trithiya_vibhakti, assign_chaturthi_vibhakti,
@@ -879,18 +891,17 @@ def syntacticCheck(rec: record, adj: subanta_data, pro: subanta_data, krdav: krd
                   'locative':subject != None and locative.numofWords > 1 and avyayaFlag > 0 and not checkPosofAvyaya(indeclinable, locative, avyayaFlag)
                   # 'vocative':vocative.numofWords > 1 and avyayaFlag > 0 and checkPosofAvyaya(indeclinable, vocative, avyayaFlag),
                       }
-    if (verb.prayoga == karmani or karmaFlag) and counter != (ord('a') - 1):
-        result.append(rec.sentence.split('(')[1].split('/')[0])
-    voice = 'ACTIVE VOICE' if verb.prayoga == karmani else 'PASSIVE VOICE'
+    # if (verb.prayoga == karmani or karmaFlag == 0) and counter != (ord('a') - 1): result.append('%s%s'%(rec.sentence.split('(')[1][0], counter))
+    voice = 'ACTIVE VOICE' if verb.prayoga == karthari else 'PASSIVE VOICE'
     result.append('The sentence is in ' + voice); result.append('')
-    if karmaFlag and object.numofWords > 0:
+    if karmaFlag == 0 and object.numofWords > 0:
         voice = 'Considering the verb as ' + ['Sakarmaka(transitive)','Akarmaka(intransitive)'][verb.karma-1]
     else: voice = 'Verb is ' + ['Sakarmaka(transitive)','Akarmaka(intransitive)'][verb.karma-1]
     result.append(voice)
     num = False
-    for cla in [subject, object, ablative, instrument, locative, dative]:
-        num = num or (cla != None and cla.numofWords > 1)
+    # for cla in [subject, object, ablative, instrument, locative, dative]: num = num or (cla != None and cla.numofWords > 1)
     # num = subject.numofWords > 1 or object.numofWords > 1 or ablative.numofWords > 1 or instrument.numofWords > 1 or locative.numofWords > 1 or dative.numofWords > 1
+    num = ft.reduce(lambda x, y: x and y.numofWords > 1,[subject, object, ablative, instrument, locative, dative])
     if numofVerbs == 1:
         if avyayaFlag > 0 and not num:
             result.append(displaytheInformation(subject, object, instrument, dative, ablative, locative, vocative, genitive, indeclinable, krdav, adj, pro, krdtemp, verb.prayoga, krdtemp))
@@ -902,11 +913,15 @@ def syntacticCheck(rec: record, adj: subanta_data, pro: subanta_data, krdav: krd
     else:
         qflag = 0
         result.append(displaytheInformation(subject, object, instrument, dative, ablative, locative, vocative, genitive, indeclinable, krdav, adj, pro, krdtemp, 2))
-        fmted = [tupl for tupl in zip(verbs.tiganta[:verbs.numofVerbs], verbs.dhatu[:verbs.numofVerbs], verbs.purusha[:verbs.numofVerbs], verbs.vacana[:verbs.numofVerbs])]
+        fmted = [tupl for tupl in zip(verbs.tiganta[:verbs.numofVerbs], verbs.dhatu[:verbs.numofVerbs], verbs.purusha[:verbs.numofVerbs],
+                                      verbs.vacana[:verbs.numofVerbs])]
         # fmted = str.format('%s %s %s %s %s'%(fmted))
         res = ''
-        for tupl in fmted: res += '%s %s %s %s'%tupl
-        result.append('Verb(s) are: ' + res)
+        for tupl in fmted:
+            tiganta, dhatu, purusha, vacana = tupl
+            purusha, vacana = dsp.Person[purusha], dsp.Vacana[vacana]
+            res += '%s ( %s / %s / %s )\n'%(tiganta, dhatu, purusha, vacana)
+        result.append('Verb(s) are : ' + res[:-1])
         flagp = getPurushaofAllVerbs(verbs)
         flagv = getVacanaofAllVerbs(verbs)
         if avyayaFlag:
@@ -930,14 +945,14 @@ def syntacticCheck(rec: record, adj: subanta_data, pro: subanta_data, krdav: krd
             else:
                 if flagv: result.append('The verbs do not agree in purusha and vacana')
                 else: result.append('There is more than one verb present in the sentence and there is no ¸ or ÔÚ present in the sentence.\nThe sentence is syntactically not compatible.')
+        result.append('---------------')
     return qflag, result
 def syntacticCheck1(rec: record, adj: subanta_data, pro: subanta_data, krdav: krdav_data, indeclinable: avyaya_data, krdanta: PARTICIPLE, subject: VIBHAKTI, object: VIBHAKTI, locative: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, vocative: VIBHAKTI,
                     genitive: VIBHAKTI, participle: krdanta_data, numofKrdantas: int, counter: int, dvithiya: str, karmaFlag: bool, saflag: bool): # -> (int, list[str]):
 
     result = []
     avyayaFlag = checkforAvyaya(indeclinable)
-    if (krdanta.prayoga == karmani or not karmaFlag) and counter != (ord('a') - 1):
-        result.append('%s%s'%(rec.sentence.split('(')[1][0], counter))
+    # if (krdanta.prayoga == karmani or karmaFlag == 0) and counter != (ord('a') - 1): result.append('%s%s'%(rec.sentence.split('(')[1][0], counter))
     if krdanta.krdType == 4:
         if saflag: result.append('The basic root of the krdanta is in both akarmaka/sakarmaka\nHence the sentence is in both active/passive voice')
         elif krdanta.karma == 1: result.append('The basic root of the krdanta is sakarmaka\nThe sentence is in both active/passive voice')
@@ -1070,16 +1085,15 @@ def displaytheInformation(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHA
         result.append('Noun(s)')
         classes = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)'] #, 'Vocative(s)']
         for cl, clas in enumerate([subject, object, instrument, dative, ablative, genitive, locative]): #, vocative]):
-            if clas != None:
-                if clas.numofWords > 0:
-                    res = classes[cl] + ' '
-                    for i in range(clas.numofWords): res += ': %s (%s / %s / %s)'%(clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
-                    result.append(res)
+            if clas != None and clas.numofWords > 0:
+                res = classes[cl] + ' '
+                for i in range(clas.numofWords): res += ': %s  (  %s / %s /  %s )'%(clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
+                result.append(res)
         if vocative != None:
             clas = vocative
             if clas.numofWords > 0:
                 res = 'Vocative(s) '
-                for i in range(clas.numofWords): res += 'Øá :%s (%s / %s / %s)' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
+                for i in range(clas.numofWords): res += 'Øá :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
                 result.append(res)
     for adjpro in [adj, pro]:
         if adjpro != None:
@@ -1090,9 +1104,12 @@ def displaytheInformation(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHA
                 for i, ad in enumerate(adjpro[:adjpro.numofNouns][1:]):
                     result.append('%s %s %s %s' % (adjpro.subanta[i], data1.Linga[adjpro.linga[i]], data1.Case[adjpro.vibhakti[i]], data1.Vacana[adjpro.vacana[i]]))
     if krdtemp.numofKrdantas > 0:
-        result.append('Krdanta(s):')
-        for i in range(krdtemp.numofKrdantas):
-            result.append('%s' %krdtemp.krdanta[i])
+        result.append('Krdanta(s)')
+        role = classes[krdtemp.vibhakti[0] - 1] + ' : '
+        res = [role, 'Object(s) : ', role][prayoga] if prayoga < 2 else ''
+        result.append('%s  %s ( %s / %s / %s )'%(res, krdtemp.krdanta[0], data1.Linga[krdtemp.linga[0]], data1.Case[krdtemp.vibhakti[0]], data1.Vacana[krdtemp.vacana[0]]))
+        for i in range(1, krdtemp.numofKrdantas):
+            result.append(' %s' %krdtemp.krdanta[i])
     if indeclinable != None and indeclinable.numofAvyayas > 0:
         result.append('Avyaya(s):')
         for i in range(indeclinable.numofAvyayas):
@@ -1113,12 +1130,12 @@ def displaytheInformation1(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBH
         for cl, clas in enumerate([subject, object, instrument, dative, ablative, genitive, locative]): #, vocative]):
             if clas.numofWords > 0:
                 res = classes[cl] + ' '
-                for i in range(clas.numofWords): res += ': %s (%s / %s / %s)'%(clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
+                for i in range(clas.numofWords): res += ': %s  (  %s / %s /  %s )'%(clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
                 result.append(res)
         clas = vocative
         if clas.numofWords > 0:
             res = 'Vocative(s) '
-            for i in range(clas.numofWords): res += 'Øá :%s (%s / %s / %s)' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
+            for i in range(clas.numofWords): res += 'Øá :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
             result.append(res)
     for adjpro in [adj, pro]:
         if adjpro != None and adjpro.numofNouns > 0:
@@ -1145,8 +1162,8 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
         if flag['karma'] != 2: mesg_krd = dsp.mesgk2 if krdtemp.numofKrdantas == 1 else dsp.mesgk2a
         else: mesg_krd = dsp.mesgka1 if krdtemp.numofKrdantas == 1 else dsp.mesgka2
         flag['purusha'] = checkforPurushaCompatibility(verb, clas, pro, avyayaFlag)
-        flag['vacana'] = checkForVacanaCompatibility(verb, clas, pro, avyayaFlag)
-        mesgV = [[dsp.mesgV1, dsp.mesgV2], [dsp.mesgV3, dsp.mesgV5]][[True, False].index(flag['purusha'])][[True, False].index(flag['vacana'])]
+        flag['vacana'] = checkforVacanaCompatibility(verb, clas, pro, avyayaFlag)
+        mesgV = [[dsp.mesgV1, dsp.mesgV2], [dsp.mesgV3, dsp.mesgV4]][[True, False].index(flag['purusha'])][[True, False].index(flag['vacana'])]
         mesg_y_or_n = [dsp.mesgy, dsp.mesgn][[True, False].index(flag['purusha'] and flag['vacana'])]
         if flag['a'] and flag['karma']:
             if clas.numofWords > 0:
@@ -1199,9 +1216,9 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
                             else: result.append('The %s %s\n %s %s' % (clasName, mesgV, mesg_pro, dsp.mesgn))
                     else:
                         if adj != None and adj.numofNouns > 0:
-                            if adjFlag: result.append('The %s %s\n %s %s' % (clasName, mesgV, dsp.mesga1, mesg_y_or_n))
-                            else: result.append('The %s %s\n %s %s' % (clasName, mesgV,mesg_adj, dsp.mesgn))
-                        else: result.append('The %s %s\n %s %s' % (clasName, mesgV, dsp.mesgy))
+                            if adjFlag: result.append('\nThe %s %s\n %s %s' % (clasName, mesgV, dsp.mesga1, mesg_y_or_n))
+                            else: result.append('\nThe %s %s\n %s %s' % (clasName, mesgV,mesg_adj, dsp.mesgn))
+                        else: result.append('\nThe %s %s\n %s' % (clasName, mesgV, dsp.mesgy))
             else:
                 if pro != None and pro.numofNouns > 0:
                     proFlag = checkPronounVerbCompatibility(verb, subject, object, instrument, dative, ablative, locative, genitive, vocative, pro)
@@ -1249,13 +1266,15 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
                                 else: result.append('The %s %s\n %s %s' % (mesg_adj, dsp.mesgn))
                     else:
                         if krdtemp.numofKrdantas > 0:
-                            if flag['karma']: result.append(dispMesg6f(verb.prayoga, verb.purusha, verb.vacana, clasName, krdtemp))
+                            if flag['karma']:
+                                res = dispMesg6f(verb.prayoga, verb.purusha, verb.vacana, clasName, krdtemp)
+                                if res != []: result.append(res)
                             else: result.append('The %s %s\n %s %s' % (mesg_krd, dsp.mesgn))
                         else: result.append(dispMesg6(verb.prayoga, verb.purusha, verb.vacana, clasName))
         else:
             if not flag['karma']:
                 if object.numofWords > 0:  # dispMesgKarma
-                    if verb.karma != 2 and flag['karma']: result.append('The dhatu of kradavyaya is akarmaka')
+                    if verb.karma != 2: result.append('The dhatu of kradavyaya is akarmaka')
                     else: result.append('The dhathu is akaramaka')
                     if object.numofWords == 1: result.append('There is an object in the sentence')
                     else: result.append('There are objects in the sentence')
@@ -1285,12 +1304,12 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
     allVibhaktiRoles, allVibhaktiLiterals = [subject, object, instrument, dative, ablative, genitive, locative, vocative], ['subject', 'object', 'instrument', 'dative', 'ablative', 'genitive', 'locative', 'vocative']
     flag = {'a': False, 'vacana': False, 'linga': False, 'purusha': False, 'karma': True, 'ak': False, 'ka': False, 'krdanta': 0, 'krdav': 0}
     # flag['karma'] = True
-    if adj != None and adj.numofNouns:
-        adjFlag = checkAdjorProandVibhaktiCompatibility(adj, subject, object, instrument, dative, ablative, locative,
-                                                        vocative, genitive, True)
-    if pro != None and pro.numofNouns:
-        proFlag = checkAdjorProandVibhaktiCompatibility(adj, subject, object, instrument, dative, ablative, locative,
-                                                        vocative, genitive, False)
+    if adj != None and adj.numofNouns > 0:
+        adjFlag = checkAdjorProandVibhaktiCompatibility(adj, subject, object, instrument, dative, ablative, locative, vocative, genitive, True)
+    else: adjFlag = False
+    if pro != None and pro.numofNouns > 0:
+        proFlag = checkAdjorProandVibhaktiCompatibility(adj, subject, object, instrument, dative, ablative, locative, vocative, genitive, False)
+    else: proFlag = False
     lastWordPos = 0
     for n in range(word.numofWords):
         if word.word[n] == 'krdanta':
@@ -1313,13 +1332,17 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
             if object.wordPos[i] >= lastWordPos:
                 numofObjects += 1
                 flag['karma'] = False
-    if not flag['krdav'] == 2: flag['karma'] = False
+    if flag['krdav'] == 2: flag['karma'] = False
     VinaaSahaFlag = False
     if flag['a']:
         VinaaSahaFlag = checkVinaaSahaCompatibility(indeclinable, adj, pro, object, instrument, ablative, krdtemp, verb.prayoga, False)
         if VinaaSahaFlag in [1,2]: flag['a'] = False
     result.append(displaytheInformation(subject, object, instrument, dative, ablative, locative, vocative, genitive, indeclinable, krdav, adj, pro, krdtemp, verb.prayoga))
-
+    result.append('Verb : %s ( %s / %s / %s )'%(verb.verb, verb.dhatu, data1.Person[verb.purusha], data1.Vacana[verb.vacana]))
+    clas = subject if verb.prayoga == karthari else object
+    clasName = 'subject' if verb.prayoga == karthari else 'object'
+    SubjectOrObject(flag, clas, clasName, proFlag, adjFlag, adj, pro)
+    result.append('---------------')
     return result
 def compatibilityCheck2(participle: krdanta_data, krdanta: PARTICIPLE, subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI,
                         locative: VIBHAKTI, vocative: VIBHAKTI,  genitive: VIBHAKTI, indeclinable: avyaya_data, avyayaflag: bool, errorflag: dict, dvithiya: str, krdav: krdav_data, adj: subanta_data, pro: subanta_data): # -> list[str]:
@@ -1334,7 +1357,6 @@ def compatibilityCheck2(participle: krdanta_data, krdanta: PARTICIPLE, subject: 
         mesgK = [mesgK15, mesgK48][[True, False].index(flag['case'])]
         mesg_y_or_n = [dsp.mesgy, dsp.mesgn][[True, False].index(flag['vacana'] and flag['linga'])]
         mesg_y_or_n = [mesg_y_or_n, dsp.mesgn][[True, False].index(flag['case'])]
-        # ic.ic(mesgK15, mesgK48, mesgK, flag, clasName, krdanta.get(), clas.get())
         if flag['a'] and flag['karma']:
             if clas.numofWords > 0:
                 if pro != None and pro.numofNouns > 0:
@@ -1624,10 +1646,17 @@ def checkforPurushaCompatibility(verb: VERB, vibhakti: VIBHAKTI, pro: subanta_da
                         flagp = True
                         break
         else:
-            for j in range(pro.numofNouns):
+            for j in range(vibhakti.numofWords):
+                if verb.purusha != vibhakti.purusha[j]:
+                    flagp = False
+                    break
+            flagp = True
+    elif pro != None:
+        for j in range(pro.numofNouns):
                 if verb.purusha == pro.purusha[j]:
                     flagp = True
                     break
+                else: flagp = False
     else: flagp = False
     return flagp
 def checkforVacanaCompatibility(verb: VERB, vibhakti: VIBHAKTI, pro: subanta_data, avyayaFlag: int) -> bool:
@@ -1658,11 +1687,14 @@ def checkforVacanaCompatibility(verb: VERB, vibhakti: VIBHAKTI, pro: subanta_dat
                 if verb.vacana == vibhakti.vacana[j]:
                     flagv = True
                     break
+            flagv = True
     else:
-        for j in range(pro.numofNouns):
-            if verb.vacana == pro.vacana[j]:
-                flagv = True
-                break
+        if pro != None:
+            for j in range(pro.numofNouns):
+                if verb.vacana == pro.vacana[j]:
+                    flagv = True
+                    break
+        else: flagv = True
     return flagv
 def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int, adjFlag: bool, proFlag:bool, subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, locative: VIBHAKTI, genitive: VIBHAKTI, vocative: VIBHAKTI, pro: subanta_data, adj: subanta_data, krdtemp: krdanta_data, verb: VERB): # -> list[str]:
     result = []
@@ -1825,9 +1857,9 @@ def checkAdjorProandVibhaktiCompatibility(adj: subanta_data, subject: VIBHAKTI, 
 def dispMesg6(prayoga: bool, purusha: int, vacana: int, str: str): # -> list[str
     # result = []
     # if prayoga:
-    result = [str.format('%s in %s and %s can be the %s\n%s'%(dsp.mesg, data1.Vibhakti[0], data1.Vacana[vacana - 1], str, dsp.mesgy)),
-                   str.format('%s can be assumed to be the %s\n%s' % (data1.MPurusha[vacana - 1], str, dsp.mesgy)),
-                   str.format('%s can be assumed to be the %s\n%s' % (data1.UPurusha[vacana - 1], str, dsp.mesgy))
+    result = ['%s in %s and %s can be the %s\n%s'%(dsp.mesg, dsp.Vibhakti[0], data1.Vacana[vacana - 1], str, dsp.mesgy),
+                   '\n%s can be assumed to be the %s\n%s' % (dsp.MPurusha[vacana - 1], str, dsp.mesgy),
+                   '\n%s can be assumed to be the %s\n%s' % (dsp.UPurusha[vacana - 1], str, dsp.mesgy)
                   ][purusha - 1]
     return result
 def dispMesg6f(prayoga: bool, purusha: int, vacana: int, str: str, krdtemp: krdanta_data): # -> list[str
@@ -1836,12 +1868,13 @@ def dispMesg6f(prayoga: bool, purusha: int, vacana: int, str: str, krdtemp: krda
         if krdtemp.vibhakti[i] == 1:
             if krdtemp.vacana == vacana:
                 flag = True
-                result.append([str.format('%s in %s and %s can be the %s\n%s' % (dsp.mesg, data1.Vibhakti[0], data1.Vacana[krdtemp.vacana[i] - 1], data1.Linga[krdtemp.linga[i] - 1], str, dsp.mesgy)),
-                          str.format('%s can be assumed to be the %s\n%s' % (data1.MPurusha[krdtemp.vacana[i] - 1], str, dsp.mesgy)),
-                          str.format('%s can be assumed to be the %s\n%s' % (data1.UPurusha[krdtemp.vacana[i] - 1], str, dsp.mesgy))
+                result.append(['%s in %s and %s can be the %s\n%s' % (dsp.mesg, data1.Vibhakti[0], data1.Vacana[krdtemp.vacana[i] - 1], data1.Linga[krdtemp.linga[i] - 1], str, dsp.mesgy),
+                          '\n%s can be assumed to be the %s\n%s' % (data1.MPurusha[krdtemp.vacana[i] - 1], str, dsp.mesgy),
+                          '\n%s can be assumed to be the %s\n%s' % (data1.UPurusha[krdtemp.vacana[i] - 1], str, dsp.mesgy)
                           ][purusha - 1])
             else: result.append(str.format('%s %s'%(dsp.mesg3, dsp.mesgn)))
-    if flag: result.append(dispMesg6(prayoga, purusha, vacana, str))
+    if not flag: result.append(dispMesg6(prayoga, purusha, vacana, str))
+    return result
 def dispMesg9(krdanta: PARTICIPLE, str: str):
     result = []
     if krdanta.vibhakti == 1: result.append('Any subanta in %s, %s \nand in %s can be the %s\n'%(dsp.Vibhakti[0], dsp.Vacana[krdanta.vacana - 1], dsp.Linga[krdanta.linga - 1]))
@@ -1936,9 +1969,9 @@ def checkForVacanaCompatibility(krdanta: PARTICIPLE, clas: VIBHAKTI, avyayaflag:
         if vacanaofAllWords == krdanta.vacana: return True
     else:
         for i in range(clas.numofWords):
-            flag = krdanta.vacana == clas.vacana[i]
-            if not flag: return False  # is it one of them matching krdanta or all of them matching krdanta???
-    return True
+            flag = krdanta.vibhakti == clas.vibhakti[i]
+            if flag: return True  # is it one of them matching krdanta or all of them matching krdanta???
+    return False
 def checkForLingaCompatibility(krdanta: PARTICIPLE, clas: VIBHAKTI) -> bool:
     for i in range(clas.numofWords):
         flag = krdanta.linga == clas.linga[i]
@@ -1953,7 +1986,7 @@ def checkPosandTypeofAllKrdantas(participle: krdanta_data) -> bool:
 
 
 if __name__ == '__main__':
-    fos = open('../../SenAnal/OSout.aci', 'r')
+    '''fos = open('../../SenAnal/OSout.aci', 'r')
     for line in fos:
         if line.split(' ')[0] == "ÔÚ³èÍÌè":
             rec = record()
@@ -1978,13 +2011,14 @@ if __name__ == '__main__':
     tot, i = len(tempout) // 4, 0
     for lst in out:
         i += 1
-        foutw.write('%s (%s/%s)\n' % (lst[0], i, tot))
+        foutw.write('%s  (  %s/ %s )\n' % (lst[0], i, tot))
         for lin in lst[1:]: foutw.write('%s\n' % lin)
-    foutw.close()
+    foutw.close()'''
 
     # not understood, why the code below gives extra lines when the foutw writing code above runs. Correct output if that code is commented out
 
     foutr = open('../../SenAnal/out.aci', 'r')
+    # foutr = open('../../out.aci', 'r')
     res = []
     for line in foutr:
         if line.split(' ')[0] == "ÔÚ³èÍÌè":

@@ -54,7 +54,7 @@ class krdData:
     def get(self):
         return {'linga':self.linga, 'verb':self.verb, 'nijverb':self.nijverb, 'sanverb':self.sanverb, 'GPICode':self.GPICode, 'gana':self.gana,
                 'padi':self.padi, 'it':self.it, 'dhatuVidhah':self.dhatuVidhah, 'krdantaVidhah':self.krdantaVidhah, 'combinedM':self.combinedM,
-                'wtype':self.wtype, 'pratyayaVidhah':self.pratyayaVidhah, 'karma':self.karma, 'meaning':self.meaning, 'vibvach':self.vibvach,
+                'wtype':self.wtype, 'pratyayaVidhah':self.pratyayaVidhah, 'karmaCode':self.karmaCode, 'karma':self.karma, 'meaning':self.meaning, 'vibvach':self.vibvach,
                 'vacana':self.vacana, 'vibhakti':self.vibhakti, 'sabda':self.sabda, 'erb':self.erb, 'det':self.det, 'ddet':self.ddet, 'Dno':self.Dno}
     def __str__(self):
         return json.dumps(self.get())

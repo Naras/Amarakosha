@@ -134,8 +134,92 @@
        <property name="visible"><bool>False</bool></property>
        <property name="MaximumWidth"><number>19</number></property>
       </widget></item>
-        <item><widget class="QPushButton" name="page10Button">
+         <item><widget class="QPushButton" name="page10Button">
        <property name="text"><string>10</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page11Button">
+       <property name="text"><string>11</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page12Button">
+       <property name="text"><string>12</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page13Button">
+       <property name="text"><string>13</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page14Button">
+       <property name="text"><string>14</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page15Button">
+       <property name="text"><string>15</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page16Button">
+       <property name="text"><string>16</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page17Button">
+       <property name="text"><string>17</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page18Button">
+       <property name="text"><string>18</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page19Button">
+       <property name="text"><string>19</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page20Button">
+       <property name="text"><string>20</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page21Button">
+       <property name="text"><string>21</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page22Button">
+       <property name="text"><string>22</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+         <item><widget class="QPushButton" name="page23Button">
+       <property name="text"><string>23</string></property>
+       <property name="enabled"><bool>False</bool></property>
+       <property name="visible"><bool>False</bool></property>
+       <property name="MaximumWidth"><number>19</number></property>
+      </widget></item>
+        <item><widget class="QPushButton" name="page24Button">
+       <property name="text"><string>24</string></property>
        <property name="enabled"><bool>False</bool></property>
        <property name="visible"><bool>False</bool></property>
        <property name="MaximumWidth"><number>19</number></property>
@@ -159,6 +243,10 @@
        <item><widget class="QPushButton" name="synonymsButton">
        <property name="text"><string>पर्यायशब्द(Synonyms)</string></property>
        <property name="enabled"><bool>False</bool></property>
+      </widget></item>
+       <item><widget class="QPushButton" name="syntaxButton">
+       <property name="text"><string>Syntax Analysis</string></property>
+       <property name="enabled"><bool>False</bool></property><property name="visible"><bool>False</bool></property>
       </widget></item>
        <item><widget class="QPushButton" name="nishpathiButton">
        <property name="text"><string>निश्पत्ति(Grammatical Derivation)</string></property>
