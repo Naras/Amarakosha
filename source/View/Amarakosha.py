@@ -807,10 +807,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vyutpathiSelector.setEnabled(False)
         self.lblNishpatthi.setVisible(False)
         self.txtNishpatthi.setVisible(False)
-        qry = 'select * from Sdhatu'
-        param = None
         try:
-            cols, data = AmaraKosha_Database_Queries.sqlQuery(qry, param, maxrows=0, script=self.wanted_script + 1)
+            cols, data = AmaraKosha_Database_Queries.tblSelect('Sdhatu', maxrows=0, script=self.wanted_script + 1)
             # print('%s\n%s'%(cols, data))
             self.modelDhatus.data = list(map(lambda item: (False, item[4]), data))
             self.modelDhatus.dataIscii = list(map(lambda item: (False, item[5]), data))
@@ -825,8 +823,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.menuItemChosen = 'Tiganta'
         self.resetToolbarItems()
         self.tigantaAction.setChecked(True)
-        qry = 'select * from Sdhatu'
-        param = None
         self.wanted_script = self.scriptSelector.currentIndex()
         self.wanted_script = 0 if self.wanted_script == 5 else self.wanted_script  # ban tamil, always screws up things!
         self.nishpathiButton.setVisible(False)
@@ -838,7 +834,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lblNishpatthi.setVisible(False)
         self.txtNishpatthi.setVisible(False)
         try:
-            self.colsSdhatudata, self.Sdhatudata = AmaraKosha_Database_Queries.sqlQuery(qry, param, maxrows=0, script=self.wanted_script + 1)
+            self.colsSdhatudata, self.Sdhatudata = AmaraKosha_Database_Queries.tblSelect('Sdhatu', maxrows=0, script=self.wanted_script + 1)
             self.modelDhatus.data = list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2')]), self.Sdhatudata))
             self.modelDhatus.dataIscii = list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2') + 1]), self.Sdhatudata))
             # print('loadTiganta gana=%i padi=%i it=%i'%(self.gana, self.padi, self.it))

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import codecs, itertools, logging, sys
+import codecs, logging, sys #, icecream as ic  # itertools,
 # import array
 
 # Generic Constants
@@ -618,6 +618,24 @@ class Parser:
                 self.dest.append(m)
 
         return self.pos
+    ''' we'll also do unicode to iscii by reversing the translation maps'''
+    def make_script_maps_unicode_to_iscii(self):
+        unicode_to_iscii = {}
+        for k, v in iscii_to_unicode.items(): unicode_to_iscii[v] = k
+
+        # _invalid_range = itertools.chain(range(0xEB, 0xF1), range(0xFB, 0xFF + 1))
+        curr_scr = {}
+
+        # for ch in range(0x0900, 0x097f): curr_scr[ch] = ch
+
+        for ch in unicode_to_iscii.keys(): #range(0x901, 0x96f + 1):
+            t = unicode_to_iscii[ch]
+            # if validation_table[ch & 0xFF][0]: curr_scr[ch] = t
+            curr_scr[ch] = t
+        scripts = curr_scr
+        # scripts[13], scripts[10], scripts[36] = 13, 10, 36
+        for i in range(128): scripts[i] = i
+        return scripts
 
 
 def show_usage(name):
@@ -649,6 +667,7 @@ def show_usage(name):
 
 chunk_size = 4096
 
+# print(scripts_map_unicode)
 if __name__ == '__main__':
 
     try:
@@ -663,6 +682,7 @@ if __name__ == '__main__':
 
     mypar = Parser()
     mypar.set_script(i)
+    scripts_map_unicode = mypar.make_script_maps_unicode_to_iscii()
 
     y = ''
     flush = 0
@@ -672,4 +692,6 @@ if __name__ == '__main__':
         x_as_List = [ord(char) for char in x]
         n = mypar.iscii2utf8(x_as_List, flush)
         y = x[n:]
-    print(''.join([ch for ch in mypar.write_output()]))
+    # print(''.join([ch for ch in mypar.write_output()]))
+    output = mypar.write_output()
+    print(output) #, ''.join([chr(scripts_map_unicode[ord(ch)]) for ch in output]))
