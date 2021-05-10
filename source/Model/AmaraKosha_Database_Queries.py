@@ -1,8 +1,7 @@
-import os
-
-import peewee
+import peewee, os
 from iscii2utf8 import *
-conn = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
+# conn = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
+conn = peewee.SqliteDatabase('I:\VBtoPython\Amarakosha\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
 cursor = conn.cursor()
 rowcursor = conn.cursor()
 maxrows = 5
@@ -34,6 +33,11 @@ def iscii_unicode(iscii_string, script=1):
     n = mypar.iscii2utf8(x_as_List, flush)
     # y = x[n:]
     return ''.join([ch for ch in mypar.write_output()])
+def unicode_iscii(unicode_string, script=1):
+    mypar.set_script(script)
+    scripts_map_unicode = mypar.make_script_maps_unicode_to_iscii()
+    return ''.join([chr(scripts_map_unicode[ord(ch)]) for ch in unicode_string])
+
 def schemaParse():
     cursor = conn.get_tables()
     mypar = Parser()
@@ -124,7 +128,7 @@ def tblSelect(table_name,maxrows=5,duplicate=True, script=1):
     # print(tblDF.head())
     '''
 if __name__ == '__main__':
-    cols,lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
+    cols, lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
     print('%s\n%s'%(cols, lines))
 
     cols, lines = sqlQuery('Select * from SubFin where Finform = ?', "ÏÚÌ£")
@@ -132,6 +136,14 @@ if __name__ == '__main__':
 
     cols, lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?', (383, "1A"))
     print('%s\n%s' % (cols, lines))
+
+    cols, lines = sqlQuery('select * from Sdhatu where field2 = ? ', unicode_iscii('अंश्'))
+    print('%s\n%s' % (cols, lines))
+
+    cols2, lines2 = sqlQuery('select * from Sdhatu where field1 = ? ', 383)
+    # print('%s\n%s' % (cols, lines))
+
+    print(cols == cols2, lines == lines2)
 
     tbls = schemaParse()
     print('tables %s' % tbls)

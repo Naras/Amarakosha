@@ -688,7 +688,7 @@ if __name__ == '__main__':
     flush = 0
     inp = codecs.open('source.txt',encoding='utf-8')
     for l in inp.readlines():
-        x = y + l
+        x = y + l.replace('\r\n', '\n')
         x_as_List = [ord(char) for char in x]
         n = mypar.iscii2utf8(x_as_List, flush)
         y = x[n:]

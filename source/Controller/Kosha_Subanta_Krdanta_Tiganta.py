@@ -55,7 +55,7 @@ class krdData:
         return {'linga':self.linga, 'verb':self.verb, 'nijverb':self.nijverb, 'sanverb':self.sanverb, 'GPICode':self.GPICode, 'gana':self.gana,
                 'padi':self.padi, 'it':self.it, 'dhatuVidhah':self.dhatuVidhah, 'krdantaVidhah':self.krdantaVidhah, 'combinedM':self.combinedM,
                 'wtype':self.wtype, 'pratyayaVidhah':self.pratyayaVidhah, 'karmaCode':self.karmaCode, 'karma':self.karma, 'meaning':self.meaning, 'vibvach':self.vibvach,
-                'vacana':self.vacana, 'vibhakti':self.vibhakti, 'sabda':self.sabda, 'erb':self.erb, 'det':self.det, 'ddet':self.ddet, 'Dno':self.Dno}
+                'vacana':self.vacana, 'vibhakti':self.vibhakti, 'sabda':self.sabda, 'erb':AmaraKosha_Database_Queries.iscii_unicode(self.erb), 'det':self.det, 'ddet':self.ddet, 'Dno':self.Dno}
     def __str__(self):
         return json.dumps(self.get())
 class krdAnalyData:
@@ -198,12 +198,13 @@ def krdanta_Results(qry, param, requested_script=1):
 def krdanta_Generation(dhatuNo, DhatuVidah, KrdantaVidah, KrdMode, requested_script=1):
     # pratvidha = ["तव्य",  "अनीयर्",  "य",  "क्त",  "क्तवतु",  "शतृ",  "शानच्",  "स्यशतृ",  "स्यशानच्",  "तुमुन्",  "क्त्वा"].index(dialog.KrdMode.strip())
     # KrdVidha = ["विध्यर्थः",  "भूतः",  "वर्तमानः",  "भविष्यत्",  "कृदव्ययम्"].index(dialog.KrdantaVidah.strip())
+    KrdCode = None
     KrdCodeDicts = {"विध्यर्थः": {"तव्य": "a", "अनीयर्": "a", "य": "c"}, "भूतः": {"तव्य": "d", "अनीयर्": "e"},
                     "वर्तमानः": {"तव्य": "f", "अनीयर्": "g"}, "भविष्यत्": {"तव्य": "h", "अनीयर्": "i"}, "कृदव्ययम्": {"तव्य": "A", "अनीयर्": "B"}}
-    if not KrdantaVidah == "कृदव्ययम्": KrdCode = KrdCodeDicts[KrdantaVidah][KrdMode] + {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah]
-    else: KrdCode = {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah] + KrdCodeDicts[KrdantaVidah][KrdMode]
-    krdDatas = []
-    forms = []
+    if not KrdantaVidah == "कृदव्ययम्" and KrdMode in ['तव्य', 'अनीयर्']: KrdCode = KrdCodeDicts[KrdantaVidah][KrdMode] + {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah]
+    elif KrdMode in ['तव्य', 'अनीयर्']: KrdCode = {"केवलकृदन्तः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah] + KrdCodeDicts[KrdantaVidah][KrdMode]
+    if KrdCode == None: return [], []
+    forms, krdDatas = [], []
     qry = 'select * from krud where field4=? and field5=?'
     # print('qry %s param %s'%(qry,(KrdCode, dhatuNo)))
     cols, dataKrud = AmaraKosha_Database_Queries.sqlQuery(qry, (KrdCode, dhatuNo), maxrows=0)
@@ -216,6 +217,7 @@ def krdanta_Generation(dhatuNo, DhatuVidah, KrdantaVidah, KrdMode, requested_scr
         krdDetail.krdantaVidhah = transliterate_lines(KrdantaVidah, IndianLanguages[requested_script-1])
         krdDetail.pratyayaVidhah = transliterate_lines(KrdMode, IndianLanguages[requested_script-1])
         qry = 'select * from Sufcode where code=?'
+        if len(item) < 3: return [], None
         code = item[2][:4]
         for entry in Sandhi_Convt.antas:
             if code[0] == entry[0]:
@@ -223,11 +225,12 @@ def krdanta_Generation(dhatuNo, DhatuVidah, KrdantaVidah, KrdMode, requested_scr
                 break
         # print('krdGener Sufcode: qry %s code %s'%(qry,code))
         cols, dataSufcode = AmaraKosha_Database_Queries.sqlQuery(qry, code, duplicate=False, maxrows=0)
-        # print(('krdGener sufcode %s cols %s\n%s')%(param, cols, dataSufcode))
+        # print(('krdGener sufcode %s cols %s\n%s')%(code, cols, dataSufcode))
         krdDetail.erb = item[erbInColumn]
         krdDetail.sabda = AmaraKosha_Database_Queries.iscii_unicode(item[sabdaInColumn], requested_script)
         krdDetail.linga = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.lingas[int(code[1])], requested_script)
-        suffixes = str(dataSufcode[0][2]).split(' ')
+        if dataSufcode != [] and len(dataSufcode[0]) > 2: suffixes = str(dataSufcode[0][2]).split(' ')
+        else: return [], None
         # from VB SplitAndDisplay routine
         subforms = []
         for sufcode in suffixes:

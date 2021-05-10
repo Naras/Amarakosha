@@ -842,7 +842,7 @@ def Sandhi(inword):
                         if inword[i-2] != " ":
                             if ord(ch1) == 164: pass
                             elif ord(ch1) in range(165, 178):
-                                outword += 218 - 165 + ord(ch1)
+                                outword += chr(218 - 165 + ord(ch1))
                             else: outword += ch + ch1
                         else: outword += ch1
                     else: outword += ch1
