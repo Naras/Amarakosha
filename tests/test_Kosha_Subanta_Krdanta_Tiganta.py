@@ -53,14 +53,14 @@ class Test(TestCase):
         tbls = AmaraKosha_Database_Queries.schemaParse()
         self.assertEqual(tbls, ['Amara_Words', 'Avyaya', 'Conversion_Errors', 'Conversion_Errors1', 'FINCODE', 'Janani1', 'Janani2', 'KRUD', 'KRUDAV', 'N_Sanskrit', 'STINNEW', 'SUFCODE', 'Sdhatu', 'Stinfin', 'Stinsuf', 'SubFin', 'Subanta', 'UpaCode', 'Upasarga', 'V_Hindi', 'V_Odiya', 'V_Sanskrit', 'Words_list'])
     def test_largetext(self):
-        inp = codecs.open('iscii_source.txt',encoding='utf-8')
+        inp = codecs.open('tests//iscii_source.txt',encoding='utf-8')
         src = inp.readlines()
         for line in src:
             # print(AmaraKosha_Database_Queries.iscii_unicode(line[:-2]))
             self.assertEqual(line[:-2], AmaraKosha_Database_Queries.unicode_iscii(AmaraKosha_Database_Queries.iscii_unicode(line[:-2])))
         inp.close()
 
-    def test_kosha_functions_amara(self):
+    def test_kosha_amara(self):
         # tbl, parameterName = 'Amara_Words', 'Word'
         parameters = ['स्वर्', 'स्वर्ग', 'नाक', 'त्रिदिव', 'त्रिदशालय', 'सुरलोक']
         resultsExpected = [([[['स्वर्ग', 'स्वर्', 'नाक', 'त्रिदिव'], ['त्रिदशालय', 'सुरलोक', 'द्यो', 'दिव्'], ['त्रिविष्टप', 'मन्दर']]], ['ಸ್ವರ್ಗಲೋಕ'], ['Paradise '], ['स्वर्गलोक ']),
@@ -83,7 +83,7 @@ class Test(TestCase):
         #     self.assertIn(Kosha_Subanta_Krdanta_Tiganta.Amarakosha(parameter, 1), resultsExpected)
         for resultno, parameter in enumerate(parameters):
             self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.Amarakosha(AmaraKosha_Database_Queries.unicode_iscii((parameter), 1)), resultsExpected[resultno])
-    def test_kosha_functions_subanta(self):
+    def test_kosha_subanta_generation(self):
         tbl, parameterName = 'Subanta', 'Base'
         cols, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
         parameters, resultsExpected = ['अंशक', 'अंशुक', 'अंशुमत्', 'अंशुमत्', 'अंशुमती', 'अंशुमालिन्'], \
@@ -99,7 +99,7 @@ class Test(TestCase):
                                ([], '', ''), ([], '', ''), ([], '', ''), ([], '', '')]
         for resultno, parameter in enumerate(parameters):
             self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.subanta_Generation(AmaraKosha_Database_Queries.unicode_iscii((parameter), 1)), resultsExpected[resultno])
-    def test_kosha_functions_krdanta_arthas_karmas(self):
+    def test_kosha_krdanta_arthas_karmas(self):
         # tbl, parameterName = 'Sdhatu', 'Field2'
         # cols, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
         collist = ['ID', 'ID', 'Field1', 'Field1', 'Field2', 'Field2', 'Field3', 'Field3', 'Field4', 'Field4', 'Field5', 'Field5', 'Field6', 'Field6',
@@ -4627,8 +4627,6 @@ class Test(TestCase):
                         else: dupKrdKeys.append([dhatuVidah, krdantaVidah, krdMode])
                     else: emptyKrd.append([dhatuVidah, krdantaVidah, krdMode])
         return f, k, emptyForms, emptyKrd, dupFormKeys, dupKrdKeys
-    # def assertsFormsKrds(self, dhatuNo, dhatuVidah, krdantaVidah, krdMode, krdGen, form):
-    #     self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.krdanta_Generation(dhatuNo, dhatuVidah, krdantaVidah, krdMode), (krdGen, form))
     def test_tiganta_generation(self):
         resultExpectedForms = [
 {'अंश्': ['णिजन्तः', 'कर्तरि', 'लुङ्', [['अंशिष्', 'अंशिषतु', 'अंशिषुः'], ['अंशिषि', 'अंशिषथु', 'अंशिष्'], ['अंशिष्', 'अंशिषि', 'अंशिषि'], ['अंशिष्', 'अंशिषतु', 'अंशिषुः'], ['अंशिषि', 'अंशिषथु', 'अंशिष्'], ['अंशिष्', 'अंशिषि', 'अंशिषि']]]} ,
@@ -5283,3 +5281,117 @@ class Test(TestCase):
                     else:
                         emptyTig.append([dhatuVidah, voice, lakara])
         return f, k, emptyForms, emptyTig, dupFormKeys, dupTigKeys
+    def test_subanta_analysis(self):
+        '''tbl, parameterName = 'Subanta', 'Field1'
+        cols, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
+        for ro in data:
+            try:
+                word = AmaraKosha_Database_Queries.unicode_iscii(ro[cols.index('Base')])
+                forms, anta, linga, rupam, vibhakti, vacana, base, erb, det, vibvach = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word)
+                ic.ic(ro[cols.index('Base')], anta, linga, rupam, vibhakti, vacana, AmaraKosha_Database_Queries.iscii_unicode(base), AmaraKosha_Database_Queries.iscii_unicode(erb), det, vibvach)
+            except Exception as e:
+                print(e)
+                continue'''
+        # print(' '.join(AmaraKosha_Database_Queries.iscii_unicode(word) for word in ['ÏÚÌ£', '¤Ïè¶èÍáÁ', 'ªÖÛ¢', 'ÈÞºÍÂÛ', 'ê']))
+        Devanagari, Bengali, Gurmukhi, Gujarati, Oriya, Tamizh, Telugu, Kannada, Malayalam = 1, 2, 3, 4, 5, 6, 7, 8, 9
+        languageScript = Devanagari
+        for word in 'रामः अर्घ्येण ऋषिं पूजयति ।'.split(' '):  # ['ÏÚÌ£', '¤Ïè¶èÍáÁ', 'ªÖÛ¢', 'ÈÞºÍÂÛ', 'ê']:
+            try:
+                word = AmaraKosha_Database_Queries.unicode_iscii(word)
+                forms, subantas = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word, languageScript)
+                # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(word, languageScript), forms)
+                # for item in subantas: ic.ic(item.anta, item.linga, item.rupam, item.vib, item.vach, AmaraKosha_Database_Queries.iscii_unicode(item.base), AmaraKosha_Database_Queries.iscii_unicode(item.erb), item.det, item.vibvach)
+            except Exception as e:
+                wrd = str(e).split(' ')[3]
+                self.assertIn(wrd, ['पूजयति', '।'])
+                print(e)
+                continue
+    def test_krdanta_analysis(self):
+        # f, k = {}, {}
+        resultsExpectedForms = {
+            'पूजयति': [['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '], ['पूजयन्तम् ', 'पूजयन्तौ ', 'पूजयतः '],
+                       ['पूजयता ', 'पूजयद्भ्याम् ', 'पूजयद्भिः '], ['पूजयते ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+                       ['पूजयतः ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '], ['पूजयतः ', 'पूजयतोः ', 'पूजयताम् '],
+                       ['पूजयति ', 'पूजयतोः ', 'पूजयत्सु '], ['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '],
+                       ['पूजयन्तम् ', 'पूजयन्तौ ', 'पूजयतः '], ['पूजयता ', 'पूजयद्भ्याम् ', 'पूजयद्भिः '],
+                       ['पूजयते ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '], ['पूजयतः ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+                       ['पूजयतः ', 'पूजयतोः ', 'पूजयताम् '], ['पूजयति ', 'पूजयतोः ', 'पूजयत्सु '],
+                       ['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '], ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '],
+                       ['पूजयता ', 'पूजयद्भ्याम् ', 'पूजयद्भिः '], ['पूजयते ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+                       ['पूजयतः ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '], ['पूजयतः ', 'पूजयतोः ', 'पूजयताम् '],
+                       ['पूजयति ', 'पूजयतोः ', 'पूजयत्सु '], ['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '],
+                       ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '], ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '],
+                       ['पूजयते ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '], ['पूजयतः ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+                       ['पूजयतः ', 'पूजयतोः ', 'पूजयताम् '], ['पूजयति ', 'पूजयतोः ', 'पूजयत्सु '],
+                       ['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '], ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '],
+                       ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '], ['पूजयता ', 'पूजयद्भ्याम् ', 'पूजयद्भिः ']]}
+        resultsExpectedKrd = {'पूजयति': [
+            {'linga': 'पुल्लिङ्गः', 'verb': 'पूज्', 'nijverb': 'पूजय्', 'sanverb': 'पुपूजि', 'GPICode': '931',
+             'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्', 'dhatuVidhah': 'णिजन्तः', 'krdantaVidhah': 'वर्तमानः',
+             'combinedM': None, 'wtype': None, 'pratyayaVidhah': 'शतृ', 'karmaCode': '0', 'karma': 'सकर्मकः',
+             'meaning': 'पूजायाम', 'vibvach': 18, 'vacana': 'एकवचन', 'vibhakti': 'सप्तमी', 'sabda': 'पूजयत्',
+             'erb': 'पूजय', 'det': 's1032', 'ddet': 'f1', 'Dno': 252},
+            {'linga': 'नपुंसकलिङ्गः', 'verb': 'पूज्', 'nijverb': 'पूजय्', 'sanverb': 'पुपूजि', 'GPICode': '931',
+             'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्', 'dhatuVidhah': 'णिजन्तः', 'krdantaVidhah': 'वर्तमानः',
+             'combinedM': None, 'wtype': None, 'pratyayaVidhah': 'शतृ', 'karmaCode': '0', 'karma': 'सकर्मकः',
+             'meaning': 'पूजायाम', 'vibvach': 18, 'vacana': 'एकवचन', 'vibhakti': 'सप्तमी', 'sabda': 'पूजयत्',
+             'erb': 'पूजय', 'det': 's2031', 'ddet': 'f1', 'Dno': 252},
+            {'linga': 'पुल्लिङ्गः', 'verb': 'पूज्', 'nijverb': 'पूजय्', 'sanverb': 'पुपूजि', 'GPICode': '931',
+             'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्', 'dhatuVidhah': 'सन्नन्तः',
+             'krdantaVidhah': 'वर्तमानः', 'combinedM': None, 'wtype': None, 'pratyayaVidhah': 'शतृ', 'karmaCode': '0',
+             'karma': 'सकर्मकः', 'meaning': 'पूजायाम', 'vibvach': 18, 'vacana': 'एकवचन', 'vibhakti': 'सप्तमी',
+             'sabda': 'पूजयत्', 'erb': 'पूजय', 'det': 's1032', 'ddet': 'f2', 'Dno': 252},
+            {'linga': 'नपुंसकलिङ्गः', 'verb': 'पूज्', 'nijverb': 'पूजय्', 'sanverb': 'पुपूजि', 'GPICode': '931',
+             'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्', 'dhatuVidhah': 'सन्नन्तः',
+             'krdantaVidhah': 'वर्तमानः', 'combinedM': None, 'wtype': None, 'pratyayaVidhah': 'शतृ', 'karmaCode': '0',
+             'karma': 'सकर्मकः', 'meaning': 'पूजायाम', 'vibvach': 18, 'vacana': 'एकवचन', 'vibhakti': 'सप्तमी',
+             'sabda': 'पूजयत्', 'erb': 'पूजय', 'det': 's2031', 'ddet': 'f2', 'Dno': 252}]}
+
+        Devanagari, Bengali, Gurmukhi, Gujarati, Oriya, Tamizh, Telugu, Kannada, Malayalam = 1, 2, 3, 4, 5, 6, 7, 8, 9
+        languageScript = Devanagari
+        for word in 'रामः अर्घ्येण ऋषिं पूजयति ।'.split(' '):  # ['ÏÚÌ£', '¤Ïè¶èÍáÁ', 'ªÖÛ¢', 'ÈÞºÍÂÛ', 'ê']:
+            try:
+                forms, krdantas = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(AmaraKosha_Database_Queries.unicode_iscii(word), languageScript)
+                # f[word], k[word] = forms, [krdDetail.get() for krdDetail in krdantas]
+                self.assertEqual(forms, resultsExpectedForms[word])
+                self.assertEqual([krdDetail.get() for krdDetail in krdantas], resultsExpectedKrd[word])
+            except Exception as e:
+                wrd = str(e).split(' ')[3]
+                self.assertIn(wrd, ['रामः', 'अर्घ्येण', 'ऋषिं', '।'])
+                print(e)
+                continue
+        # print('resultsExpectedForms = ', f, '\nresultsExpectedKrd = ', k)
+    def test_tiganta_analysis(self):
+        # f, t = {}, {}
+        resultsExpectedForms = {'रामः': [['रति', 'रतः', 'रन्ति'], ['रसि', 'रथः', 'र'], ['रामि', 'रावः', 'रामः']],
+                                'पूजयति': [['पूजयति', 'पूजयतः', 'पूजयन्ति'], ['पूजयसि', 'पूजयथः', 'पूजय'],
+                                           ['पूजयामि', 'पूजयावः', 'पूजयामः'], ['पूजय्', 'पूजयतु', 'पूजयुः'],
+                                           ['पूजयि', 'पूजयथु', 'पूजय्'], ['पूजय्', 'पूजयि', 'पूजयि']]}
+        resultsExpectedTig = {'रामः': [
+            {'tigform': 'र्आम्अः', 'verb': 'रा', 'nijverb': 'रापि', 'sanverb': 'रिरास्', 'GPICode': '112',
+             'gana': 'अदादिगणः', 'padi': 'परस्मैपदी', 'it': 'अनिट्', 'dhatuVidah': 'केवलतिगंतः', 'karma': 'सकर्मकः',
+             'meaning': 'दाने1/', 'vacana': 'बहुवचन', 'purusha': 'उत्तमपुरुषः', 'purvach': 9, 'lakaras': 'लट्'}],
+                              'पूजयति': [
+                                  {'tigform': 'प्ऊज्अय्अत्इ', 'verb': 'पूज्', 'nijverb': 'पूजय्', 'sanverb': 'पुपूजि',
+                                   'GPICode': '931', 'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्',
+                                   'dhatuVidah': 'केवलतिगंतः', 'karma': 'सकर्मकः', 'meaning': 'पूजायाम्1/',
+                                   'vacana': 'एकवचन', 'purusha': 'प्रथमपुरुषः', 'purvach': 1, 'lakaras': 'लट्'},
+                                  {'tigform': 'प्ऊज्अय्अत्इ', 'verb': 'पूज्', 'nijverb': 'पूजय्', 'sanverb': 'पुपूजि',
+                                   'GPICode': '931', 'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्',
+                                   'dhatuVidah': 'णिजन्तः', 'karma': 'सकर्मकः', 'meaning': 'पूजायाम्1/',
+                                   'vacana': 'एकवचन', 'purusha': 'प्रथमपुरुषः', 'purvach': 1, 'lakaras': 'लट्'}]}
+
+        Devanagari, Bengali, Gurmukhi, Gujarati, Oriya, Tamizh, Telugu, Kannada, Malayalam = 1, 2, 3, 4, 5, 6, 7, 8, 9
+        languageScript = Devanagari
+        for word in 'रामः अर्घ्येण ऋषिं पूजयति ।'.split(' '):  # ['ÏÚÌ£', '¤Ïè¶èÍáÁ', 'ªÖÛ¢', 'ÈÞºÍÂÛ', 'ê']:
+            try:
+                forms, tigantas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(AmaraKosha_Database_Queries.unicode_iscii(word), languageScript)
+                # f[word], t[word] = forms, [tigDetail.get() for tigDetail in tigantas]
+                self.assertEqual(forms, resultsExpectedForms[word])
+                self.assertEqual([tigDetail.get() for tigDetail in tigantas], resultsExpectedTig[word])
+            except Exception as e:
+                wrd = str(e).split(' ')[3]
+                self.assertIn(wrd, ['अर्घ्य्ए', 'ऋष्इ', ''])
+                print(e)
+                continue
+        # print('resultsExpectedForms = ', f, '\nresultsExpectedTig = ', t)

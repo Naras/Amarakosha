@@ -1,7 +1,6 @@
 import peewee, os
 from iscii2utf8 import *
-# conn = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
-conn = peewee.SqliteDatabase('I:\VBtoPython\Amarakosha\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
+conn = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
 cursor = conn.cursor()
 rowcursor = conn.cursor()
 maxrows = 5
@@ -131,7 +130,7 @@ if __name__ == '__main__':
     cols, lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
     print('%s\n%s'%(cols, lines))
 
-    cols, lines = sqlQuery('Select * from SubFin where Finform = ?', "ÏÚÌ£")
+    cols, lines = sqlQuery('Select * from SubFin where Finform = ?', 'ÏÚÌ£')
     print('%s\n%s' % (cols, lines))
 
     cols, lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?', (383, "1A"))

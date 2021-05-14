@@ -1,4 +1,5 @@
 import json, source.Controller.data1 as data1, source.Controller.disp as dsp, functools as ft #, icecream as ic
+from typing import List
 
 class subanta:
     def __init__(self):
@@ -25,7 +26,7 @@ class result:
         word = [None] * 1000  # type: list[str]
         noOfIdens = None  # type: int
 
-def splitTheWord(word):
+def splitTheWord(word: str) -> split:
     fp = ''  # type: str
     sp = ''  # type: str
     splitWords = split()
@@ -316,7 +317,7 @@ def flatten(item, lst=[]) -> list:
     else: lst.append(item)
     return lst
 
-def checkForSyntacticCompatibility(rec: record): # -> list[str]:
+def checkForSyntacticCompatibility(rec: record) -> List[str]:
     def assign_subanta() -> subanta_data:
         # noun = subanta_data()
         noun.subanta[noun.numofNouns] = splitSen[1]
@@ -432,10 +433,10 @@ def checkForSyntacticCompatibility(rec: record): # -> list[str]:
     if verb != None and verb.numofVerbs > 0:
         result = checkCompatibility1(rec, noun, verb, participle, indeclinable, krdav, adj, pro, word)
     elif participle != None and participle.numofKrdantas > 0:
-        qflag, result = checkCompatibility(rec, noun, participle, indeclinable, krdav, adj, pro, word)
+        qflag, result = checkCompatibility(rec, noun, participle, indeclinable, krdav, adj, pro)
     else: result = dispMesgNoun(rec, noun, indeclinable, krdav, adj, pro)
     return result
-def checkCompatibility1(rec: record, noun: subanta_data, verb: tiganta_data, participle: krdanta_data, indeclinable: avyaya_data, krdav: krdav_data, adj: subanta_data, pro: subanta_data, word: typeWord): # -> list[str]:
+def checkCompatibility1(rec: record, noun: subanta_data, verb: tiganta_data, participle: krdanta_data, indeclinable: avyaya_data, krdav: krdav_data, adj: subanta_data, pro: subanta_data, word: typeWord) -> List[str]:
     # krdtemp = krdanta_data()
     # Verb = VERB()
     # subject, object, locative, instrument, third, dative, ablative, vocative, genitive, second = \
@@ -593,7 +594,7 @@ def checkCompatibility1(rec: record, noun: subanta_data, verb: tiganta_data, par
                                                    genitive, krdtemp, verb, participle.numofKrdantas, counter, dvithiya, karmaFlag, word)
                     else:
                         counter += 1
-                        qflag, result = syntacticCheck(rec, adj, pro, krdav, indeclinable, vrb, subject, object, locative,instrument, dative, ablative, vocative,
+                        qflag, result = syntacticCheck(adj, pro, krdav, indeclinable, vrb, subject, object, locative,instrument, dative, ablative, vocative,
                                                genitive, krdtemp, verb, verb.numofVerbs, counter, dvithiya, karmaFlag, word)
                 verb.karma[i] = 0
         else:
@@ -631,11 +632,11 @@ def checkCompatibility1(rec: record, noun: subanta_data, verb: tiganta_data, par
                         counter += 1
                         qflag, result = syntacticCheck(rec, adj, pro, krdav, indeclinable, vrb, subject, object, locative,instrument, dative, ablative, vocative,
                                                genitive, krdtemp, verb, verb.numofVerbs, counter, dvithiya, karmaFlag, word)
-                else: qflag, result = syntacticCheck(rec, adj, pro, krdav, indeclinable, vrb, subject, object, locative, instrument, dative, ablative, vocative,
+                else: qflag, result = syntacticCheck(adj, pro, krdav, indeclinable, vrb, subject, object, locative, instrument, dative, ablative, vocative,
                                                genitive, krdtemp, verb, verb.numofVerbs, counter, dvithiya, karmaFlag, word)
         if not qflag: break
     return result
-def checkCompatibility(rec: record, noun: subanta_data, participle: krdanta_data, indeclinable: avyaya_data, krdav: krdav_data, adj: subanta_data, pro: subanta_data, word: typeWord) -> bool:
+def checkCompatibility(rec: record, noun: subanta_data, participle: krdanta_data, indeclinable: avyaya_data, krdav: krdav_data, adj: subanta_data, pro: subanta_data) -> bool:
     saflag = False
     for i in range(participle.numofKrdantas):
         if participle.krdType[i] == 4:
@@ -796,11 +797,11 @@ def checkCompatibility2(rec: record, noun: subanta_data, participle: krdanta_dat
                                 instrument.wordPos[subject.numofWords] == third.wordPos[cc]
                                 instrument.numofwords += 1
                         counter += 1
-                        qflag, result = syntacticCheck1(rec, adj, pro, krdav, indeclinable, krdanta, subject, object, locative, instrument, dative, ablative, vocative,
+                        qflag, result = syntacticCheck1(adj, pro, krdav, indeclinable, krdanta, subject, object, locative, instrument, dative, ablative, vocative,
                                                genitive, participle, participle.numofKrdantas, counter, dvithiya, karmaFlag, word)
                 else:
                     counter += 1
-                    qflag, result = syntacticCheck1(rec, adj, pro, krdav, indeclinable, krdanta, subject, object, locative, instrument, dative, ablative, vocative,
+                    qflag, result = syntacticCheck1(adj, pro, krdav, indeclinable, krdanta, subject, object, locative, instrument, dative, ablative, vocative,
                                                genitive, participle, participle.numofKrdantas, counter, dvithiya, karmaFlag, word)
             krdanta.karma = 0
         else:
@@ -838,10 +839,10 @@ def checkCompatibility2(rec: record, noun: subanta_data, participle: krdanta_dat
                     counter += 1
                     qflag, result = syntacticCheck1(rec, adj, pro, krdav, indeclinable, krdanta, subject, object, locative,instrument, dative, ablative, vocative,
                                            genitive, participle, participle.numofKrdantas, counter, dvithiya, karmaFlag, saflag)
-            else: qflag, result = syntacticCheck1(rec, adj, pro, krdav, indeclinable, krdanta, subject, object, locative, instrument, dative, ablative, vocative,
+            else: qflag, result = syntacticCheck1(adj, pro, krdav, indeclinable, krdanta, subject, object, locative, instrument, dative, ablative, vocative,
                                            genitive, participle, participle.numofKrdantas, counter, dvithiya, karmaFlag, saflag)
     return qflag, result
-def dispMesgNoun(rec: record, noun: subanta_data, indeclinable: avyaya_data, krdav: krdav_data, adj: subanta_data, pro: subanta_data): # -> list[str]:
+def dispMesgNoun(rec: record, noun: subanta_data, indeclinable: avyaya_data, krdav: krdav_data, adj: subanta_data, pro: subanta_data) -> List[str]:
     result = [rec.sentence]
     for c, cl in enumerate(noun, adj, pro):
         result.append(['Noun(s) are:', 'Adjective(s) are:', 'Pronoun(s) are:'][c])
@@ -877,8 +878,8 @@ def getKrdantadata(participle: krdanta_data, tiganta: str) -> krdanta_data():
                m += 1
     krdtemp.numofKrdantas = m
     return krdtemp
-def syntacticCheck(rec: record, adj: subanta_data, pro: subanta_data, krdav: krdav_data, indeclinable: avyaya_data, verb: VERB, subject: VIBHAKTI, object: VIBHAKTI, locative: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, vocative: VIBHAKTI,
-                   genitive: VIBHAKTI, krdtemp: krdanta_data, verbs: tiganta_data, numofVerbs: int, counter: int, dvithiya: str, karmaFlag: bool, word: str): # -> (int, list[str]):
+def syntacticCheck(adj: subanta_data, pro: subanta_data, krdav: krdav_data, indeclinable: avyaya_data, verb: VERB, subject: VIBHAKTI, object: VIBHAKTI, locative: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, vocative: VIBHAKTI,
+                   genitive: VIBHAKTI, krdtemp: krdanta_data, verbs: tiganta_data, numofVerbs: int, counter: int, dvithiya: str, karmaFlag: bool, word: str) -> (int, List[str]):
 
     result, qflag = [], 0
     avyayaFlag = checkforAvyaya(indeclinable)
@@ -947,8 +948,8 @@ def syntacticCheck(rec: record, adj: subanta_data, pro: subanta_data, krdav: krd
                 else: result.append('There is more than one verb present in the sentence and there is no ¸ or ÔÚ present in the sentence.\nThe sentence is syntactically not compatible.')
         result.append('---------------')
     return qflag, result
-def syntacticCheck1(rec: record, adj: subanta_data, pro: subanta_data, krdav: krdav_data, indeclinable: avyaya_data, krdanta: PARTICIPLE, subject: VIBHAKTI, object: VIBHAKTI, locative: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, vocative: VIBHAKTI,
-                    genitive: VIBHAKTI, participle: krdanta_data, numofKrdantas: int, counter: int, dvithiya: str, karmaFlag: bool, saflag: bool): # -> (int, list[str]):
+def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, indeclinable: avyaya_data, krdanta: PARTICIPLE, subject: VIBHAKTI, object: VIBHAKTI, locative: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, vocative: VIBHAKTI,
+                    genitive: VIBHAKTI, participle: krdanta_data, numofKrdantas: int, counter: int, dvithiya: str, karmaFlag: bool, saflag: bool) -> (int, List[str]):
 
     result = []
     avyayaFlag = checkforAvyaya(indeclinable)
@@ -1076,7 +1077,7 @@ def checkPosofAvyaya(indeclinable: avyaya_data, vibhakti: VIBHAKTI, avyayaFlag: 
                     aflag = avyayaFlag
     return aflag
 def displaytheInformation(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, locative: VIBHAKTI, vocative: VIBHAKTI, genitive: VIBHAKTI, indeclinable: avyaya_data, krdav: krdav_data,
-                          adj: subanta_data, pro: subanta_data,  krdtemp: krdanta_data, prayoga: int): # -> list[str]:
+                          adj: subanta_data, pro: subanta_data,  krdtemp: krdanta_data, prayoga: int) -> List[str]:
     result = []
     some_part_of_speech = 0
     for clas in [subject, object, instrument, dative, ablative, genitive, locative, vocative]:
@@ -1121,7 +1122,7 @@ def displaytheInformation(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHA
          result.append('Krdavyaya(s):' + res)
     return result
 def displaytheInformation1(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI,locative: VIBHAKTI, vocative: VIBHAKTI, genitive: VIBHAKTI, indeclinable: avyaya_data, krdav: krdav_data,
-                          adj: subanta_data, pro: subanta_data,  prayoga: int): # -> list[str]:
+                          adj: subanta_data, pro: subanta_data,  prayoga: int) -> List[str]:
     result = []
     if sum([subject.numofWords, object.numofWords, instrument.numofWords, dative.numofWords, ablative.numofWords, genitive.numofWords,
         locative.numofWords, vocative.numofWords]) > 0:
@@ -1155,7 +1156,7 @@ def displaytheInformation1(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBH
         result.append('Krdavyaya(s):' + res)
     return result
 def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, locative: VIBHAKTI, vocative: VIBHAKTI, genitive: VIBHAKTI, indeclinable: avyaya_data,
-                        avyayaFlag: bool, errorflag: dict, dvithiya: str, adj: subanta_data, pro: subanta_data, word: typeWord): # -> list[str]:
+                        avyayaFlag: bool, errorflag: dict, dvithiya: str, adj: subanta_data, pro: subanta_data, word: typeWord) -> List[str]:
     def SubjectOrObject(flag, clas, clasName, proFlag, adjFlag, adj, pro):
         mesg_adj = dsp.mesga2 if adj != None and adj.numofNouns == 1 else dsp.mesga2a   #][[1].get(adj.numofNouns, 1)]
         mesg_pro = dsp.mesgp2 if pro != None and pro.numofNouns == 1 else dsp.mesgp2a  #][[1].get(pro.numofNouns, 1)]
@@ -1345,7 +1346,7 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
     result.append('---------------')
     return result
 def compatibilityCheck2(participle: krdanta_data, krdanta: PARTICIPLE, subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI,
-                        locative: VIBHAKTI, vocative: VIBHAKTI,  genitive: VIBHAKTI, indeclinable: avyaya_data, avyayaflag: bool, errorflag: dict, dvithiya: str, krdav: krdav_data, adj: subanta_data, pro: subanta_data): # -> list[str]:
+                        locative: VIBHAKTI, vocative: VIBHAKTI,  genitive: VIBHAKTI, indeclinable: avyaya_data, avyayaflag: bool, errorflag: dict, dvithiya: str, krdav: krdav_data, adj: subanta_data, pro: subanta_data) -> List[str]:
     def SubjectOrObject(flag, clas, clasName, proFlag, adjFlag, adj, pro):
         mesg_adj = dsp.mesga2 if adj != None and adj.numofNouns == 1 else dsp.mesga2a   #][[1].get(adj.numofNouns, 1)]
         mesg_pro = dsp.mesgp2 if pro != None and pro.numofNouns == 1 else dsp.mesgp2a  #][[1].get(pro.numofNouns, 1)]
@@ -1696,10 +1697,10 @@ def checkforVacanaCompatibility(verb: VERB, vibhakti: VIBHAKTI, pro: subanta_dat
                     break
         else: flagv = True
     return flagv
-def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int, adjFlag: bool, proFlag:bool, subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, locative: VIBHAKTI, genitive: VIBHAKTI, vocative: VIBHAKTI, pro: subanta_data, adj: subanta_data, krdtemp: krdanta_data, verb: VERB): # -> list[str]:
+def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int, adjFlag: bool, proFlag:bool, subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, locative: VIBHAKTI, genitive: VIBHAKTI, vocative: VIBHAKTI, pro: subanta_data, adj: subanta_data, krdtemp: krdanta_data, verb: VERB) -> List[str]:
     result = []
     mesgV = [[dsp.mesgV1, dsp.mesgV2], [dsp.mesgV3, dsp.mesgV4]][[True, False].index(flagp)][[True, False].index(flagv)]
-    mesg_y_or_n = [dsp.mesgy, dsp.mesgn][[True, False]].index(flagp and flagv)
+    mesg_y_or_n = [dsp.mesgy, dsp.mesgn][[True, False].index(flagp and flagv)]
     mesg_adj = [dsp.mesga2, dsp.mesga2a][[1].get(adj.numofNouns, 1)]
     mesg_pro = [dsp.mesgp2, dsp.mesgp2a][[1].get(pro.numofNouns, 1)]
     mesg_krd = [[dsp.mesgka1, dsp.mesgka2], [dsp.mesgk2, dsp.msgk2a]][[2].get(flagk, 1)][[1].get(krdtemp.numofKrdantas, 1)]
@@ -1793,7 +1794,7 @@ def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int
                     else: result.append(str.format('%s %s\n %s %s\n %s %s' % (str, mesgV, dsp.mesga1, mesg_krd, dsp.mesgn)))
                 else: result.append(result.append(str.format('%s %s\n %s %s\n %s %s' % (mesg_adj, dsp.mesgn))))
     return result
-def analyseAkarmakaWithoutObjects1(str :str, flagc: bool, flagv: bool, flagl: bool, adjFlag: bool, proFlag:bool, subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, locative: VIBHAKTI, genitive: VIBHAKTI, vocative: VIBHAKTI, pro: subanta_data, adj: subanta_data, krdanta: PARTICIPLE): # -> list[str]:
+def analyseAkarmakaWithoutObjects1(str :str, flagc: bool, flagv: bool, flagl: bool, adjFlag: bool, proFlag:bool, subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, locative: VIBHAKTI, genitive: VIBHAKTI, vocative: VIBHAKTI, pro: subanta_data, adj: subanta_data, krdanta: PARTICIPLE) -> List[str]:
     result = []
     mesg_y_or_n = [dsp.mesgy, dsp.mesgn][[True, False].index(flagl and flagv)]
     mesg_adj = [dsp.mesga2, dsp.mesga2a][[1].get(adj.numofNouns, 1)]
@@ -1854,7 +1855,7 @@ def checkAdjorProandVibhaktiCompatibility(adj: subanta_data, subject: VIBHAKTI, 
             for x in range(adj.numofnouns):
                 if clas.wordPos[x] == adj.wordNum[x] and clas.vibhakti[y] == adj.vibhakti[x] and clas.vacana[y] == adj.vacana[x] and clas.linga[y] == adj.linga[x]: flag = 1
     return flag
-def dispMesg6(prayoga: bool, purusha: int, vacana: int, str: str): # -> list[str
+def dispMesg6(prayoga: bool, purusha: int, vacana: int, str: str) -> List[str]:
     # result = []
     # if prayoga:
     result = ['%s in %s and %s can be the %s\n%s'%(dsp.mesg, dsp.Vibhakti[0], data1.Vacana[vacana - 1], str, dsp.mesgy),
@@ -1862,7 +1863,7 @@ def dispMesg6(prayoga: bool, purusha: int, vacana: int, str: str): # -> list[str
                    '\n%s can be assumed to be the %s\n%s' % (dsp.UPurusha[vacana - 1], str, dsp.mesgy)
                   ][purusha - 1]
     return result
-def dispMesg6f(prayoga: bool, purusha: int, vacana: int, str: str, krdtemp: krdanta_data): # -> list[str
+def dispMesg6f(prayoga: bool, purusha: int, vacana: int, str: str, krdtemp: krdanta_data) -> List[str]:
     result, flag = [], False
     for i in range(krdtemp.numofKrdantas):
         if krdtemp.vibhakti[i] == 1:
@@ -1875,7 +1876,7 @@ def dispMesg6f(prayoga: bool, purusha: int, vacana: int, str: str, krdtemp: krda
             else: result.append(str.format('%s %s'%(dsp.mesg3, dsp.mesgn)))
     if not flag: result.append(dispMesg6(prayoga, purusha, vacana, str))
     return result
-def dispMesg9(krdanta: PARTICIPLE, str: str):
+def dispMesg9(krdanta: PARTICIPLE, str: str) -> List[str]:
     result = []
     if krdanta.vibhakti == 1: result.append('Any subanta in %s, %s \nand in %s can be the %s\n'%(dsp.Vibhakti[0], dsp.Vacana[krdanta.vacana - 1], dsp.Linga[krdanta.linga - 1]))
     else: result.append('No matching subject is available')
@@ -1883,8 +1884,8 @@ def dispMesg9(krdanta: PARTICIPLE, str: str):
     return result
 def dispMesg9a(krdanta: PARTICIPLE, str: str):
     result = []
-    if krdanta.vibhakti == 1: result.append(str.format('Any subanta in %s, %s \nand in %s can be the %s\n'%(dsp.Vibhakti[0], dsp.Vacana[krdanta.vacana - 1], dsp.Linga[krdanta.linga - 1])))
-    result.append(str.format('%s %s'(dsp.mesga1, dsp.mesgy)))
+    if krdanta.vibhakti == 1: result.append('Any subanta in %s, %s \nand in %s can be the %s\n'%(dsp.Vibhakti[0], dsp.Vacana[krdanta.vacana - 1], dsp.Linga[krdanta.linga - 1]))
+    result.append('%s %s'%(dsp.mesga1, dsp.mesgy))
     return result
 def getPurushaofAllVerbs(verb: tiganta_data) -> bool:
     if verb != None:
@@ -1914,7 +1915,7 @@ def checkPosandTypeofAllKrdantas(participle: krdanta_data) -> bool:
             if not flag: break
     else: flag = False
     return flag
-def checkPronounKrdantaCompatibility(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, genitive: VIBHAKTI, locative: VIBHAKTI, vocative: VIBHAKTI, krdanta: PARTICIPLE, pro: subanta_data): #list(str)
+def checkPronounKrdantaCompatibility(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, genitive: VIBHAKTI, locative: VIBHAKTI, vocative: VIBHAKTI, krdanta: PARTICIPLE, pro: subanta_data) -> bool:
     flag = False
     if subject.numofWords == 0:
         for ii in range(pro.numofNouns):
@@ -2017,8 +2018,8 @@ if __name__ == '__main__':
 
     # not understood, why the code below gives extra lines when the foutw writing code above runs. Correct output if that code is commented out
 
-    foutr = open('../../SenAnal/out.aci', 'r')
-    # foutr = open('../../out.aci', 'r')
+    # foutr = open('../../SenAnal/out.aci', 'r')
+    foutr = open('../../out.aci', 'r')
     res = []
     for line in foutr:
         if line.split(' ')[0] == "ÔÚ³èÍÌè":

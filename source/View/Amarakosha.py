@@ -853,7 +853,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         fname = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
         if fname[0]:
             f = open(fname[0], 'r')
-            self.synonymsButton.setText('ಪದರೂಪ ವಿಶ್ಲೇಷಣೆ(Morphological Analysis)')
+            self.synonymsButton.setText('पदरूप विश्लेषण/ಪದರೂಪ ವಿಶ್ಲೇಷಣೆ/Morphological Analysis')
             # self.syntaxButton.setVisible(True)
             self.wanted_script = self.scriptSelector.currentIndex()
             self.listView.clicked.connect(self.enableSynonymsButton)
@@ -1025,16 +1025,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     #               self.txtPratipadika, self.txtSabda]
                     numpages = 0
                     for i, word in enumerate(bas.split(' ')):
+                        if word.strip() == '': continue
                         wids = 1
                         try:
-                            forms, anta, linga, rupam, vibhakti, vacana, base, erb, det, vibvach = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word, self.wanted_script+1)
+                            forms, subDetails = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word, self.wanted_script+1)
                             if not forms==[]:
                                 self.subforms += forms
-                                numpages += 1
-                                self.Subantas.append([rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(base),
-                                                                                 IndianLanguages[self.wanted_script]), anta, linga, vibhakti, vacana, vibvach])
-                                syntaxInputFile.append([i, word, wids, 1, base, erb, det, vibvach+1])
-                                wids += 1
+                                for item in subDetails:
+                                    numpages += 1
+                                    # anta, linga, rupam, vibhakti, vacana, base, erb, det, vibvach = item.anta, item.linga, item.rupam, item.vib, item.vach, item.base, item.erb, item.det, item.vibvach
+                                    self.Subantas.append([item.rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base),
+                                                         IndianLanguages[self.wanted_script]), item.anta, item.linga, item.vib, item.vach, item.vibvach])
+                                    syntaxInputFile.append([i+1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
+                                    # ic.ic('subanta', i+1, word, wids, item.det, AmaraKosha_Database_Queries.iscii_unicode(word))
+                                    wids += 1
                             self.setTexts(zip([self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
                                                self.lblSaniDhatu, self.txtSaniDhatu, self.lblGana, self.txtGana, self.lblPadi, self.txtPadi], ['रूपं', self.Subantas[0][0], 'प्रातिपदिकं', self.Subantas[0][1], 'अंतः', self.Subantas[0][2], 'लिंगः', self.Subantas[0][3],
                                'विभक्तिः', self.Subantas[0][4], 'वचनः', self.Subantas[0][5]]))
@@ -1053,26 +1057,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                             control.setEnabled(True)
                             control.setVisible(True)
                         try:
+
+                            forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word,
+                                                                                            self.wanted_script + 1)
+                            if not forms == []: self.krdforms += forms
+                            if not krdData == []:
+                                self.Krdantas += krdData
+                                numpages += len(krdData)
+                                for krdDetail in krdData:
+                                    # ic.ic('krdanta', i+1, word, wids)
+                                    syntaxInputFile.append(
+                                        [i + 1, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii,
+                                         krdDetail.det,
+                                         krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii,
+                                         krdDetail.nijverb_iscii,
+                                         krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode,
+                                         krdDetail.CombinedM, krdDetail.karmaCode])
+                                    wids += 1
                             forms, tigDatas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word, self.wanted_script + 1)
                             if not forms==[]: self.tigforms += forms
                             if not tigDatas == []:
                                 self.Tigantas += tigDatas
                                 numpages += len(tigDatas)
                                 for tigData in tigDatas:
-                                    syntaxInputFile.append([i, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
-                                                            tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning,
+                                    # ic.ic('tiganta', i+1, word, wids)
+                                    syntaxInputFile.append([i+1, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
+                                                            tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning_iscii,
                                                             tigData.GPICode, tigData.pralak, tigData.purvach,
                                                             tigData.CombinedM, tigData.karmaCode])
-                                    wids += 1
-                            forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word, self.wanted_script + 1)
-                            if not forms==[]: self.krdforms += forms
-                            if not krdData == []:
-                                self.Krdantas += krdData
-                                numpages += len(krdData)
-                                for krdDetail in krdData:
-                                    syntaxInputFile.append([i, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
-                                         krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii, krdDetail.nijverb_iscii,
-                                         krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
                                     wids += 1
                         except Exception as e:
                             print(e)
@@ -1090,6 +1102,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                     self.page21Button, self.page22Button, self.page23Button, self.page24Button][numpages:]:
                         control.setEnabled(False)
                         control.setVisible(False)
+                    fOSOut = open('OSOut.Aci', 'w')
+                    fOSOut.write('ÔÚ³èÍÌè -- %s\n' % bas)
+                    for line in syntaxInputFile:
+                        fOSOut.write('%d) ' % line[0])
+                        for element in line[1:]: fOSOut.write('%s ' % element)
+                        fOSOut.write('\n')
+                    fOSOut.write('----------\n')
+                    fOSOut.close()
+                    # for line in syntaxInputFile: print(line)
 
                 except Exception as e:
                     self.statusBar().showMessage(str(e))
@@ -1364,6 +1385,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if word in ["ÔÚ³èÍÌè", ""]: pass
                 elif word == "The" or "VOICE" in words or "Considering the verb" in line: self.conclusions[sentence_no].append(line)
                 elif "can be assumed to be the" in line: self.conclusions[sentence_no].append(AmaraKosha_Database_Queries.iscii_unicode(line, self.wanted_script+1))
+                elif "Verb is" in line: self.conclusions[sentence_no].append(line)
                 elif word in typeList:
                     if len(words) <= 1: parts = ''
                     else: parts = line[line.index(' ( ') + 2:].split(' / ')

@@ -858,7 +858,7 @@ def Sandhi(inword):
         i += 1
     # print('%s after %s %s %s'%(inword, outword, cli_browse.iscii_unicode(inword), cli_browse.iscii_unicode(outword)))
     return outword
-def doSandhi1(tigantaForm, upasarga):
+def doSandhi1(tigantaForm: str, upasarga: str) -> str:
     aDict1 = {"¤":"¥", "¥":"¥", "¦":"¬", "§":"¬", "¨":"°", "©":"°", "ª":"¥Ïè", "¬":"­", "­":"­", "°":"±", "±":"±"}
     bDict = {"¤": aDict1, "¥": aDict1,
              "¦":{"¦":"§", "§":"§",
@@ -875,7 +875,7 @@ def doSandhi1(tigantaForm, upasarga):
         else: sandhiForm += tigantaForm[1:]
     else: sandhiForm = upasarga + tigantaForm
     return sandhiForm
-def doSandhi2(tigantaForm, upasarga):
+def doSandhi2(tigantaForm: str, upasarga: str) -> str:
     sandhiForm = upasarga
     upasargaDict = {"×Ìè":{"³":"·", "´":"·", "µ":"·", "¶":"·", "·":"·"},
                     "ÆÛÏè":{"³":"Ö", "´":"Ö", "½":"Ö", "¾":"Ö", "È":"Ö", "É":"Ö", "Ö":"Ö",
@@ -900,11 +900,11 @@ def doSandhi2(tigantaForm, upasarga):
     if flag == 1: sandhiForm += "¹"
     elif flag == 2: sandhiForm += tigantaForm[:-1]
     else: sandhiForm += tigantaForm
-def doSandhiofUpasargaAndTigantaForm(tigantaForm, upasarga):
+def doSandhiofUpasargaAndTigantaForm(tigantaForm: str, upasarga: str) -> str:
     if upasarga in ["×Ìè", "ÆÛÏè", "ÄÝÏè", "¨Âè"]: sandhiForm = doSandhi2(tigantaForm, upasarga)
     else: sandhiForm = doSandhi1(blast.performBlast(tigantaForm), blast.performBlast(upasarga) )
     return blast.phoneticallyJoin(sandhiForm)
-def visandhi(inword):
+def visandhi(inword: str) -> str:
     # print('iscii %s devanagari %s'%(inword, cli_browse.iscii_unicode(inword)))
     halanth = chr(232)
     # inword = inword.split()
@@ -927,7 +927,7 @@ def visandhi(inword):
         else: outword+= ch
         i += 1
     return outword
-def decode(code):
+def decode(code: int) -> str:
     if code in range(10): return '0' + str(code)
     elif code in range(10,36): return '0' + chr(code + 87)
     else:

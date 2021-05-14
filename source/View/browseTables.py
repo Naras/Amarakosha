@@ -3,7 +3,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt
 sys.path.append(os.getcwd())
 from source.Model import AmaraKosha_Database_Queries
-from source.Controller import Transliterate
+# from source.Controller import Transliterate
 import pandas
 
 from source.Model.AmaraKosha_Database_Queries import isascii
