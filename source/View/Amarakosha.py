@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtWidgets import QDialog, QPushButton, QVBoxLayout, QRadioButton, QGridLayout, QGroupBox, QHBoxLayout, QListView, QFileDialog
 sys.path.append(os.getcwd())
-from source.Controller import Kosha_Subanta_Krdanta_Tiganta
+from source.Controller import Kosha_Subanta_Krdanta_Tiganta, SyntaxAnalysis
 from source.Controller.Transliterate import *
 from source.Model import AmaraKosha_Database_Queries, models
 
@@ -850,20 +850,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.resetToolbarItems()
         self.analysisAction.setChecked(True)
         self.wanted_script = self.scriptSelector.currentIndex()
-        fname = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
-        if fname[0]:
-            f = open(fname[0], 'r')
-            self.synonymsButton.setText('पदरूप विश्लेषण/ಪದರೂಪ ವಿಶ್ಲೇಷಣೆ/Morphological Analysis')
-            # self.syntaxButton.setVisible(True)
-            self.wanted_script = self.scriptSelector.currentIndex()
-            self.listView.clicked.connect(self.enableSynonymsButton)
-            with f:
-                dataIscii = f.readlines()
-                data = [Kosha_Subanta_Krdanta_Tiganta.transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item), IndianLanguages[self.wanted_script]) for item in dataIscii]
-                self.modelDhatus.data = list(map(lambda item: (False, item[:-1]), data))
-                self.modelDhatus.dataIscii = list(map(lambda item: (False, item[:-1]), dataIscii))
-                self.listView.setModel(self.modelDhatus)
-                self.modelDhatus.layoutChanged.emit()
+    # fname = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
+    # if fname[0]:
+    #     f = open(fname[0], 'r')
+        f = open('Bandarkar.txt', 'r')
+        self.synonymsButton.setText('पदरूप विश्लेषण/ಪದರೂಪ ವಿಶ್ಲೇಷಣೆ/Morphological Analysis')
+        # self.syntaxButton.setVisible(True)
+        self.wanted_script = self.scriptSelector.currentIndex()
+        self.listView.clicked.connect(self.enableSynonymsButton)
+        with f:
+            dataIscii = f.readlines()
+            data = [Kosha_Subanta_Krdanta_Tiganta.transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item), IndianLanguages[self.wanted_script]) for item in dataIscii]
+            self.modelDhatus.data = list(map(lambda item: (False, item[:-1]), data))
+            self.modelDhatus.dataIscii = list(map(lambda item: (False, item[:-1]), dataIscii))
+            self.listView.setModel(self.modelDhatus)
+            self.modelDhatus.layoutChanged.emit()
     def synonyms_generate_or_analyse(self):
         self.statusBar().showMessage('Ready')
         if self.menuItemChosen == 'Amara':
@@ -1029,16 +1030,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         wids = 1
                         try:
                             forms, subDetails = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word, self.wanted_script+1)
-                            if not forms==[]:
-                                self.subforms += forms
-                                for item in subDetails:
-                                    numpages += 1
-                                    # anta, linga, rupam, vibhakti, vacana, base, erb, det, vibvach = item.anta, item.linga, item.rupam, item.vib, item.vach, item.base, item.erb, item.det, item.vibvach
-                                    self.Subantas.append([item.rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base),
-                                                         IndianLanguages[self.wanted_script]), item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                                    syntaxInputFile.append([i+1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
-                                    # ic.ic('subanta', i+1, word, wids, item.det, AmaraKosha_Database_Queries.iscii_unicode(word))
-                                    wids += 1
+                            if not forms==[]: self.subforms += forms
+                            for item in subDetails:
+                                numpages += 1
+                                # anta, linga, rupam, vibhakti, vacana, base, erb, det, vibvach = item.anta, item.linga, item.rupam, item.vib, item.vach, item.base, item.erb, item.det, item.vibvach
+                                self.Subantas.append([item.rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base),
+                                                     IndianLanguages[self.wanted_script]), item.anta, item.linga, item.vib, item.vach, item.vibvach])
+                                syntaxInputFile.append([i+1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
+                                # ic.ic('subanta', i+1, word, wids, item.det, AmaraKosha_Database_Queries.iscii_unicode(word))
+                                wids += 1
                             self.setTexts(zip([self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
                                                self.lblSaniDhatu, self.txtSaniDhatu, self.lblGana, self.txtGana, self.lblPadi, self.txtPadi], ['रूपं', self.Subantas[0][0], 'प्रातिपदिकं', self.Subantas[0][1], 'अंतः', self.Subantas[0][2], 'लिंगः', self.Subantas[0][3],
                                'विभक्तिः', self.Subantas[0][4], 'वचनः', self.Subantas[0][5]]))
@@ -1057,9 +1057,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                             control.setEnabled(True)
                             control.setVisible(True)
                         try:
-
-                            forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word,
-                                                                                            self.wanted_script + 1)
+                            forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word, self.wanted_script + 1)
                             if not forms == []: self.krdforms += forms
                             if not krdData == []:
                                 self.Krdantas += krdData
@@ -1074,6 +1072,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                          krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode,
                                          krdDetail.CombinedM, krdDetail.karmaCode])
                                     wids += 1
+                        except Exception as e:
+                            print(e)
+                        try:
                             forms, tigDatas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word, self.wanted_script + 1)
                             if not forms==[]: self.tigforms += forms
                             if not tigDatas == []:
@@ -1088,6 +1089,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                     wids += 1
                         except Exception as e:
                             print(e)
+                    # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(bas), numpages)
+                    # ic.ic(self.Subantas, self.subforms, [tig.get() for tig in self.Tigantas], self.tigforms, [tig.get() for tig in self.Krdantas], self.krdforms)
+
                     for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
                                     self.page7Button, self.page8Button, self.page9Button, self.page10Button, self.page11Button,
                                     self.page12Button, self.page13Button, self.page14Button, self.page15Button, self.page16Button,
@@ -1102,15 +1106,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                     self.page21Button, self.page22Button, self.page23Button, self.page24Button][numpages:]:
                         control.setEnabled(False)
                         control.setVisible(False)
-                    fOSOut = open('OSOut.Aci', 'w')
-                    fOSOut.write('ÔÚ³èÍÌè -- %s\n' % bas)
+                    # fOSOut = open('OSOut.Aci', 'w')
+                    # fOSOut.write('ÔÚ³èÍÌè -- %s\n' % bas)
+                    # for line in syntaxInputFile:
+                    #     fOSOut.write('%d) ' % line[0])
+                    #     for element in line[1:]: fOSOut.write('%s ' % element)
+                    #     fOSOut.write('\n')
+                    # fOSOut.write('----------\n')
+                    # fOSOut.close()
+                    self.syntaxInputFile = ['ÔÚ³èÍÌè -- %s' % bas]
                     for line in syntaxInputFile:
-                        fOSOut.write('%d) ' % line[0])
-                        for element in line[1:]: fOSOut.write('%s ' % element)
-                        fOSOut.write('\n')
-                    fOSOut.write('----------\n')
-                    fOSOut.close()
-                    # for line in syntaxInputFile: print(line)
+                        self.syntaxInputFile.append('%d) '%line[0] + ' '.join([str(x) for x in line[1:]]))
+                    self.syntaxInputFile.append('----------')
 
                 except Exception as e:
                     self.statusBar().showMessage(str(e))
@@ -1164,15 +1171,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.modelFinalResults.layoutChanged.emit(self.forms[indx * 3: indx * 3 + 3],)
             else: #Analysis
                 if self.Categories.text() == 'Syntax':
-                    self.modelFinalResults._data = pandas.DataFrame(self.cells[indx * 5 :indx * 5 + 5],
+                    self.modelFinalResults._data = pandas.DataFrame(self.conclusions[indx]['cells'],
                                             columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', 'लिंग',  'विभक्ति',  'वचन' ]],
-                                            index=[' '] * 5)
-                    for i, conclusion in enumerate(self.conclusions[indx]):
+                                            index=[' '] * len(self.conclusions[indx]['cells']))
+                    for i, conclusion in enumerate(self.conclusions[indx]['conclusions']):
                         listofTxts[i].setText(conclusion)
                         listofTxts[i].setVisible(True)
                     for control in listofLbls: control.setVisible(False)
                     for control in listofTxts[i + 1:]: control.setVisible(False)
-                    numpages = min(len(self.conclusions), 21)
+                    numpages = min(len(self.conclusions)-1, 21)
+                    # ic.ic(self.conclusions[indx]['conclusions'], len(self.conclusions))
                     for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
                             self.page7Button, self.page8Button, self.page9Button, self.page10Button, self.page11Button,
                             self.page12Button, self.page13Button, self.page14Button, self.page15Button, self.page16Button,
@@ -1195,8 +1203,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         for r in range(len(self.subforms)):
                             for c in range(3):
                                 if self.subforms[r][c][0] == '(': self.subforms[r][c] = self.subforms[r][c][1:-1]
-                        r, c = indx * 8 + self.Subantas[indx][-1] // 3, self.Subantas[indx][-1] % 3
+                        r, c = indx * 8 + (self.Subantas[indx][-1]) // 3, (self.Subantas[indx][-1]) % 3
+                        if r > len(self.subforms): r = (self.Subantas[indx][-1]) // 3
+                        # ic.ic(self.Categories.text(), len(self.subforms), self.subforms, self.Subantas[indx][-1], r, c)
                         if self.subforms[r][c][0] != '(': self.subforms[r][c] = '(' + self.subforms[r][c] + ')'
+                        if indx > len(self.subforms) // 8 - 1: indx = len(self.subforms) // 8 - 1
                         self.modelFinalResults._data = pandas.DataFrame(self.subforms[indx * 8: indx * 8 + 8],
                                                                     columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vacanas],
                                                                     index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vibhaktis])
@@ -1219,7 +1230,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         for r in range(len(self.tigforms)):
                             for c in range(3):
                                 if self.tigforms[r][c][0] == '(': self.tigforms[r][c] = self.tigforms[r][c][1:-1]
-                        r, c = (indx * 9 + self.Tigantas[indx].purvach - 1) // 3, (self.Tigantas[indx].purvach - 1) % 3
+                        r, c = indx * 3 + (self.Tigantas[indx].purvach - 1) // 3, (self.Tigantas[indx].purvach - 1) % 3
                         if self.tigforms[r][c] != '(': self.tigforms[r][c] = '(' + self.tigforms[r][c] + ')'
                         self.modelFinalResults._data = pandas.DataFrame(self.tigforms[indx * 3: indx * 3 + 3],
                                                                     columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vacanas],
@@ -1240,10 +1251,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                                        krdData.karma, krdData.it,  krdData.dhatuVidhah, krdData.krdantaVidhah, krdData.pratyayaVidhah,
                                                        krdData.anta, krdData.linga, krdData.sabda,
                                                        self.krdforms[ind][0]]))
-
                         for lbl in listofLbls: lbl.setText(transliterate_lines(lbl.text(), IndianLanguages[self.wanted_script]))
                         for control in listOfControls: control.setVisible(True)
-
                         self.modelFinalResults._data = pandas.DataFrame(self.krdforms[strt: strt + 8],
                                                                     columns=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vacanas],
                                                                     index=[transliterate_lines(item, IndianLanguages[self.wanted_script]) for item in Kosha_Subanta_Krdanta_Tiganta.vibhaktis])
@@ -1367,14 +1376,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.synonymsButton.setEnabled(False)
         typeList = ['Noun(s)', 'Pronoun(s)', 'Adjective(s)', 'Krdanta(s)', 'KrdAvyaya(s)', 'Avyaya(s)']
         subtypeList = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)', 'Vocative(s)', 'Verb(s)', 'Verb']
-        # fresult = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
-        # if fresult[0]:
-        #     f = open(fresult[0], 'r')
-        #     with f:
-        fresult = open('result.aci', 'r')
-        result = fresult.readlines()
-        self.cells, self.conclusions, sentence_no = [], [[]], 0
         try:
+            # out = SyntaxAnalysis.write_out_aci('OSOut.aci', outfile='out.aci')
+            out = SyntaxAnalysis.write_out_aci(self.syntaxInputFile) #, outfile='out.aci')
+            result = SyntaxAnalysis.write_result_aci(out) #, resultfile='result.aci')
+            # fresult = open('result.aci', 'r')
+            # result = fresult.readlines()
+            self.conclusions, sentence_no = [{'cells':[], 'conclusions':[]}], 0
             for line_no, line in enumerate(result):
                 line = line.replace('\t', '').replace('\n', '').strip()
                 words = line.split(' ')
@@ -1382,28 +1390,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 # if word == "ÔÚ³èÍÌè": sentence = line
                 # if word in ["ÔÚ³èÍÌè", "", "The"] or "VOICE" in word or "can be assumed to be the" in line: pass
                 if word == "ÔÚ³èÍÌè": sentence = line
-                if word in ["ÔÚ³èÍÌè", ""]: pass
-                elif word == "The" or "VOICE" in words or "Considering the verb" in line: self.conclusions[sentence_no].append(line)
-                elif "can be assumed to be the" in line: self.conclusions[sentence_no].append(AmaraKosha_Database_Queries.iscii_unicode(line, self.wanted_script+1))
-                elif "Verb is" in line: self.conclusions[sentence_no].append(line)
+                if word in ["ÔÚ³èÍÌè", ""] or (len(words) == 1 and word == "subject"): pass
+                elif word == "The" or "VOICE" in words or "Considering the verb" in line: self.conclusions[sentence_no]['conclusions'].append(line)
+                elif any([phrase in line for phrase in ["can be assumed to be the", "Any subanta"]]):
+                    self.conclusions[sentence_no]['conclusions'].append(AmaraKosha_Database_Queries.iscii_unicode(line, self.wanted_script+1))
+                elif any([phrase in line for phrase in ["Verb is", "No matching subject is available", "Considering krdanta"]]):
+                    self.conclusions[sentence_no]['conclusions'].append(line)
                 elif word in typeList:
                     if len(words) <= 1: parts = ''
                     else: parts = line[line.index(' ( ') + 2:].split(' / ')
-                    if parts == '': self.cells.append([word, '', '', ''])
-                    else: self.cells.append([AmaraKosha_Database_Queries.iscii_unicode(w, self.wanted_script + 1) for w in [word, parts[0], parts[1], parts[2][:-2]]])
+                    if parts == '': self.conclusions[sentence_no]['cells'].append([word, '', '', ''])
+                    else: self.conclusions[sentence_no]['cells'].append([AmaraKosha_Database_Queries.iscii_unicode(w, self.wanted_script + 1) for w in [word, parts[0], parts[1], parts[2][:-2]]])
                 elif word in subtypeList or 'Verb(s) are : ' in result[line_no - 1]:
                     parts = line[line.index(' ( ') + 2:].split(' / ')
                     if 'Verb(s) are : ' in result[line_no - 1]: word = 'Verb(s)'
-                    self.cells.append([AmaraKosha_Database_Queries.iscii_unicode(w, self.wanted_script + 1) for w in [word, parts[0], parts[1], parts[2][:-2]]])
+                    self.conclusions[sentence_no]['cells'].append([AmaraKosha_Database_Queries.iscii_unicode(w, self.wanted_script + 1) for w in [word, parts[0], parts[1], parts[2][:-2]]])
                 elif word[0] == '-':
-                    self.conclusions.append([])
+                    # ic.ic(self.conclusions[sentence_no]['conclusions'])
+                    self.conclusions.append({'cells':[], 'conclusions':[]})
                     sentence_no += 1
                 # elif 'Verb(s) are : ' in result[line_no - 1]: pass
                 else: raise NameError(line + '-' + word + ' -> Invalid Category')
-            self.modelFinalResults._data = pandas.DataFrame(self.cells[:5],
+            self.modelFinalResults._data = pandas.DataFrame(self.conclusions[0]['cells'],
                                             columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', 'लिंग',  'विभक्ति',  'वचन' ]],
-                                            index=[' '] * 5) #[transliterate_lines(role, IndianLanguages[self.wanted_script]) for role in subtypeList[:5]])
+                                            index=[' '] * len(self.conclusions[0]['cells'])) #[transliterate_lines(role, IndianLanguages[self.wanted_script]) for role in subtypeList[:5]])
             self.Categories.setText('Syntax')
+            # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(sentence))
             listOfControls = [self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
                               self.lblSaniDhatu, self.txtSaniDhatu, self.lblGana, self.txtGana, self.lblPadi, self.txtPadi,
                               self.lblKarma, self.txtKarma, self.lblIt, self.txtIt, self.lblDhatuVidah, self.txtDhatuVidah,
@@ -1416,10 +1428,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             listofTxts = [self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu, self.txtGana, self.txtPadi, self.txtKarma,
                           self.txtIt, self.txtDhatuVidah, self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara, self.txtAnta, self.txtLinga,
                           self.txtPratipadika, self.txtSabda]
-            for i, conclusion in enumerate(self.conclusions[0]): listofTxts[i].setText(conclusion)
+            for i, conclusion in enumerate(self.conclusions[0]['conclusions']): listofTxts[i].setText(conclusion)
             for control in listofLbls: control.setVisible(False)
             for control in listofTxts[i + 1:]: control.setVisible(False)
+            self.conclusions = [item for item in self.conclusions if not (item['cells'] == [] and item['conclusions'] == [])]
             numpages = min(len(self.conclusions), 21)
+            # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(sentence), len(self.conclusions), numpages)
             for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
                             self.page7Button, self.page8Button, self.page9Button, self.page10Button, self.page11Button,
                             self.page12Button, self.page13Button, self.page14Button, self.page15Button, self.page16Button,

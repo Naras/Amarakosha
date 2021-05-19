@@ -255,7 +255,7 @@ class typeWord:
         return {'word':self.word[:self.numofWords], 'numofWords':self.numofWords}
     def __str__(self):
         return json.dumps(self.get())
-def generateTable(rec,Fname) -> (list,list):
+def generateTable(rec: record) -> (List, List):
     wOrd = [None] * 10
     # rEcord = [None] * 100  # type: list[str]
     # field = [None] * 10   # type: list[str]
@@ -282,22 +282,20 @@ def generateTable(rec,Fname) -> (list,list):
     # wordNum = 0
     # return wOrd[:numOfWords]
     # tempout = []
+    # ic.ic(numOfWords, [w.get() for w in wOrd if w != None])
     tempout = temp(numOfWords, wOrd, 0)
 
     return wOrd[:numOfWords], tempout
-def temp(numOfWords, wrds, i) -> list:
+def temp(numOfWords: int, wrds: List[word], i: int) -> List:
     tempout = []
     if i < numOfWords:
         for iden in wrds[i].iden[:wrds[i].numofIdens]:
             tempout.append(iden)
-            # print('i % i tempout %s'%(i, tempout))
             tmp = temp(numOfWords, wrds, i+1)
             if not tmp == []:
-                # print('i %i tmp %s'%(i, tmp))
                 tmp2 = [None]*len(tmp)
                 for ii, item in enumerate(tmp):
                     tmp2[ii] = [iden, item]
-                # print('i %i tmp %s'%(i, tmp2))
                 tmp = tmp2
             if not tmp == []: tempout = tempout[:-1] + tmp
     # else: tempout = ['--------']
@@ -310,12 +308,6 @@ def listdepth(item, depth: int) -> int:
             depths.append(listdepth(item2, depth))
         depth = max(depths)
     return depth
-def flatten(item, lst=[]) -> list:
-    if isinstance(item, list):
-        # if item==[]: print('[]')
-        for item2 in item: flatten(item2, lst)
-    else: lst.append(item)
-    return lst
 
 def checkForSyntacticCompatibility(rec: record) -> List[str]:
     def assign_subanta() -> subanta_data:
@@ -547,14 +539,15 @@ def checkCompatibility1(rec: record, noun: subanta_data, verb: tiganta_data, par
     object, locative, dative, ablative, vocative, genitive = VIBHAKTI(), VIBHAKTI(), VIBHAKTI(), VIBHAKTI(), VIBHAKTI(), VIBHAKTI()
     for i in range(verb.numofVerbs):
         vrb = verb.instance(i)
-        if vrb.karma == karthari: subject, instrument = VIBHAKTI(), VIBHAKTI()
-        elif vrb.karma == karmani: second, third = VIBHAKTI(), VIBHAKTI()
+        if vrb.prayoga == karthari: subject, instrument = VIBHAKTI(), VIBHAKTI()
+        elif vrb.prayoga == karmani: second, third = VIBHAKTI(), VIBHAKTI()
         krdtemp = getKrdantadata(participle, verb.tiganta[i])
-        for j in range(noun.numofNouns):
-            if not verb.tiganta == noun.subanta[j]:
-                func = [assign_prathama_vibhakti, assign_dvithiya_vibhakti, assign_trithiya_vibhakti, assign_chaturthi_vibhakti,
+        if noun != None:
+            for j in range(noun.numofNouns):
+                if not verb.tiganta == noun.subanta[j]:
+                    func = [assign_prathama_vibhakti, assign_dvithiya_vibhakti, assign_trithiya_vibhakti, assign_chaturthi_vibhakti,
                     assign_pancami_vibhakti, assign_shashti_vibhakti, assign_saptami_vibhakti, assign_ashtami_vibhakti][noun.vibhakti[j] - 1]
-                func()
+                    func()
         counter = ord('a') - 1
         if verb.karma[i] == 0 and object.numofWords > 0:
                 karmaFlag = 0
@@ -1096,6 +1089,7 @@ def displaytheInformation(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHA
                 res = 'Vocative(s) '
                 for i in range(clas.numofWords): res += 'Øá :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
                 result.append(res)
+    else: return result
     for adjpro in [adj, pro]:
         if adjpro != None:
             if adjpro.numofNouns > 0:
@@ -1878,7 +1872,7 @@ def dispMesg6f(prayoga: bool, purusha: int, vacana: int, str: str, krdtemp: krda
     return result
 def dispMesg9(krdanta: PARTICIPLE, str: str) -> List[str]:
     result = []
-    if krdanta.vibhakti == 1: result.append('Any subanta in %s, %s \nand in %s can be the %s\n'%(dsp.Vibhakti[0], dsp.Vacana[krdanta.vacana - 1], dsp.Linga[krdanta.linga - 1]))
+    if krdanta.vibhakti == 1: result.append('Any subanta in %s, %s \nand in %s can be the %s\n'%(dsp.Vibhakti[0], dsp.Vacana[krdanta.vacana - 1], dsp.Linga[krdanta.linga - 1], str))
     else: result.append('No matching subject is available')
     result.append('%s %s'%(dsp.mesga1, dsp.mesgy))
     return result
@@ -1983,45 +1977,80 @@ def checkPosandTypeofAllKrdantas(participle: krdanta_data) -> bool:
     for i in range(participle.numofKrdantas-1):
         flag = not (participle.krdType[i + 1] == participle.krdType[i] and participle.wordNum[i + 1] == participle.wordNum[i] and participle.vibhakti[i + 1] == participle.vibhakti[i] and participle.vacana[i + 1] == participle.vacana[i] and participle.linga[i + 1] == participle.linga[i])
     return flag
-
-
-
-if __name__ == '__main__':
-    '''fos = open('../../SenAnal/OSout.aci', 'r')
-    for line in fos:
-        if line.split(' ')[0] == "ÔÚ³èÍÌè":
-            rec = record()
-            rec.sentence, sentend, i = line[:-1], False, 0
-        elif line[0] == '-':
-            sentend, rec.numofIdens = True, i
-        else:
-            rec.idens[i] = line
-            i += 1
-        if sentend:
-            wOrd, tempout = generateTable(rec,'out.aci')
-            # print('numOfWords %i'%len(wOrd))
-            # for item in wOrd:
-            #     print('numofIdens %i idens..'%item.numofIdens)
-            #     for iden in item.iden[:item.numofIdens]: print(iden)
-            # # print('len %i depth %i'%(len(tempout), listdepth(tempout, 0)))
-    fos.close()
-    tempout, out = flatten(tempout), []
+def flatten(item, lst=[]) -> List:
+    if isinstance(item, list):
+        for item2 in item: flatten(item2, lst)
+    else: lst.append(item)
+    return lst
+def write_out_aci(OSOut, outfile=None):
+    # fos = open('../../SenAnal/OSout.aci', 'r')
+    if isinstance(OSOut, str): # external file
+        fos = open(OSOut, 'r')
+        for line in fos:
+            if line.split(' ')[0] == "ÔÚ³èÍÌè":
+                rec = record()
+                rec.sentence, sentend, i = line[:-1], False, 0
+            elif line[0] == '-':
+                sentend, rec.numofIdens = True, i
+            else:
+                rec.idens[i] = line
+                i += 1
+            if sentend:
+                wOrd, tempout = generateTable(rec)
+                # print('numOfWords %i'%len(wOrd))
+                # for item in wOrd:
+                #     print('numofIdens %i idens..'%item.numofIdens)
+                #     for iden in item.iden[:item.numofIdens]: print(iden)
+                # # print('len %i depth %i'%(len(tempout), listdepth(tempout, 0)))
+        fos.close()
+    else:  # in-memory list
+        for line in OSOut:
+            if line.split(' ')[0] == "ÔÚ³èÍÌè":
+                rec = record()
+                rec.sentence, sentend, i = line[:-1], False, 0
+            elif line[0] == '-':
+                sentend, rec.numofIdens = True, i
+            else:
+                rec.idens[i] = line + '\n'
+                i += 1
+            if sentend:
+                wOrd, tempout = generateTable(rec)
+    tempout, out = flatten(tempout, lst=[]), []
     for i in range(0,len(tempout),len(wOrd)):
         out += [[rec.sentence] + tempout[i:i + len(wOrd)] + ['----------']]
-    foutw = open('../../out.aci', 'w')
-    tot, i = len(tempout) // 4, 0
+    if outfile != None: foutw = open(outfile, 'w')
+    # tot, i, res1 = len(tempout) // 4, 0, []
+    tot, i, res1 = len(out), 0, []
     for lst in out:
         i += 1
-        foutw.write('%s  (  %s/ %s )\n' % (lst[0], i, tot))
-        for lin in lst[1:]: foutw.write('%s\n' % lin)
-    foutw.close()'''
-
-    # not understood, why the code below gives extra lines when the foutw writing code above runs. Correct output if that code is commented out
-
-    # foutr = open('../../SenAnal/out.aci', 'r')
-    foutr = open('../../out.aci', 'r')
+        if outfile != None: foutw.write('%s  (  %s/ %s )\n' % (lst[0], i, tot))
+        res1.append('%s  (  %s/ %s )\n' % (lst[0], i, tot))
+        for lin in lst[1:]:
+            if outfile != None: foutw.write('%s\n' % lin)
+            res1.append('%s\n' % lin)
+    if outfile != None: foutw.close()
+    return res1
+def write_result_aci(out, resultfile=None):
+    res = commoncode(out)
+    result = flatten(res, lst=[])
+    if resultfile != None:
+        fresult = open(resultfile, 'w')
+        for line in result: fresult.write('%s\n' % line)
+        fresult.close
+    return result
+def write_result_aci_from_out_aci(outfile, resultfile):
+    foutr = open(outfile, 'r')
+    res = commoncode(foutr)
+    foutr.close()
+    result = flatten(res)
+    fresult = open(resultfile, 'w')
+    # fresult = open('../../result2.aci', 'w')
+    for line in result: fresult.write('%s\n' % line)
+    fresult.close
+    return result
+def commoncode(out):
     res = []
-    for line in foutr:
+    for line in out:
         if line.split(' ')[0] == "ÔÚ³èÍÌè":
             rec = record()
             rec.sentence, sentend, i = line[:-1], False, 0
@@ -2033,10 +2062,15 @@ if __name__ == '__main__':
         if sentend:
             res.append(rec.sentence)
             res.append(checkForSyntacticCompatibility(rec))
-    foutr.close()
-    result = flatten(res) # result becomes wrong if foutw writing code above runs
-    fresult = open('../../result.aci', 'w')
-    for line in result: fresult.write('%s\n' % line)
-    fresult.close
+    # ic.ic(res)
+    return res
+
+
+if __name__ == '__main__':
+    res = write_out_aci('../../OSout.aci', '../../out.aci')
+    res1 = write_result_aci(res,'../../result.aci')
+    # ic.ic(res1)
+    # res2 = write_result_aci_from_out_aci('../../out.aci','../../result2.aci')
+    # ic.ic(res2)
 
 
