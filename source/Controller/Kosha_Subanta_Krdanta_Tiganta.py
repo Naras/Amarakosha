@@ -156,13 +156,13 @@ def subanta_Generation(base: str, requested_script=1) -> (List[str], str, str):
                  # subforms_with_sandhi[21:24]]
                  list(map(lambda word: 'हे ' + word, subforms_with_sandhi[0:3]))]
     return forms, anta, linga
-def krdanta_arthas_karmas(krdantaWord: str, requested_script=1) -> (List[str], List[str], str, List[str], List[str]):
+def tiganta_krdanta_arthas_karmas(word: str, requested_script=1) -> (List[str], List[str], str, List[str], List[str]):
     qry = 'select * from Sdhatu where field2 = ?'
-    cols, dataDhatu = AmaraKosha_Database_Queries.sqlQuery(qry, krdantaWord, maxrows=0)
-    # print('Sdhatu field2=%s %s\n%s'%(krdantaWord, cols, dataDhatu))
+    cols, dataDhatu = AmaraKosha_Database_Queries.sqlQuery(qry, word, maxrows=0)
+    # print('Sdhatu field2=%s %s\n%s'%(word, cols, dataDhatu))
     for item in dataDhatu:
         arthas_karmas = item[cols.index('Field8')].split('/')
-        arthas = [transliterate_lines(word[:-2], Transliterate.IndianLanguages[requested_script - 1]) for word in arthas_karmas]
+        arthas = [transliterate_lines(word[:-1], Transliterate.IndianLanguages[requested_script - 1]) for word in arthas_karmas]
         karmas = [int(word[len(word)-1]) - 1 for word in arthas_karmas]
         karmas = [transliterate_lines(Tkarmas[karma], Transliterate.IndianLanguages[requested_script - 1]) for karma in karmas]
         # print('arthas %s\nkarmas %s'%(arthas, karmas))
@@ -716,7 +716,7 @@ def tiganta_Generation(dhatuNo: str, DhatuVidah: str, voice: str, lakara: str, p
         words = tiggenDataInstance.tigsuf.split(' ')
         # print('words=%s'%words)
         for word in words:  # only if padi=2 and dhatuVidhaIndex=2?
-            tigResform = genTigforms(word, tigDataInstance, tiggenDataInstance, DhatuVidah, voice, lakara,requested_script)
+            tigResform = genTigforms(word, tigDataInstance, tiggenDataInstance, DhatuVidah, voice, lakara, requested_script)
             if not tigResform.tigforms == ['']*9:
                 tigResforms.append(tigResform)
     for tigResformsInstance in tigResforms:

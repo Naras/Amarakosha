@@ -1,4 +1,4 @@
-import logging #, icecream as ic #, inspect
+import logging , icecream as ic #, inspect
 import sys, os, pandas
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtGui import QFontMetrics
@@ -27,6 +27,9 @@ class modalDialog_Krdanta(QDialog):
         self.grid = None
         self.groupBoxDhatuVidha, self.groupBoxKrdantaVidha, self.groupBoxKrdMode, self.groupBoxGanas, \
         self.groupBoxPadis, self.groupBoxKarmas, self.groupBoxIts = None, None, None, None, None, None, None
+        self.DhatuVidhaButtons = ["केवलकृदन्तः", "णिजन्तः", "सन्नन्तः"]
+        self.KrdVidhaButtons = ["विध्यर्थः", "भूतः", "वर्तमानः", "भविष्यत्:", "कृदव्ययम्:"]
+        self.KrdModeButtons = ["तव्य", "अनीयर्", "य", "क्त", "क्तवतु", "शतृ", "शानच्", "स्यशतृ", "स्यशानच्", "तुमुन्", "क्त्वा"]
         self.OptionChosen = None
         self.optSorted = QPushButton('Sorted List', self)
         self.optSorted.setText('Sorted List')
@@ -70,18 +73,20 @@ class modalDialog_Krdanta(QDialog):
         self.ok_cancel_btnLayout.addWidget(self.cancelBtn)
         self.mainLayout.addLayout(self.ok_cancel_btnLayout)
         self.okClicked = False
+        self.addedListview = False
     def okClicked(self):
      self.okClicked = True
      indexes = self.listView_meanings.selectedIndexes()
      if indexes:
          index = indexes[0]
          row = index.row()
-         status, self.krdantaWord = self.modelKrdanta_meanings.data[row]
+         status, self.arthas = self.modelKrdanta_meanings.data[row]
+     else: status, self.arthas = self.modelKrdanta_meanings.data[0]
      self.close()
     def cancelClicked(self):
      self.okClicked = False
      self.close()
-    def createOptionGroup(self, group, name, optionCatcher, default=True):
+    def createOptionGroup(self, group, name, optionCatcher, default = True):
         option = {}
         groupBox = QGroupBox(name)
         grplayout = QVBoxLayout(self)
@@ -105,71 +110,99 @@ class modalDialog_Krdanta(QDialog):
             self.groupBoxDhatuVidha, self.groupBoxKrdantaVidha, self.groupBoxKrdMode, self.groupBoxGanas, \
             self.groupBoxPadis, self.groupBoxKarmas, self.groupBoxIts = None, None, None, None, None, None, None
             self.grid == None
-    def addDhatuKrdantaGroups(self):
-        DhatuVidha = ["केवलकृदन्तः", "णिजन्तः", "सन्नन्तः"]
-        self.groupBoxDhatuVidha = self.createOptionGroup(DhatuVidha, 'धातुविदाः', self.optionDhatuVidha)
-
-        KrdVidha = ["विध्यर्थः", "भूतः", "वर्तमानः", "भविष्यत्", "कृदव्ययम्"]
-        self.groupBoxKrdantaVidha = self.createOptionGroup(KrdVidha, 'कृदंतविधाः', self.optionKrdantaVidha)
-
-        pratvidha = ["तव्य", "अनीयर्", "य", "क्त", "क्तवतु", "शतृ", "शानच्", "स्यशतृ", "स्यशानच्", "तुमुन्", "क्त्वा"]
-        self.groupBoxKrdMode = self.createOptionGroup(pratvidha, 'Krdanta Mode', self.optionKrdMode)
+    '''def addDhatuKrdantaGroups(self):
+        self.groupBoxDhatuVidha = self.createOptionGroup(self.DhatuVidhaButtons, 'धातुविदाः', self.optionDhatuVidha)
+        self.groupBoxKrdantaVidha = self.createOptionGroup(self.KrdVidhaButtons, 'कृदंतविधाः', self.optionKrdantaVidha)
+        self.groupBoxKrdMode = self.createOptionGroup(self.KrdModeButtons, 'Krdanta Mode', self.optionKrdMode)
         self.KrdMode = "तव्य"
         self.grid.addWidget(self.groupBoxKrdantaVidha, 2, 1)
         self.grid.addWidget(self.groupBoxDhatuVidha, 2, 2)
-        self.grid.addWidget(self.groupBoxKrdMode, 2, 3)
+        self.grid.addWidget(self.groupBoxKrdMode, 2, 3)'''
+    def dhatuVidahkrdVidahButtonCombinations(self):
+        if self.groupBoxKrdMode != None and self.DhatuVidah != None and self.KrdantaVidah != None:
+            option = self.groupBoxKrdMode.findChildren(QRadioButton)
+            for opt in option: opt.setEnabled(False)
+            if self.KrdantaVidah == "विध्यर्थः":
+                for opt in option[:3]: opt.setEnabled(True)
+                option[0].setChecked(True)
+            elif self.KrdantaVidah == "भूतः":
+                for opt in option[3:5]: opt.setEnabled(True)
+                option[3].setChecked(True)
+            elif self.KrdantaVidah == "कृदव्ययम्:":
+                for opt in option[9:]: opt.setEnabled(True)
+                option[9].setChecked(True)
+            else:
+                if self.DhatuVidah in ["केवलकृदन्तः", "सन्नन्तः"]:
+                    if self.KrdantaVidah == "वर्तमानः":
+                        option[5].setEnabled(True)
+                        option[5].setChecked(True)
+                    else:
+                        option[7].setEnabled(True)
+                        option[7].setChecked(True)
+                else:
+                    if self.KrdantaVidah == "वर्तमानः":
+                        for opt in option[5:7]: opt.setEnabled(True)
+                        option[5].setChecked(True)
+                    else:
+                        for opt in option[7:9]: opt.setEnabled(True)
+                        option[7].setChecked(True)
     def optionDhatuVidha(self):
-     if self.sender().isChecked():
-        self.DhatuVidah = self.sender().text
+        if self.sender().isChecked(): self.DhatuVidah = self.sender().text
+        self.dhatuVidahkrdVidahButtonCombinations()
     def optionKrdantaVidha(self):
-     if self.sender().isChecked():
-        self.KrdantaVidah = self.sender().text
+        if self.sender().isChecked(): self.KrdantaVidah  = self.sender().text
+        self.dhatuVidahkrdVidahButtonCombinations()
     def optionKrdMode(self):
-     if self.sender().isChecked():
-        self.KrdMode = self.sender().text
+        if self.sender().isChecked(): self.KrdMode = self.sender().text
     def optionSortedList(self):
         self.mainOption = self.sender().text()
         try:
-            self.listView_meanings = QListView(self)
+            if not self.addedListview:
+                self.listView_meanings = QListView(self)
             self.modelKrdanta_meanings = models.modelKrdanta_meanings()
             self.listView_meanings.setModel(self.modelKrdanta_meanings)
             self.listView_meanings.setUniformItemSizes(True)
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
             self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
-            arthas, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.krdanta_arthas_karmas(self.krdantaWord, requested_script=self.script)
+            arthas, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(self.krdantaWord) #, requested_script=self.script)
+            arthas = [transliterate_lines(item, IndianLanguages[self.script - 1]) for item in arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
-            self.mainLayout.addWidget(self.listView_meanings)
-            self.modelKrdanta_meanings.layoutChanged.emit()
+            if not self.addedListview:
+                self.mainLayout.addWidget(self.listView_meanings)
+                self.addedListview = True
+            # self.listView_meanings.clicked.connect(self.gridDisplay)
             self.removeAllGroups()
             self.grid = QGridLayout(self)
-            DhatuVidha = ["केवलकृदन्तः", "णिजन्तः", "सन्नन्तः"]
-            self.groupBoxDhatuVidha = self.createOptionGroup(DhatuVidha, 'धातुविदाः', self.optionDhatuVidha)
-            KrdVidha = ["विध्यर्थः", "भूतः", "वर्तमानः", "भविष्यत्", "कृदव्ययम्"]
-            self.groupBoxKrdantaVidha = self.createOptionGroup(KrdVidha, 'कृदंतविधाः', self.optionKrdantaVidha)
-            pratvidha = ["तव्य", "अनीयर्", "य", "क्त", "क्तवतु", "शतृ", "शानच्", "स्यशतृ", "स्यशानच्", "तुमुन्", "क्त्वा"]
-            self.groupBoxKrdMode = self.createOptionGroup(pratvidha, 'Krdanta Mode', self.optionKrdMode)
-            self.KrdMode = "तव्य"
-            self.grid.addWidget(self.groupBoxKrdantaVidha, 2, 1)
-            self.grid.addWidget(self.groupBoxDhatuVidha, 2, 2)
-            self.grid.addWidget(self.groupBoxKrdMode, 2, 3)
-            self.mainLayout.addLayout(self.grid)
-            self.grid.update()
-            self.okBtn.setEnabled(True)
-            self.cancelBtn.setEnabled(True)
+            self.gridDisplay()
+            self.modelKrdanta_meanings.layoutChanged.emit()
         except Exception as e:
             print('Exception Sorted list:%s' % e)
+    def gridDisplay(self):
+        # self.removeAllGroups()
+        # self.grid = QGridLayout(self)
+        self.groupBoxDhatuVidha = self.createOptionGroup(self.DhatuVidhaButtons, 'धातुविदाः', self.optionDhatuVidha)
+        self.groupBoxKrdantaVidha = self.createOptionGroup(self.KrdVidhaButtons, 'कृदंतविधाः', self.optionKrdantaVidha)
+        self.groupBoxKrdMode = self.createOptionGroup(self.KrdModeButtons, 'Krdanta Mode', self.optionKrdMode)
+        # self.KrdMode = "तव्य"
+        self.grid.addWidget(self.groupBoxDhatuVidha, 2, 1)
+        self.grid.addWidget(self.groupBoxKrdantaVidha, 2, 2)
+        self.grid.addWidget(self.groupBoxKrdMode, 2, 3)
+        self.mainLayout.addLayout(self.grid)
+        self.grid.update()
+        self.okBtn.setEnabled(True)
+        self.cancelBtn.setEnabled(True)
     def optionGanas(self):
         self.mainOption = self.sender().text()
         try:
              if self.sender().isChecked():
                 self.removeAllGroups()
                 self.grid = QGridLayout(self)
-                self.groupBoxGanas = self.createOptionGroup(Kosha_Subanta_Krdanta_Tiganta.Tganas, 'गनाः', self.optionGanaSelected, default=False)
+                self.groupBoxGanas = self.createOptionGroup(Kosha_Subanta_Krdanta_Tiganta.Tganas, 'गणः', self.optionGanaSelected)
                 self.grid.addWidget(self.groupBoxGanas, 2, 0)
                 self.mainLayout.addLayout(self.grid)
                 self.grid.update()
-                self.okBtn.setEnabled(True)
+                self.okBtn.setEnabled(False)
                 self.cancelBtn.setEnabled(True)
         except Exception as e:
              print('exception Ganas:%s' % e)
@@ -179,11 +212,11 @@ class modalDialog_Krdanta(QDialog):
             if self.sender().isChecked():
                 self.removeAllGroups()
                 self.grid = QGridLayout(self)
-                self.groupBoxPadis = self.createOptionGroup(Kosha_Subanta_Krdanta_Tiganta.Tpadis, 'परस्मैपदी', self.optionPadiSelected, default=False)
+                self.groupBoxPadis = self.createOptionGroup(Kosha_Subanta_Krdanta_Tiganta.Tpadis, 'पदीः', self.optionPadiSelected)
                 self.grid.addWidget(self.groupBoxPadis, 2, 0)
                 self.mainLayout.addLayout(self.grid)
                 self.grid.update()
-                self.okBtn.setEnabled(True)
+                self.okBtn.setEnabled(False)
                 self.cancelBtn.setEnabled(True)
         except Exception as e:
             print('exception Padis:%s' % e)
@@ -193,11 +226,11 @@ class modalDialog_Krdanta(QDialog):
             if self.sender().isChecked():
                 self.removeAllGroups()
                 self.grid = QGridLayout(self)
-                self.groupBoxPadis = self.createOptionGroup(Kosha_Subanta_Krdanta_Tiganta.Tkarmas, 'सकर्मकः', self.optionKarmaSelected, default=False)
+                self.groupBoxPadis = self.createOptionGroup(Kosha_Subanta_Krdanta_Tiganta.Tkarmas, 'कर्मः', self.optionKarmaSelected)
                 self.grid.addWidget(self.groupBoxPadis, 2, 0)
                 self.mainLayout.addLayout(self.grid)
                 self.grid.update()
-                self.okBtn.setEnabled(True)
+                self.okBtn.setEnabled(False)
                 self.cancelBtn.setEnabled(True)
         except Exception as e:
             print('exception Karmas:%s' % e)
@@ -207,19 +240,18 @@ class modalDialog_Krdanta(QDialog):
             if self.sender().isChecked():
                 self.removeAllGroups()
                 self.grid = QGridLayout(self)
-                self.groupBoxPadis = self.createOptionGroup(Kosha_Subanta_Krdanta_Tiganta.Tyits, 'सेट्',
-                                                            self.optionItSelected, default=False)
+                self.groupBoxPadis = self.createOptionGroup(Kosha_Subanta_Krdanta_Tiganta.Tyits, 'इट्', self.optionItSelected)
                 self.grid.addWidget(self.groupBoxPadis, 2, 0)
                 self.mainLayout.addLayout(self.grid)
                 self.grid.update()
-                self.okBtn.setEnabled(True)
+                self.okBtn.setEnabled(False)
                 self.cancelBtn.setEnabled(True)
         except Exception as e:
             print('exception Its:%s' % e)
     def optionGanaSelected(self):
         if self.sender().isChecked():
             self.gana = self.sender().text
-            self.listView_meanings = QListView(self)
+            if not self.addedListview: self.listView_meanings = QListView(self)
             self.modelKrdanta_meanings = models.modelKrdanta_meanings()
             self.listView_meanings.setModel(self.modelKrdanta_meanings)
             self.listView_meanings.setUniformItemSizes(True)
@@ -229,26 +261,15 @@ class modalDialog_Krdanta(QDialog):
             self.arthas = [transliterate_lines(item, IndianLanguages[self.script-1]) for item in self.arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
-            self.mainLayout.addWidget(self.listView_meanings)
+            if not self.addedListview:
+                self.mainLayout.addWidget(self.listView_meanings)
+                self.addedListview = True
             self.modelKrdanta_meanings.layoutChanged.emit()
-
-            DhatuVidha = ["केवलकृदन्तः", "णिजन्तः", "सन्नन्तः"]
-            self.groupBoxDhatuVidha = self.createOptionGroup(DhatuVidha, 'धातुविदाः', self.optionDhatuVidha)
-            KrdVidha = ["विध्यर्थः", "भूतः", "वर्तमानः", "भविष्यत्", "कृदव्ययम्"]
-            self.groupBoxKrdantaVidha = self.createOptionGroup(KrdVidha, 'कृदंतविधाः', self.optionKrdantaVidha)
-            pratvidha = ["तव्य", "अनीयर्", "य", "क्त", "क्तवतु", "शतृ", "शानच्", "स्यशतृ", "स्यशानच्", "तुमुन्","क्त्वा"]
-            self.groupBoxKrdMode = self.createOptionGroup(pratvidha, 'Krdanta Mode', self.optionKrdMode)
-            self.grid.addWidget(self.groupBoxKrdantaVidha, 2, 1)
-            self.grid.addWidget(self.groupBoxDhatuVidha, 2, 2)
-            self.grid.addWidget(self.groupBoxKrdMode, 2, 3)
-            self.mainLayout.addLayout(self.grid)
-            self.grid.update()
-            self.okBtn.setEnabled(True)
-            self.cancelBtn.setEnabled(True)
+            self.gridDisplay()
     def optionPadiSelected(self):
         if self.sender().isChecked():
             self.padi = self.sender().text
-            self.listView_meanings = QListView(self)
+            if not self.addedListview: self.listView_meanings = QListView(self)
             self.modelKrdanta_meanings = models.modelKrdanta_meanings()
             self.listView_meanings.setModel(self.modelKrdanta_meanings)
             self.listView_meanings.setUniformItemSizes(True)
@@ -258,26 +279,15 @@ class modalDialog_Krdanta(QDialog):
             self.arthas = [transliterate_lines(item, IndianLanguages[self.script-1]) for item in self.arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
-            self.mainLayout.addWidget(self.listView_meanings)
+            if not self.addedListview:
+                self.mainLayout.addWidget(self.listView_meanings)
+                self.addedListview = True
             self.modelKrdanta_meanings.layoutChanged.emit()
-
-            DhatuVidha = ["केवलकृदन्तः", "णिजन्तः", "सन्नन्तः"]
-            self.groupBoxDhatuVidha = self.createOptionGroup(DhatuVidha, 'धातुविदाः', self.optionDhatuVidha)
-            KrdVidha = ["विध्यर्थः", "भूतः", "वर्तमानः", "भविष्यत्", "कृदव्ययम्"]
-            self.groupBoxKrdantaVidha = self.createOptionGroup(KrdVidha, 'कृदंतविधाः', self.optionKrdantaVidha)
-            pratvidha = ["तव्य", "अनीयर्", "य", "क्त", "क्तवतु", "शतृ", "शानच्", "स्यशतृ", "स्यशानच्", "तुमुन्","क्त्वा"]
-            self.groupBoxKrdMode = self.createOptionGroup(pratvidha, 'Krdanta Mode', self.optionKrdMode)
-            self.grid.addWidget(self.groupBoxKrdantaVidha, 2, 1)
-            self.grid.addWidget(self.groupBoxDhatuVidha, 2, 2)
-            self.grid.addWidget(self.groupBoxKrdMode, 2, 3)
-            self.mainLayout.addLayout(self.grid)
-            self.grid.update()
-            self.okBtn.setEnabled(True)
-            self.cancelBtn.setEnabled(True)
+            self.gridDisplay()
     def optionKarmaSelected(self):
         if self.sender().isChecked():
             self.karma = self.sender().text
-            self.listView_meanings = QListView(self)
+            if not self.addedListview: self.listView_meanings = QListView(self)
             self.modelKrdanta_meanings = models.modelKrdanta_meanings()
             self.listView_meanings.setModel(self.modelKrdanta_meanings)
             self.listView_meanings.setUniformItemSizes(True)
@@ -287,26 +297,15 @@ class modalDialog_Krdanta(QDialog):
             self.arthas = [transliterate_lines(item, IndianLanguages[self.script-1]) for item in self.arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
-            self.mainLayout.addWidget(self.listView_meanings)
+            if not self.addedListview:
+                self.mainLayout.addWidget(self.listView_meanings)
+                self.addedListview = True
             self.modelKrdanta_meanings.layoutChanged.emit()
-
-            DhatuVidha = ["केवलकृदन्तः", "णिजन्तः", "सन्नन्तः"]
-            self.groupBoxDhatuVidha = self.createOptionGroup(DhatuVidha, 'धातुविदाः', self.optionDhatuVidha)
-            KrdVidha = ["विध्यर्थः", "भूतः", "वर्तमानः", "भविष्यत्", "कृदव्ययम्"]
-            self.groupBoxKrdantaVidha = self.createOptionGroup(KrdVidha, 'कृदंतविधाः', self.optionKrdantaVidha)
-            pratvidha = ["तव्य", "अनीयर्", "य", "क्त", "क्तवतु", "शतृ", "शानच्", "स्यशतृ", "स्यशानच्", "तुमुन्","क्त्वा"]
-            self.groupBoxKrdMode = self.createOptionGroup(pratvidha, 'Krdanta Mode', self.optionKrdMode)
-            self.grid.addWidget(self.groupBoxKrdantaVidha, 2, 1)
-            self.grid.addWidget(self.groupBoxDhatuVidha, 2, 2)
-            self.grid.addWidget(self.groupBoxKrdMode, 2, 3)
-            self.mainLayout.addLayout(self.grid)
-            self.grid.update()
-            self.okBtn.setEnabled(True)
-            self.cancelBtn.setEnabled(True)
+            self.gridDisplay()
     def optionItSelected(self):
         if self.sender().isChecked():
             self.it = self.sender().text
-            self.listView_meanings = QListView(self)
+            if not self.addedListview: self.listView_meanings = QListView(self)
             self.modelKrdanta_meanings = models.modelKrdanta_meanings()
             self.listView_meanings.setModel(self.modelKrdanta_meanings)
             self.listView_meanings.setUniformItemSizes(True)
@@ -316,22 +315,11 @@ class modalDialog_Krdanta(QDialog):
             self.arthas = [transliterate_lines(item, IndianLanguages[self.script-1]) for item in self.arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
-            self.mainLayout.addWidget(self.listView_meanings)
+            if not self.addedListview:
+                self.mainLayout.addWidget(self.listView_meanings)
+                self.addedListview = True
             self.modelKrdanta_meanings.layoutChanged.emit()
-
-            DhatuVidha = ["केवलकृदन्तः", "णिजन्तः", "सन्नन्तः"]
-            self.groupBoxDhatuVidha = self.createOptionGroup(DhatuVidha, 'धातुविदाः', self.optionDhatuVidha)
-            KrdVidha = ["विध्यर्थः", "भूतः", "वर्तमानः", "भविष्यत्", "कृदव्ययम्"]
-            self.groupBoxKrdantaVidha = self.createOptionGroup(KrdVidha, 'कृदंतविधाः', self.optionKrdantaVidha)
-            pratvidha = ["तव्य", "अनीयर्", "य", "क्त", "क्तवतु", "शतृ", "शानच्", "स्यशतृ", "स्यशानच्", "तुमुन्","क्त्वा"]
-            self.groupBoxKrdMode = self.createOptionGroup(pratvidha, 'Krdanta Mode', self.optionKrdMode)
-            self.grid.addWidget(self.groupBoxKrdantaVidha, 2, 1)
-            self.grid.addWidget(self.groupBoxDhatuVidha, 2, 2)
-            self.grid.addWidget(self.groupBoxKrdMode, 2, 3)
-            self.mainLayout.addLayout(self.grid)
-            self.grid.update()
-            self.okBtn.setEnabled(True)
-            self.cancelBtn.setEnabled(True)
+            self.gridDisplay()
 class modalDialog_Tiganta(QDialog):
     def __init__(self, parent, tigantaWord, requested_script):
      super(modalDialog_Tiganta, self).__init__(parent)
@@ -398,7 +386,8 @@ class modalDialog_Tiganta(QDialog):
      if indexes:
          index = indexes[0]
          row = index.row()
-         status, self.meaning = self.modelKrdanta_meanings.data[row]
+         status, self.arthas = self.modelKrdanta_meanings.data[row]
+     else: status, self.arthas = self.modelKrdanta_meanings.data[0]
      self.close()
     def cancelClicked(self):
      self.okClicked = False
@@ -427,19 +416,17 @@ class modalDialog_Tiganta(QDialog):
             self.groupBoxDhatuVidha, self.groupBoxKrdantaVidha, self.groupBoxKrdMode, self.groupBoxGanas, \
             self.groupBoxPadis, self.groupBoxKarmas, self.groupBoxIts = None, None, None, None, None, None, None
             self.grid == None
-    def addDhatuTigantaGroups(self):
+    '''def addDhatuTigantaGroups(self):
         DhatuVidha = ["केवलतिगंतः", "णिजन्तः", "सन्नन्तः"]
         self.groupBoxDhatuVidha = self.createOptionGroup(DhatuVidha, 'धातुविदाः', self.optionDhatuVidha)
-
         KrdVidha = ["कर्तरि", "कर्मणि"]
         self.groupBoxKrdantaVidha = self.createOptionGroup(KrdVidha, 'कृदंतविधाः', self.optionVoice)
-
         pratvidha = ["लट्", "लिट्", "लुट्", "लृट्", "लोट्", "लङ्", "विधिलिङ्", "अशीर्लिङ्", "लुङ्", "लृङ्"]
         self.groupBoxKrdMode = self.createOptionGroup(pratvidha, 'Krdanta Mode', self.optionLakara)
         self.KrdMode = "तव्य"
         self.grid.addWidget(self.groupBoxKrdantaVidha, 2, 1)
         self.grid.addWidget(self.groupBoxDhatuVidha, 2, 2)
-        self.grid.addWidget(self.groupBoxKrdMode, 2, 3)
+        self.grid.addWidget(self.groupBoxKrdMode, 2, 3)'''
     def optionDhatuVidha(self):
      if self.sender().isChecked():
         self.DhatuVidah = self.sender().text
@@ -458,7 +445,7 @@ class modalDialog_Tiganta(QDialog):
             self.listView_meanings.setUniformItemSizes(True)
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
             self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
-            dhatus, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.krdanta_arthas_karmas(self.tigantaWord, requested_script=self.script)
+            dhatus, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(self.tigantaWord, requested_script=self.script)
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), dhatus))
             # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
@@ -490,7 +477,7 @@ class modalDialog_Tiganta(QDialog):
                 self.grid.addWidget(self.groupBoxGanas, 2, 0)
                 self.mainLayout.addLayout(self.grid)
                 self.grid.update()
-                self.okBtn.setEnabled(True)
+                self.okBtn.setEnabled(False)
                 self.cancelBtn.setEnabled(True)
         except Exception as e:
              print('exception Ganas:%s' % e)
@@ -504,7 +491,7 @@ class modalDialog_Tiganta(QDialog):
                 self.grid.addWidget(self.groupBoxPadis, 2, 0)
                 self.mainLayout.addLayout(self.grid)
                 self.grid.update()
-                self.okBtn.setEnabled(True)
+                self.okBtn.setEnabled(False)
                 self.cancelBtn.setEnabled(True)
         except Exception as e:
             print('exception Padis:%s' % e)
@@ -518,7 +505,7 @@ class modalDialog_Tiganta(QDialog):
                 self.grid.addWidget(self.groupBoxPadis, 2, 0)
                 self.mainLayout.addLayout(self.grid)
                 self.grid.update()
-                self.okBtn.setEnabled(True)
+                self.okBtn.setEnabled(False)
                 self.cancelBtn.setEnabled(True)
         except Exception as e:
             print('exception Karmas:%s' % e)
@@ -533,7 +520,7 @@ class modalDialog_Tiganta(QDialog):
                 self.grid.addWidget(self.groupBoxPadis, 2, 0)
                 self.mainLayout.addLayout(self.grid)
                 self.grid.update()
-                self.okBtn.setEnabled(True)
+                self.okBtn.setEnabled(False)
                 self.cancelBtn.setEnabled(True)
         except Exception as e:
             print('exception Its:%s' % e)
@@ -753,6 +740,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             control.setVisible(False)
     def enableSynonymsButton(self):
         self.synonymsButton.setEnabled(True)
+        self.syntaxButton.setEnabled(False)
         if self.menuItemChosen == 'Amara':
             self.nishpathiButton.setVisible(True)
             self.nishpathiButton.setEnabled(True)
@@ -944,7 +932,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if dialog.okClicked:
                         if dialog.mainOption == 'Sorted List':
                             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = \
-                                Kosha_Subanta_Krdanta_Tiganta.krdanta_arthas_karmas(krdantaWord)
+                                Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(krdantaWord)
                             if not dialog.KrdantaVidah == "कृदव्ययम्":
                                 self.generationResults(self.dhatuNo, dialog)
                             else:
@@ -990,7 +978,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if dialog.okClicked:
                     if dialog.mainOption == 'Sorted List(अकारादि)':
                         self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = \
-                            Kosha_Subanta_Krdanta_Tiganta.krdanta_arthas_karmas(tigantaWord)
+                            Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(tigantaWord)
                         self.generationResults(self.dhatuNo, dialog)
                     else:
                         self.arthas, self.karmas = dialog.arthas, dialog.karmas
@@ -1276,7 +1264,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                  self.txtGana, self.txtPadi, self.txtKarma, self.txtIt, self.txtDhatuVidah,
                  self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara, self.txtSabda, self.txtAnta, self.txtLinga,
                  self.txtPratipadika],
-                [self.krdData[0].verb, transliterate_lines(self.arthas[0], IndianLanguages[self.wanted_script]), self.krdData[0].nijverb,
+                [self.krdData[0].verb, transliterate_lines(dialog.arthas, IndianLanguages[self.wanted_script]), self.krdData[0].nijverb,
                  self.krdData[0].sanverb, self.krdData[0].gana, self.krdData[0].padi,
                  transliterate_lines(self.karmas[0], IndianLanguages[self.wanted_script]), self.krdData[0].it, self.krdData[0].dhatuVidhah,
                  self.krdData[0].krdantaVidhah, self.krdData[0].pratyayaVidhah,
@@ -1298,7 +1286,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.setTexts(zip([self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu,
                  self.txtGana, self.txtPadi, self.txtKarma, self.txtIt, self.txtDhatuVidah,
                  self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara],
-                [transliterate_lines(txt, IndianLanguages[self.wanted_script]) for txt in [AmaraKosha_Database_Queries.iscii_unicode(dialog.tigantaWord), self.arthas[0],
+                [transliterate_lines(txt, IndianLanguages[self.wanted_script]) for txt in [AmaraKosha_Database_Queries.iscii_unicode(dialog.tigantaWord), dialog.arthas,
                                                                                            self.Sdhatudata[0][self.colsSdhatudata.index('Field3')], self.Sdhatudata[0][self.colsSdhatudata.index('Field4')],
                                                                                            Kosha_Subanta_Krdanta_Tiganta.Tganas[self.gana], Kosha_Subanta_Krdanta_Tiganta.Tganas[self.padi], self.karmas[0],
                                                                                            Kosha_Subanta_Krdanta_Tiganta.Tganas[self.it],
@@ -1393,20 +1381,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if word in ["ÔÚ³èÍÌè", ""] or (len(words) == 1 and word == "subject"): pass
                 elif word == "The" or "VOICE" in words or "Considering the verb" in line: self.conclusions[sentence_no]['conclusions'].append(line)
                 elif any([phrase in line for phrase in ["can be assumed to be the", "Any subanta"]]):
-                    self.conclusions[sentence_no]['conclusions'].append(AmaraKosha_Database_Queries.iscii_unicode(line, self.wanted_script+1))
+                    self.conclusions[sentence_no]['conclusions'].append(transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(line), IndianLanguages[self.wanted_script]))
                 elif any([phrase in line for phrase in ["Verb is", "No matching subject is available", "Considering krdanta"]]):
                     self.conclusions[sentence_no]['conclusions'].append(line)
                 elif word in typeList:
                     if len(words) <= 1: parts = ''
                     else: parts = line[line.index(' ( ') + 2:].split(' / ')
                     if parts == '': self.conclusions[sentence_no]['cells'].append([word, '', '', ''])
-                    else: self.conclusions[sentence_no]['cells'].append([AmaraKosha_Database_Queries.iscii_unicode(w, self.wanted_script + 1) for w in [word, parts[0], parts[1], parts[2][:-2]]])
+                    else: self.conclusions[sentence_no]['cells'].append([transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script]) for w in [word, parts[0], parts[1], parts[2][:-2]]])
                 elif word in subtypeList or 'Verb(s) are : ' in result[line_no - 1]:
                     parts = line[line.index(' ( ') + 2:].split(' / ')
                     if 'Verb(s) are : ' in result[line_no - 1]: word = 'Verb(s)'
-                    self.conclusions[sentence_no]['cells'].append([AmaraKosha_Database_Queries.iscii_unicode(w, self.wanted_script + 1) for w in [word, parts[0], parts[1], parts[2][:-2]]])
+                    self.conclusions[sentence_no]['cells'].append([transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script]) for w in [word, parts[0], parts[1], parts[2][:-2]]])
                 elif word[0] == '-':
-                    # ic.ic(self.conclusions[sentence_no]['conclusions'])
                     self.conclusions.append({'cells':[], 'conclusions':[]})
                     sentence_no += 1
                 # elif 'Verb(s) are : ' in result[line_no - 1]: pass
@@ -1415,7 +1402,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                             columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', 'लिंग',  'विभक्ति',  'वचन' ]],
                                             index=[' '] * len(self.conclusions[0]['cells'])) #[transliterate_lines(role, IndianLanguages[self.wanted_script]) for role in subtypeList[:5]])
             self.Categories.setText('Syntax')
-            # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(sentence))
             listOfControls = [self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
                               self.lblSaniDhatu, self.txtSaniDhatu, self.lblGana, self.txtGana, self.lblPadi, self.txtPadi,
                               self.lblKarma, self.txtKarma, self.lblIt, self.txtIt, self.lblDhatuVidah, self.txtDhatuVidah,
@@ -1433,7 +1419,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             for control in listofTxts[i + 1:]: control.setVisible(False)
             self.conclusions = [item for item in self.conclusions if not (item['cells'] == [] and item['conclusions'] == [])]
             numpages = min(len(self.conclusions), 21)
-            # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(sentence), len(self.conclusions), numpages)
             for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
                             self.page7Button, self.page8Button, self.page9Button, self.page10Button, self.page11Button,
                             self.page12Button, self.page13Button, self.page14Button, self.page15Button, self.page16Button,
