@@ -1,8 +1,9 @@
-import codecs #, icecream as ic
+import codecs, icecream as ic
 from unittest import TestCase
 # import os, sys
 # sys.path.append(os.getcwd())
 from source.Controller import Kosha_Subanta_Krdanta_Tiganta
+from source.Controller.Transliterate import transliterate_lines, IndianLanguages
 from source.Model import AmaraKosha_Database_Queries
 
 class Test(TestCase):
@@ -5334,7 +5335,6 @@ class Test(TestCase):
         # emptyF = {}
         # emptyT = {}
         # dupF = {}
-        # dupT = {}
         resultExpectedForms = {
             'अंश्/केवलतिगंतः/कर्तरि/लट्': [['अंशयति', 'अंशयतः', 'अंशयन्ति'], ['अंशयसि', 'अंशयथः', 'अंशय'],
                                            ['अंशयामि', 'अंशयावः', 'अंशयामः']],
@@ -7303,8 +7303,7 @@ class Test(TestCase):
         for ro in data:
             dhatuNo, word = ro[cols.index(parameterName)], ro[cols.index('Field2')]
             f, k, emptyForms, emptyTig, dupFormKeys, dupTigKeys = self.tigantaGeneration(dhatuNo)
-            # dupF[word] = dupFormKeys
-            # dupT[word] = dupTigKeys
+            # dupF[word], dupT[word] = dupFormKeys, dupTigKeys
             self.assertEqual(dupFormKeys, dupF[word])
             self.assertEqual(dupTigKeys, [])
             self.assertEqual(emptyTig, [])
@@ -7312,12 +7311,12 @@ class Test(TestCase):
                 for voice in f[dhatuVidah].keys():
                     for lakara, form in f[dhatuVidah][voice].items():
                         # resultExpectedForms['%s/%s/%s/%s'%(word, dhatuVidah, voice, lakara)] = form
-                        self.assertIn(form, resultExpectedForms['%s/%s/%s/%s'%(word, dhatuVidah, voice, lakara)])
+                        self.assertEqual(form, resultExpectedForms['%s/%s/%s/%s'%(word, dhatuVidah, voice, lakara)])
             for dhatuVidah in k.keys():
                 for voice in k[dhatuVidah].keys():
                     for lakara, tiggen in k[dhatuVidah][voice].items():
                         # resultExpectedTiggens['%s/%s/%s/%s'%(word, dhatuVidah, voice, lakara)] =  [tig.get() for tig in tiggen]
-                        self.assertIn([tig.get() for tig in tiggen], resultExpectedTiggens['%s/%s/%s/%s'%(word, dhatuVidah, voice, lakara)])
+                        self.assertEqual([tig.get() for tig in tiggen], resultExpectedTiggens['%s/%s/%s/%s'%(word, dhatuVidah, voice, lakara)])
 
         # print('resultExpectedForms = {')
         # for word, form in resultExpectedForms.items(): print("'" + word + "':", form, ',')
@@ -7328,7 +7327,7 @@ class Test(TestCase):
         # print('emptyF = {')
         # for word, formkey in emptyF.items(): print("'" + word + "':", formkey, ',')
         # print('}')
-        # print('emptyK = {')
+        # print('emptyT = {')
         # for word, key in emptyT.items(): print("'" + word + "':", key, ',')
         # print('}')
         # print('dupF = {')
@@ -7478,3 +7477,288 @@ class Test(TestCase):
                 print('Tiganta Analysis - ', e)
                 continue
         # print('resultsExpectedForms = ', f, '\nresultsExpectedTig = ', t)
+    def test_morphological_analysis(self):
+        numpages, subforms, krdforms, tigforms, Subantas, Krdantas, Tigantas, syntaxInputFile = 0, [], [], [], [], [], [], []
+        for i, word in enumerate('रामः अर्घ्येण ऋषिं पूजयति ।'.split(' ')):
+            word = AmaraKosha_Database_Queries.unicode_iscii(word)
+            try:
+                wids = 1
+                forms, subDetails = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word)
+                if not forms == []: subforms += forms
+                for item in subDetails:
+                    numpages += 1
+                    Subantas.append([item.rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base), IndianLanguages[0]),
+                                    item.anta, item.linga, item.vib, item.vach, item.vibvach])
+                    syntaxInputFile.append([i + 1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
+                    wids += 1
+            except Exception as e:
+                print(e)
+            try:
+                forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word)
+                if not forms == []: krdforms += forms
+                if not krdData == []:
+                    Krdantas += krdData
+                    numpages += len(krdData)
+                    for krdDetail in krdData:
+                        syntaxInputFile.append(  [i + 1, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
+                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii, krdDetail.nijverb_iscii,
+                             krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
+                        wids += 1
+            except Exception as e:
+                print(e)
+            try:
+                forms, tigDatas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word)
+                if not forms == []: tigforms += forms
+                if not tigDatas == []:
+                    Tigantas += tigDatas
+                    numpages += len(tigDatas)
+                    for tigData in tigDatas:
+                        # ic.ic('tiganta', i+1, word, wids)
+                        syntaxInputFile.append( [i + 1, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
+                                                tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning_iscii, tigData.GPICode,
+                                                tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
+                        wids += 1
+            except Exception as e:
+                print(e)
+        # ic.ic(numpages, subforms, krdforms, tigforms, Subantas, [item.get() for item in Krdantas], [item.get() for item in Tigantas], syntaxInputFile)
+        self.assertEqual(numpages, 11)
+        self.assertEqual(subforms, [['रामः ', 'रामौ ', 'रामाः '],
+               ['रामम् ', 'रामौ ', 'रामान् '],
+               ['रामेण ', 'रामाभ्याम् ', 'रामैः '],
+               ['रामाय ', 'रामाभ्याम् ', 'रामेभ्यः '],
+               ['रामात् ', 'रामाभ्याम् ', 'रामेभ्यः '],
+               ['रामस्य ', 'रामयोः ', 'रामाणाम् '],
+               ['रामे ', 'रामयोः ', 'रामेषु '],
+               ['हे रामः ', 'हे रामौ ', 'हे रामाः '],
+               ['अर्घ्यः ', 'अर्घ्यौ ', 'अर्घ्याः '],
+               ['अर्घ्यम् ', 'अर्घ्यौ ', 'अर्घ्यान् '],
+               ['अर्घ्येण ', 'अर्घ्याभ्याम् ', 'अर्घ्यैः '],
+               ['अर्घ्याय ', 'अर्घ्याभ्याम् ', 'अर्घ्येभ्यः '],
+               ['अर्घ्यात् ', 'अर्घ्याभ्याम् ', 'अर्घ्येभ्यः '],
+               ['अर्घ्यस्य ', 'अर्घ्ययोः ', 'अर्घ्याणाम् '],
+               ['अर्घ्ये ', 'अर्घ्ययोः ', 'अर्घ्येषु '],
+               ['हे अर्घ्यः ', 'हे अर्घ्यौ ', 'हे अर्घ्याः '],
+               ['ऋषिः ', 'ऋषी ', 'ऋषयः '],
+               ['ऋषिम् ', 'ऋषी ', 'ऋषीन् '],
+               ['ऋषिणा ', 'ऋषिभ्याम् ', 'ऋषिभिः '],
+               ['ऋषये ', 'ऋषिभ्याम् ', 'ऋषिभ्यः '],
+               ['ऋषेः ', 'ऋषिभ्याम् ', 'ऋषिभ्यः '],
+               ['ऋषेः ', 'ऋष्योः ', 'ऋषीणाम् '],
+               ['ऋषौ ', 'ऋष्योः ', 'ऋषिषु '],
+               ['हे ऋषिः ', 'हे ऋषी ', 'हे ऋषयः ']])
+        self.assertEqual(krdforms, [['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '],
+               ['पूजयन्तम् ', 'पूजयन्तौ ', 'पूजयतः '],
+               ['पूजयता ', 'पूजयद्भ्याम् ', 'पूजयद्भिः '],
+               ['पूजयते ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+               ['पूजयतः ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+               ['पूजयतः ', 'पूजयतोः ', 'पूजयताम् '],
+               ['पूजयति ', 'पूजयतोः ', 'पूजयत्सु '],
+               ['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '],
+               ['पूजयन्तम् ', 'पूजयन्तौ ', 'पूजयतः '],
+               ['पूजयता ', 'पूजयद्भ्याम् ', 'पूजयद्भिः '],
+               ['पूजयते ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+               ['पूजयतः ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+               ['पूजयतः ', 'पूजयतोः ', 'पूजयताम् '],
+               ['पूजयति ', 'पूजयतोः ', 'पूजयत्सु '],
+               ['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '],
+               ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '],
+               ['पूजयता ', 'पूजयद्भ्याम् ', 'पूजयद्भिः '],
+               ['पूजयते ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+               ['पूजयतः ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+               ['पूजयतः ', 'पूजयतोः ', 'पूजयताम् '],
+               ['पूजयति ', 'पूजयतोः ', 'पूजयत्सु '],
+               ['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '],
+               ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '],
+               ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '],
+               ['पूजयते ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+               ['पूजयतः ', 'पूजयद्भ्याम् ', 'पूजयद्भ्यः '],
+               ['पूजयतः ', 'पूजयतोः ', 'पूजयताम् '],
+               ['पूजयति ', 'पूजयतोः ', 'पूजयत्सु '],
+               ['पूजयन् ', 'पूजयन्तौ ', 'पूजयन्तः '],
+               ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '],
+               ['पूजयत् ', 'पूजयन्ती ', 'पूजयन्ति '],
+               ['पूजयता ', 'पूजयद्भ्याम् ', 'पूजयद्भिः ']])
+        self.assertEqual(tigforms, [['रति', 'रतः', 'रन्ति'],
+               ['रसि', 'रथः', 'र'],
+               ['रामि', 'रावः', 'रामः'],
+               ['पूजयति', 'पूजयतः', 'पूजयन्ति'],
+               ['पूजयसि', 'पूजयथः', 'पूजय'],
+               ['पूजयामि', 'पूजयावः', 'पूजयामः'],
+               ['पूजय्', 'पूजयतु', 'पूजयुः'],
+               ['पूजयि', 'पूजयथु', 'पूजय्'],
+               ['पूजय्', 'पूजयि', 'पूजयि']])
+        self.assertEqual(Subantas, [['रामः', 'राम', 'अकारान्तः', 'पुल्लिङ्गः', 'प्रथमा', 'एकवचन', 0],
+                                  ['अर्घ्येण', 'अर्घ्य', 'अकारान्तः', 'पुल्लिङ्गः', 'तृतीया', 'एकवचन', 6],
+                                  ['अर्घ्येण', 'अर्घ्य', 'अकारान्तः', 'नपुंसकलिङ्गः', 'तृतीया', 'एकवचन', 6],
+                                  ['ऋषिम्', 'ऋषि', 'इकारान्तः', 'पुल्लिङ्गः', 'द्वितीया', 'एकवचन', 3]])
+        self.assertEqual([item.get() for item in Krdantas], [{'Dno': 252,
+                                         'GPICode': '931',
+                                         'combinedM': None,
+                                         'ddet': 'f1',
+                                         'det': 's1032',
+                                         'dhatuVidhah': 'णिजन्तः',
+                                         'erb': 'पूजय',
+                                         'gana': 'चुरादिगणः',
+                                         'it': 'सेट्',
+                                         'karma': 'सकर्मकः',
+                                         'karmaCode': '0',
+                                         'krdantaVidhah': 'वर्तमानः',
+                                         'linga': 'पुल्लिङ्गः',
+                                         'meaning': 'पूजायाम',
+                                         'nijverb': 'पूजय्',
+                                         'padi': 'उभयपदी',
+                                         'pratyayaVidhah': 'शतृ',
+                                         'sabda': 'पूजयत्',
+                                         'sanverb': 'पुपूजि',
+                                         'vacana': 'एकवचन',
+                                         'verb': 'पूज्',
+                                         'vibhakti': 'सप्तमी',
+                                         'vibvach': 18,
+                                         'wtype': None},
+                                        {'Dno': 252,
+                                         'GPICode': '931',
+                                         'combinedM': None,
+                                         'ddet': 'f1',
+                                         'det': 's2031',
+                                         'dhatuVidhah': 'णिजन्तः',
+                                         'erb': 'पूजय',
+                                         'gana': 'चुरादिगणः',
+                                         'it': 'सेट्',
+                                         'karma': 'सकर्मकः',
+                                         'karmaCode': '0',
+                                         'krdantaVidhah': 'वर्तमानः',
+                                         'linga': 'नपुंसकलिङ्गः',
+                                         'meaning': 'पूजायाम',
+                                         'nijverb': 'पूजय्',
+                                         'padi': 'उभयपदी',
+                                         'pratyayaVidhah': 'शतृ',
+                                         'sabda': 'पूजयत्',
+                                         'sanverb': 'पुपूजि',
+                                         'vacana': 'एकवचन',
+                                         'verb': 'पूज्',
+                                         'vibhakti': 'सप्तमी',
+                                         'vibvach': 18,
+                                         'wtype': None},
+                                        {'Dno': 252,
+                                         'GPICode': '931',
+                                         'combinedM': None,
+                                         'ddet': 'f2',
+                                         'det': 's1032',
+                                         'dhatuVidhah': 'सन्नन्तः',
+                                         'erb': 'पूजय',
+                                         'gana': 'चुरादिगणः',
+                                         'it': 'सेट्',
+                                         'karma': 'सकर्मकः',
+                                         'karmaCode': '0',
+                                         'krdantaVidhah': 'वर्तमानः',
+                                         'linga': 'पुल्लिङ्गः',
+                                         'meaning': 'पूजायाम',
+                                         'nijverb': 'पूजय्',
+                                         'padi': 'उभयपदी',
+                                         'pratyayaVidhah': 'शतृ',
+                                         'sabda': 'पूजयत्',
+                                         'sanverb': 'पुपूजि',
+                                         'vacana': 'एकवचन',
+                                         'verb': 'पूज्',
+                                         'vibhakti': 'सप्तमी',
+                                         'vibvach': 18,
+                                         'wtype': None},
+                                        {'Dno': 252,
+                                         'GPICode': '931',
+                                         'combinedM': None,
+                                         'ddet': 'f2',
+                                         'det': 's2031',
+                                         'dhatuVidhah': 'सन्नन्तः',
+                                         'erb': 'पूजय',
+                                         'gana': 'चुरादिगणः',
+                                         'it': 'सेट्',
+                                         'karma': 'सकर्मकः',
+                                         'karmaCode': '0',
+                                         'krdantaVidhah': 'वर्तमानः',
+                                         'linga': 'नपुंसकलिङ्गः',
+                                         'meaning': 'पूजायाम',
+                                         'nijverb': 'पूजय्',
+                                         'padi': 'उभयपदी',
+                                         'pratyayaVidhah': 'शतृ',
+                                         'sabda': 'पूजयत्',
+                                         'sanverb': 'पुपूजि',
+                                         'vacana': 'एकवचन',
+                                         'verb': 'पूज्',
+                                         'vibhakti': 'सप्तमी',
+                                         'vibvach': 18,
+                                         'wtype': None}])
+        self.assertEqual([item.get() for item in Tigantas], [{'GPICode': '112',
+                                         'dhatuVidah': 'केवलतिगंतः',
+                                         'gana': 'अदादिगणः',
+                                         'it': 'अनिट्',
+                                         'karma': 'सकर्मकः',
+                                         'lakaras': 'लट्',
+                                         'meaning': 'दाने1/',
+                                         'nijverb': 'रापि',
+                                         'padi': 'परस्मैपदी',
+                                         'purusha': 'उत्तमपुरुषः',
+                                         'purvach': 9,
+                                         'sanverb': 'रिरास्',
+                                         'tigform': 'र्आम्अः',
+                                         'vacana': 'बहुवचन',
+                                         'verb': 'रा'},
+                                        {'GPICode': '931',
+                                         'dhatuVidah': 'केवलतिगंतः',
+                                         'gana': 'चुरादिगणः',
+                                         'it': 'सेट्',
+                                         'karma': 'सकर्मकः',
+                                         'lakaras': 'लट्',
+                                         'meaning': 'पूजायाम्1/',
+                                         'nijverb': 'पूजय्',
+                                         'padi': 'उभयपदी',
+                                         'purusha': 'प्रथमपुरुषः',
+                                         'purvach': 1,
+                                         'sanverb': 'पुपूजि',
+                                         'tigform': 'प्ऊज्अय्अत्इ',
+                                         'vacana': 'एकवचन',
+                                         'verb': 'पूज्'},
+                                        {'GPICode': '931',
+                                         'dhatuVidah': 'णिजन्तः',
+                                         'gana': 'चुरादिगणः',
+                                         'it': 'सेट्',
+                                         'karma': 'सकर्मकः',
+                                         'lakaras': 'लट्',
+                                         'meaning': 'पूजायाम्1/',
+                                         'nijverb': 'पूजय्',
+                                         'padi': 'उभयपदी',
+                                         'purusha': 'प्रथमपुरुषः',
+                                         'purvach': 1,
+                                         'sanverb': 'पुपूजि',
+                                         'tigform': 'प्ऊज्अय्अत्इ',
+                                         'vacana': 'एकवचन',
+                                         'verb': 'पूज्'}])
+
+        # self.assertEqual(syntaxInputFile,
+        #                         [[1, 'ÏÚÌ£', 1, 1, 'ÏÚÌ', 'ÏÚÌè', 'a10111', 1],
+        # [1,  'ÏÚÌ£',  2,  5,  'Ïè',  206,  'ÏÚ',  'ÏÚÈÛ',  'ÏÛÏÚ×è',  'ÄÚÆá1/',  '112',  '1A111',  9,  '*',  1],
+        # [2, '¤Ïè¶èÍáÁ', 1, 1, '¤Ïè¶èÍ', '¤Ïè¶èÍè', 'a10111', 7],
+        # [2, '¤Ïè¶èÍáÁ', 2, 1, '¤Ïè¶èÍ', '¤Ïè¶èÍè', 'a20221', 7],
+        # [3, 'ªÖÛ¢', 1, 1, 'ªÖÛ', 'ªÖè', 'c10111', 4],
+        # [4,  'ÈÞºÍÂÛ',  1,  2,  'ÈÞºÍ',  'ÈÞºÍÂè',  's1032',  19,  'f1',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌ',  931,  '*',  0],
+        # [4,  'ÈÞºÍÂÛ',  2,  2,  'ÈÞºÍ',  'ÈÞºÍÂè',  's2031',  19,  'f1',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌ',  931,  '*',  0],
+        # [4,  'ÈÞºÍÂÛ',  3,  2,  'ÈÞºÍ',  'ÈÞºÍÂè',  's1032',  19,  'f2',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌ',  931,  '*',  0],
+        # [4,  'ÈÞºÍÂÛ',  4,  2,  'ÈÞºÍ',  'ÈÞºÍÂè',  's2031',  19,  'f2',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌ',  931,  '*',  0],
+        # [4,  'ÈÞºÍÂÛ',  5,  5,  'ÈÞºÍè',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌè1/',  931,  '1A1',  1,  '*',  1],
+        # [4,  'ÈÞºÍÂÛ',  6,  5,  'ÈÞºÍè',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌè1/',  931,  '2A1',  1,  '*',  1]]
+        #                         )
+        expected = [[1, 'रामः', 1, 1, 'राम', 'राम्', 'a10111', 1],
+                    [1, 'रामः', 2, 5, 'र्', 206, 'रा', 'रापि', 'रिरास्', 'दाने1/', '112', '1A111', 9, '*', 1],
+                    [2, 'अर्घ्येण', 1, 1, 'अर्घ्य', 'अर्घ्य्', 'a10111', 7],
+                    [2, 'अर्घ्येण', 2, 1, 'अर्घ्य', 'अर्घ्य्', 'a20221', 7],
+                    [3, 'ऋषिं', 1, 1, 'ऋषि', 'ऋष्', 'c10111', 4],
+                    [4, 'पूजयति', 1, 2, 'पूजय', 'पूजयत्', 's1032', 19, 'f1', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम', 931, '*', 0],
+                    [4, 'पूजयति', 2, 2, 'पूजय', 'पूजयत्', 's2031', 19, 'f1', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम', 931, '*', 0],
+                    [4, 'पूजयति', 3, 2, 'पूजय', 'पूजयत्', 's1032', 19, 'f2', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम', 931, '*', 0],
+                    [4, 'पूजयति', 4, 2, 'पूजय', 'पूजयत्', 's2031', 19, 'f2', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम', 931, '*', 0],
+                    [4, 'पूजयति', 5, 5, 'पूजय्', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम्1/', 931, '1A1', 1, '*', 1],
+                    [4, 'पूजयति', 6, 5, 'पूजय्', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम्1/', 931, '2A1', 1, '*', 1]]
+        expected = [[str(item) for item in lst] for lst in expected]
+        syntaxInputFile = [[str(item) for item in lst] for lst in syntaxInputFile]
+        for input_list, expected_list in zip(syntaxInputFile, expected):
+            self.assertEqual([AmaraKosha_Database_Queries.unicode_iscii(item) for item in expected_list], input_list)
+            self.assertEqual(expected_list, [AmaraKosha_Database_Queries.iscii_unicode(item) for item in input_list])
