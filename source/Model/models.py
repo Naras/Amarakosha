@@ -1,3 +1,5 @@
+__author__ = 'NarasMG'
+
 import pandas
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import Qt

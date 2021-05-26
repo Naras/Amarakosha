@@ -1,3 +1,5 @@
+__author__ = 'NarasMG'
+
 import peewee, os
 from iscii2utf8 import *
 conn = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})

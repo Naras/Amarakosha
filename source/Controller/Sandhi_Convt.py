@@ -1,3 +1,5 @@
+__author__ = 'NarasMG'
+
 from source.Controller import blast
 
 global lingas, antas, vibstr, vachstr, Tganas, Tkarmas, Tpadis, Tyit, purstr, mesg, Voices

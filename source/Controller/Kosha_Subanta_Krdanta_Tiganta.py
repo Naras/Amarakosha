@@ -1,3 +1,5 @@
+__author__ = 'NarasMG'
+
 import json #, icecream as ic
 from typing import List
 

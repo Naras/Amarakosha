@@ -1,3 +1,5 @@
+__author__ = 'NarasMG'
+
 import json, source.Controller.data1 as data1, source.Controller.disp as dsp, functools as ft #, icecream as ic
 from typing import List
 

@@ -1,12 +1,16 @@
-import codecs, icecream as ic
-from unittest import TestCase
-# import os, sys
-# sys.path.append(os.getcwd())
-from source.Controller import Kosha_Subanta_Krdanta_Tiganta
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+__author__ = 'NarasMG'
+
+import unittest, codecs, icecream as ic
+# from unittest import TestCase
+import os, sys
+sys.path.append(os.getcwd())
+from source.Controller import Kosha_Subanta_Krdanta_Tiganta, SyntaxAnalysis
 from source.Controller.Transliterate import transliterate_lines, IndianLanguages
 from source.Model import AmaraKosha_Database_Queries
 
-class Test(TestCase):
+class Test(unittest.TestCase):
     def common(self, tbl, parameterName):
         colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5, duplicate=False)
         # print('%s\n%s'%(colsHeader, dataHeader))
@@ -7477,9 +7481,10 @@ class Test(TestCase):
                 print('Tiganta Analysis - ', e)
                 continue
         # print('resultsExpectedForms = ', f, '\nresultsExpectedTig = ', t)
-    def test_morphological_analysis(self):
+    def test_morphological_syntactic_analysis(self):
         numpages, subforms, krdforms, tigforms, Subantas, Krdantas, Tigantas, syntaxInputFile = 0, [], [], [], [], [], [], []
-        for i, word in enumerate('रामः अर्घ्येण ऋषिं पूजयति ।'.split(' ')):
+        sentence = 'रामः अर्घ्येण ऋषिं पूजयति ।'
+        for i, word in enumerate(sentence.split(' ')):
             word = AmaraKosha_Database_Queries.unicode_iscii(word)
             try:
                 wids = 1
@@ -7733,19 +7738,6 @@ class Test(TestCase):
                                          'vacana': 'एकवचन',
                                          'verb': 'पूज्'}])
 
-        # self.assertEqual(syntaxInputFile,
-        #                         [[1, 'ÏÚÌ£', 1, 1, 'ÏÚÌ', 'ÏÚÌè', 'a10111', 1],
-        # [1,  'ÏÚÌ£',  2,  5,  'Ïè',  206,  'ÏÚ',  'ÏÚÈÛ',  'ÏÛÏÚ×è',  'ÄÚÆá1/',  '112',  '1A111',  9,  '*',  1],
-        # [2, '¤Ïè¶èÍáÁ', 1, 1, '¤Ïè¶èÍ', '¤Ïè¶èÍè', 'a10111', 7],
-        # [2, '¤Ïè¶èÍáÁ', 2, 1, '¤Ïè¶èÍ', '¤Ïè¶èÍè', 'a20221', 7],
-        # [3, 'ªÖÛ¢', 1, 1, 'ªÖÛ', 'ªÖè', 'c10111', 4],
-        # [4,  'ÈÞºÍÂÛ',  1,  2,  'ÈÞºÍ',  'ÈÞºÍÂè',  's1032',  19,  'f1',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌ',  931,  '*',  0],
-        # [4,  'ÈÞºÍÂÛ',  2,  2,  'ÈÞºÍ',  'ÈÞºÍÂè',  's2031',  19,  'f1',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌ',  931,  '*',  0],
-        # [4,  'ÈÞºÍÂÛ',  3,  2,  'ÈÞºÍ',  'ÈÞºÍÂè',  's1032',  19,  'f2',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌ',  931,  '*',  0],
-        # [4,  'ÈÞºÍÂÛ',  4,  2,  'ÈÞºÍ',  'ÈÞºÍÂè',  's2031',  19,  'f2',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌ',  931,  '*',  0],
-        # [4,  'ÈÞºÍÂÛ',  5,  5,  'ÈÞºÍè',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌè1/',  931,  '1A1',  1,  '*',  1],
-        # [4,  'ÈÞºÍÂÛ',  6,  5,  'ÈÞºÍè',  252,  'ÈÞºè',  'ÈÞºÍè',  'ÈÝÈÞºÛ',  'ÈÞºÚÍÚÌè1/',  931,  '2A1',  1,  '*',  1]]
-        #                         )
         expected = [[1, 'रामः', 1, 1, 'राम', 'राम्', 'a10111', 1],
                     [1, 'रामः', 2, 5, 'र्', 206, 'रा', 'रापि', 'रिरास्', 'दाने1/', '112', '1A111', 9, '*', 1],
                     [2, 'अर्घ्येण', 1, 1, 'अर्घ्य', 'अर्घ्य्', 'a10111', 7],
@@ -7757,8 +7749,274 @@ class Test(TestCase):
                     [4, 'पूजयति', 4, 2, 'पूजय', 'पूजयत्', 's2031', 19, 'f2', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम', 931, '*', 0],
                     [4, 'पूजयति', 5, 5, 'पूजय्', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम्1/', 931, '1A1', 1, '*', 1],
                     [4, 'पूजयति', 6, 5, 'पूजय्', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम्1/', 931, '2A1', 1, '*', 1]]
+
+        morphologicalOutput = [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्') + ' -- %s' % AmaraKosha_Database_Queries.unicode_iscii(sentence)]
+        for line in syntaxInputFile:
+            morphologicalOutput.append('%d) ' % line[0] + ' '.join([str(x) for x in line[1:]]))
+        morphologicalOutput.append('----------')
+        out = SyntaxAnalysis.write_out_aci(morphologicalOutput)
+
         expected = [[str(item) for item in lst] for lst in expected]
         syntaxInputFile = [[str(item) for item in lst] for lst in syntaxInputFile]
         for input_list, expected_list in zip(syntaxInputFile, expected):
             self.assertEqual([AmaraKosha_Database_Queries.unicode_iscii(item) for item in expected_list], input_list)
             self.assertEqual(expected_list, [AmaraKosha_Database_Queries.iscii_unicode(item) for item in input_list])
+
+        result = SyntaxAnalysis.write_result_aci(out)
+        # print('outExpected = ', out)
+        # print('resultExpected = ', result)
+        outExpected = ['वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  1/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 1 2 पूजय पूजयत् s1032 19 f1 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  2/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 2 2 पूजय पूजयत् s2031 19 f1 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  3/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 3 2 पूजय पूजयत् s1032 19 f2 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  4/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 4 2 पूजय पूजयत् s2031 19 f2 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  5/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 5 5 पूजय् 252 पूज् पूजय् पुपूजि पूजायाम्1/ 931 1A1 1 * 1\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  6/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 6 5 पूजय् 252 पूज् पूजय् पुपूजि पूजायाम्1/ 931 2A1 1 * 1\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  7/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 1 2 पूजय पूजयत् s1032 19 f1 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  8/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 2 2 पूजय पूजयत् s2031 19 f1 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  9/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 3 2 पूजय पूजयत् s1032 19 f2 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  10/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 4 2 पूजय पूजयत् s2031 19 f2 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  11/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 5 5 पूजय् 252 पूज् पूजय् पुपूजि पूजायाम्1/ 931 1A1 1 * 1\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  12/ 24 )\n', '1) रामः 1 1 राम राम् a10111 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 6 5 पूजय् 252 पूज् पूजय् पुपूजि पूजायाम्1/ 931 2A1 1 * 1\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  13/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 1 2 पूजय पूजयत् s1032 19 f1 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  14/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 2 2 पूजय पूजयत् s2031 19 f1 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  15/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 3 2 पूजय पूजयत् s1032 19 f2 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  16/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 4 2 पूजय पूजयत् s2031 19 f2 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  17/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 5 5 पूजय् 252 पूज् पूजय् पुपूजि पूजायाम्1/ 931 1A1 1 * 1\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  18/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 1 1 अर्घ्य अर्घ्य् a10111 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 6 5 पूजय् 252 पूज् पूजय् पुपूजि पूजायाम्1/ 931 2A1 1 * 1\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  19/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 1 2 पूजय पूजयत् s1032 19 f1 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  20/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 2 2 पूजय पूजयत् s2031 19 f1 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  21/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 3 2 पूजय पूजयत् s1032 19 f2 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  22/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 4 2 पूजय पूजयत् s2031 19 f2 252 पूज् पूजय् पुपूजि पूजायाम 931 * 0\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  23/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 5 5 पूजय् 252 पूज् पूजय् पुपूजि पूजायाम्1/ 931 1A1 1 * 1\n', '----------\n',
+                       'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  24/ 24 )\n',
+                       '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                       '2) अर्घ्येण 2 1 अर्घ्य अर्घ्य् a20221 7\n', '3) ऋषिं 1 1 ऋषि ऋष् c10111 4\n',
+                       '4) पूजयति 6 5 पूजय् 252 पूज् पूजय् पुपूजि पूजायाम्1/ 931 2A1 1 * 1\n', '----------\n']
+        resultExpected = ['वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  1/ 24 )', 'The sentence is in ACTIVE VOICE', '',
+                          'Noun(s)', 'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Krdanta(s)  : पूजयति ( पुल्लिङ्गः / सप्तमीविभक्तिः / एकवचनम् )\n',
+                          'The subject agrees with the krdanta in linga only\n The sentence is syntactically not compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  2/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                          'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Krdanta(s)  : पूजयति ( नपुंसकलिङ्गः / सप्तमीविभक्तिः / एकवचनम् )\n',
+                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  3/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                          'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Krdanta(s)  : पूजयति ( पुल्लिङ्गः / सप्तमीविभक्तिः / एकवचनम् )\n',
+                          'The subject agrees with the krdanta in linga only\n The sentence is syntactically not compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  4/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                          'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Krdanta(s)  : पूजयति ( नपुंसकलिङ्गः / सप्तमीविभक्तिः / एकवचनम् )\n',
+                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  5/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Verb : पूजयति ( पूज् / प्रथमपुरुषः / द्विवचनम् )',
+                          '\nThe subject agrees with the verb in purusha and vacana\n The sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  6/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Verb : पूजयति ( पूज् / प्रथमपुरुषः / द्विवचनम् )',
+                          '\nThe subject agrees with the verb in purusha and vacana\n The sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  7/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                          'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Krdanta(s)  : पूजयति ( पुल्लिङ्गः / सप्तमीविभक्तिः / एकवचनम् )\n',
+                          'The subject agrees with the krdanta in linga only\n The sentence is syntactically not compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  8/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                          'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Krdanta(s)  : पूजयति ( नपुंसकलिङ्गः / सप्तमीविभक्तिः / एकवचनम् )\n',
+                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  9/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                          'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Krdanta(s)  : पूजयति ( पुल्लिङ्गः / सप्तमीविभक्तिः / एकवचनम् )\n',
+                          'The subject agrees with the krdanta in linga only\n The sentence is syntactically not compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  10/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                          'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Krdanta(s)  : पूजयति ( नपुंसकलिङ्गः / सप्तमीविभक्तिः / एकवचनम् )\n',
+                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  11/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Verb : पूजयति ( पूज् / प्रथमपुरुषः / द्विवचनम् )',
+                          '\nThe subject agrees with the verb in purusha and vacana\n The sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  12/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Verb : पूजयति ( पूज् / प्रथमपुरुषः / द्विवचनम् )',
+                          '\nThe subject agrees with the verb in purusha and vacana\n The sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  13/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )', 'Krdanta(s)',
+                          'Locative(s) :   पूजयति ( पुल्लिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )',
+                          'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                          '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  14/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )', 'Krdanta(s)',
+                          'Locative(s) :   पूजयति ( नपुंसकलिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )',
+                          'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                          '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  15/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )', 'Krdanta(s)',
+                          'Locative(s) :   पूजयति ( पुल्लिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )',
+                          'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                          '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  16/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )', 'Krdanta(s)',
+                          'Locative(s) :   पूजयति ( नपुंसकलिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )',
+                          'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                          '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  17/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Verb(s) are : रामः ( रा / उत्तमपुरुषः / एकवचनम् )\nपूजयति ( पूज् / प्रथमपुरुषः / द्विवचनम् )',
+                          'The verbs do not agree in purusha and vacana', '---------------',
+                          'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  18/ 24 )', 'The sentence is in ACTIVE VOICE', '',
+                          'Considering the verb as Akarmaka(intransitive)', 'Noun(s)',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Verb(s) are : रामः ( रा / उत्तमपुरुषः / एकवचनम् )\nपूजयति ( पूज् / प्रथमपुरुषः / द्विवचनम् )',
+                          'The verbs do not agree in purusha and vacana', '---------------',
+                          'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  19/ 24 )', 'The sentence is in ACTIVE VOICE', '',
+                          'Considering the verb as Akarmaka(intransitive)', 'Noun(s)',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )', 'Krdanta(s)',
+                          'Locative(s) :   पूजयति ( पुल्लिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )',
+                          'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                          '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  20/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )', 'Krdanta(s)',
+                          'Locative(s) :   पूजयति ( नपुंसकलिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )',
+                          'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                          '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  21/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )', 'Krdanta(s)',
+                          'Locative(s) :   पूजयति ( पुल्लिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )',
+                          'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                          '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  22/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )', 'Krdanta(s)',
+                          'Locative(s) :   पूजयति ( नपुंसकलिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )',
+                          'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                          '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                          '---------------', 'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  23/ 24 )',
+                          'The sentence is in ACTIVE VOICE', '', 'Considering the verb as Akarmaka(intransitive)',
+                          'Noun(s)', 'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Verb(s) are : रामः ( रा / उत्तमपुरुषः / एकवचनम् )\nपूजयति ( पूज् / प्रथमपुरुषः / द्विवचनम् )',
+                          'The verbs do not agree in purusha and vacana', '---------------',
+                          'वाक्यम् -- रामः अर्घ्येण ऋषिं पूजयति   (  24/ 24 )', 'The sentence is in ACTIVE VOICE', '',
+                          'Considering the verb as Akarmaka(intransitive)', 'Noun(s)',
+                          'Object(s) : ऋषिं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                          'Instrument(s) : अर्घ्येण  (  नपुंसकलिङ्गः / तृतीयाविभक्तिः /  एकवचनम् )',
+                          'Verb(s) are : रामः ( रा / उत्तमपुरुषः / एकवचनम् )\nपूजयति ( पूज् / प्रथमपुरुषः / द्विवचनम् )',
+                          'The verbs do not agree in purusha and vacana', '---------------']
+
+        for actual_list, expected_list in zip(out, outExpected):
+            self.assertEqual(AmaraKosha_Database_Queries.unicode_iscii(expected_list), actual_list)
+        for actual_list, expected_list in zip(result, resultExpected):
+            self.assertEqual(AmaraKosha_Database_Queries.unicode_iscii(expected_list), actual_list)
+
+if __name__ == '__main__':
+    unittest.main()

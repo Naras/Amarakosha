@@ -1,4 +1,6 @@
-import logging , icecream as ic #, inspect
+__author__ = 'NarasMG'
+
+import logging #, icecream as ic #, inspect
 import sys, os, pandas
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtGui import QFontMetrics

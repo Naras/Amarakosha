@@ -1,3 +1,5 @@
+__author__ = 'NarasMG'
+
 anusvara, visarga, halanth, nukta, virama = 162, 163, 232, 233, 234
 
 def vowelModifierOf(anIndLangVowel):
