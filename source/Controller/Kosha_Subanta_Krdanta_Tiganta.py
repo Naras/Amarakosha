@@ -326,7 +326,7 @@ def subanta_Analysis(word, requested_script=1):
     qry ='select * from subfin where Finform=?'
     cols_subfin, dbdata_subfin = AmaraKosha_Database_Queries.sqlQuery(qry, word, maxrows=0, script=requested_script)
     for row in dbdata_subfin:
-        codes = row[cols_subfin.index('code')]
+        codes = row[cols_subfin.index('Code')]
         subDetail = subantaDetails()
         subDetails = []
         for codeset in codes.split(' '):
@@ -389,7 +389,14 @@ def subanta_Analysis(word, requested_script=1):
                                 sufixes = sufrec[cols_sufcode.index('SufStr')]
                                 if chCode in sufixes:
                                     for sufcode in sufixes.split(' '):
-                                        subforms.append(Sandhi_Convt.Convt(sufcode))
+                                        if '/' in sufcode:
+                                            ss = ''
+                                            for s in sufcode.split('/'):
+                                                ss += '/' + Sandhi_Convt.Convt(s)
+                                            ss = ss[1:]
+                                        else:
+                                            ss = Sandhi_Convt.Convt(sufcode)
+                                        if ss != '': subforms.append(ss)
                                     for subformItemNo, subformItem in enumerate(subforms):
                                         for tstr in subformItem.split('/'):
                                             if Sandhi_Convt.Sandhi(subDetailsRec.erb + tstr) == word:

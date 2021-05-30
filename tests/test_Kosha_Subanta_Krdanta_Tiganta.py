@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 __author__ = 'NarasMG'
 
-import unittest, codecs, icecream as ic
+import unittest, random, codecs, icecream as ic
 # from unittest import TestCase
 import os, sys
 sys.path.append(os.getcwd())
@@ -8017,6 +8017,69 @@ class Test(unittest.TestCase):
             self.assertEqual(AmaraKosha_Database_Queries.unicode_iscii(expected_list), actual_list)
         for actual_list, expected_list in zip(result, resultExpected):
             self.assertEqual(AmaraKosha_Database_Queries.unicode_iscii(expected_list), actual_list)
+    def test_morphological_syntactic_analysis_more_sentences(self):
+        f = open('Bandarkar.txt', 'r')
+        with f:
+            dataIscii = f.readlines()
+            data = [AmaraKosha_Database_Queries.iscii_unicode(item) for item in dataIscii]
+        self.morphological_analysis(random.choice(data))
+    def morphological_analysis(self, sentence):
+        numpages, subforms, krdforms, tigforms, Subantas, Krdantas, Tigantas, syntaxInputFile = 0, [], [], [], [], [], [], []
+        for i, word in enumerate(sentence.split(' ')):
+            word = AmaraKosha_Database_Queries.unicode_iscii(word)
+            try:
+                wids = 1
+                forms, subDetails = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word)
+                if not forms == []: subforms += forms
+                for item in subDetails:
+                    numpages += 1
+                    Subantas.append([item.rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base), IndianLanguages[0]),
+                                    item.anta, item.linga, item.vib, item.vach, item.vibvach])
+                    syntaxInputFile.append([i + 1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
+                    wids += 1
+            except Exception as e:
+                print(e)
+            try:
+                forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word)
+                if not forms == []: krdforms += forms
+                if not krdData == []:
+                    Krdantas += krdData
+                    numpages += len(krdData)
+                    for krdDetail in krdData:
+                        syntaxInputFile.append(  [i + 1, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
+                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii, krdDetail.nijverb_iscii,
+                             krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
+                        wids += 1
+            except Exception as e:
+                print(e)
+            try:
+                forms, tigDatas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word)
+                if not forms == []: tigforms += forms
+                if not tigDatas == []:
+                    Tigantas += tigDatas
+                    numpages += len(tigDatas)
+                    for tigData in tigDatas:
+                        # ic.ic('tiganta', i+1, word, wids)
+                        syntaxInputFile.append( [i + 1, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
+                                                tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning_iscii, tigData.GPICode,
+                                                tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
+                        wids += 1
+            except Exception as e:
+                print(e)
+        morphologicalOutput = [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्') + ' -- %s' % AmaraKosha_Database_Queries.unicode_iscii(sentence)]
+        for line in syntaxInputFile:
+            morphologicalOutput.append('%d) ' % line[0] + ' '.join([str(x) for x in line[1:]]))
+        morphologicalOutput.append('----------')
+        # ic.ic(sentence, numpages, subforms, krdforms, tigforms, Subantas, [item.get() for item in Krdantas], [item.get() for item in Tigantas],
+              # morphologicalOutput)
+            # [AmaraKosha_Database_Queries.iscii_unicode(line) for line in morphologicalOutput])
+
+        try:
+            out = SyntaxAnalysis.write_out_aci(morphologicalOutput)
+            result = SyntaxAnalysis.write_result_aci(out)
+            ic.ic(sentence, AmaraKosha_Database_Queries.iscii_unicode(out), AmaraKosha_Database_Queries.iscii_unicode(result))
+        except Exception as e:
+            ic.ic(sentence, e)
 
 if __name__ == '__main__':
     unittest.main()

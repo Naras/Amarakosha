@@ -1379,8 +1379,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 word = words[0]
                 # if word == "ÔÚ³èÍÌè": sentence = line
                 # if word in ["ÔÚ³èÍÌè", "", "The"] or "VOICE" in word or "can be assumed to be the" in line: pass
-                if word == "ÔÚ³èÍÌè": sentence = line
-                if word in ["ÔÚ³èÍÌè", ""] or (len(words) == 1 and word == "subject"): pass
+                if word == AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्'): sentence = line
+                if word in [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्'), ""] or (len(words) == 1 and word == "subject"): pass
                 elif word == "The" or "VOICE" in words or "Considering the verb" in line: self.conclusions[sentence_no]['conclusions'].append(line)
                 elif any([phrase in line for phrase in ["can be assumed to be the", "Any subanta"]]):
                     self.conclusions[sentence_no]['conclusions'].append(transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(line), IndianLanguages[self.wanted_script]))

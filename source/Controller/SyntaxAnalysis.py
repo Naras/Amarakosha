@@ -992,7 +992,7 @@ def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, ind
         result.append(displaytheInformation1(subject, object, instrument, dative, ablative, locative, vocative, genitive,indeclinable, krdav, adj, pro, krdanta.prayoga))
         for i in range(participle.numofKrdantas):
             result.append(clasName[participle.vibhakti[i] - 1])
-            result.append('%s %s / %s / %s'%(participle.krdanta[i], data1.Linga(participle.linga[i]), data1.Case(participle.vibhakti[i]), data1.Vacana(participle.vacana[i])))
+            result.append('%s %s / %s / %s'%(participle.krdanta[i], data1.Linga[participle.linga[i]], data1.Case[participle.vibhakti[i]], data1.Vacana[participle.vacana[i]]))
         if not flag['t'] and participle.krdType[1] in [4,5] and adjflag and proflag:
             if participle.prayoga[1] == 0:
                 if subject.numofWords == 0: result.append('Any subanta in %s, %s \nand in %s can be the %s\n%s'%(data1.Case[0], data1.Vacana[krdanta.vacana-1],data1.Linga[krdanta.linga], 'subject', dsp.mesgn))
@@ -1197,8 +1197,8 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
                                 if flag['karma']: result.append('The %s %s\n %s %s' % (clasName, mesgV, dsp.mesgk1, dsp.mesgp1, mesg_y_or_n))
                                 else: result.append('The %s %s\n %s %s' % (clasName, mesgV, dsp.mesgp1, mesg_krd, dsp.mesgn))
                         else:
-                                if flag['karma']: result.append('The %s %s\n %s %s' % (clasName, mesgV, dsp.mesgk1, dsp.mesgp1, mesg_y_or_n))
-                                else: result.append('The %s %s\n %s %s' % (clasName, mesgV, dsp.mesgp1, mesg_krd, dsp.mesgn))
+                                if flag['karma']: result.append('The %s %s\n %s %s %s' % (clasName, mesgV, dsp.mesgk1, dsp.mesgp1, mesg_y_or_n))
+                                else: result.append('The %s %s\n %s %s %s' % (clasName, mesgV, dsp.mesgp1, mesg_krd, dsp.mesgn))
                 else:
                     if pro != None and pro.numofNouns > 0:
                         if proFlag:
@@ -1395,7 +1395,7 @@ def compatibilityCheck2(participle: krdanta_data, krdanta: PARTICIPLE, subject: 
                     else: result.append('There are objects in the sentence')
                 else:
                     if flag['a']:
-                        result.append( analyseAkarmakaWithoutObjects1(clasName, flag['p'], flag['v'], flag['k'], adjFlag, proFlag,
+                        result.append(analyseAkarmakaWithoutObjects1(clasName, flag['case'], flag['vacana'], flag['karma'], adjFlag, proFlag,
                                subject, object, instrument, dative, ablative, locative, genitive, vocative, pro, adj, krdanta))
                     else:
                         if VinaaSahaFlag > 0:
@@ -1702,9 +1702,9 @@ def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int
     mesg_krd = [[dsp.mesgka1, dsp.mesgka2], [dsp.mesgk2, dsp.msgk2a]][[2].get(flagk, 1)][[1].get(krdtemp.numofKrdantas, 1)]
     if subject.numofWords > 0:
         if krdtemp.numofKrdantas > 0:
-            if pro.numofNouns > 0:
+            if pro != None and pro.numofNouns > 0:
                 if proFlag:
-                    if adj.numofNouns > 0:
+                    if adj != None and adj.numofNouns > 0:
                         if adjFlag:
                             if flagk == 1: result.append('%s %s\n %s %s\n %s %s'%(str, mesgV, dsp.mesga1, dsp.mesgk1, dsp.mesgp1, mesg_y_or_n))
                             else: result.append('%s %s\n %s %s\n %s %s'%(str, mesgV, dsp.mesga1, dsp.mesgp1, mesg_krd, dsp.mesgn))
@@ -1715,7 +1715,7 @@ def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int
                         if flagk == 1: result.append('%s %s\n %s\n %s %s' % (str, mesgV, dsp.mesgk1, dsp.mesgp1, mesg_y_or_n))
                         else: result.append('%s %s\n %s %s\n %s %s' % (str, mesgV, dsp.mesgp1, mesg_krd, dsp.mesgn))
                 else:
-                    if adj.numofNouns > 0:
+                    if adj != None and adj.numofNouns > 0:
                         if adjFlag:
                             if flagk == 1: result.append('%s %s\n %s %s\n %s %s'%(str, mesgV, dsp.mesga1, dsp.mesgk1, mesg_pro,  mesg_y_or_n))
                             else: result.append('%s %s\n %s %s\n %s %s'%(str, mesgV, dsp.mesga1, mesg_pro, mesg_krd, dsp.mesgn))
@@ -1726,7 +1726,7 @@ def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int
                         if flagk == 1: result.append(str.format('%s %s\n %s\n %s %s' % (str, mesgV, dsp.mesgk1, mesg_adj, mesg_y_or_n)))
                         else: result.append(str.format('%s %s\n %s %s\n %s %s' % (str, mesgV, mesg_pro, mesg_krd, dsp.mesgn)))
             else:
-                if adj.numofNouns > 0:
+                if adj != None and adj.numofNouns > 0:
                     if adjFlag:
                         if flagk == 1: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgV, dsp.mesga1, dsp.mesgk1, mesg_y_or_n)))
                         else: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgV, dsp.mesga1, mesg_krd, dsp.mesgn)))
@@ -1737,7 +1737,7 @@ def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int
                     if flagk == 1: result.append(str.format('%s %s\n %s\n %s %s' % (str, mesgV, dsp.mesgk1, mesg_y_or_n)))
                     else: result.append(str.format('%s %s\n %s %s\n %s %s' % (str, mesgV, mesg_krd, dsp.mesgn)))
         else:
-            if pro.numofNouns > 0:
+            if pro != None and pro.numofNouns > 0:
                 if proFlag:
                     if adj.numofNouns > 0:
                         if adjFlag: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgV, dsp.mesga1, dsp.mesgp1, mesg_y_or_n)))
@@ -1751,15 +1751,15 @@ def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int
                         if flagk == 1: result.append(str.format('%s %s\n %s\n %s %s' % (str, mesgV, dsp.mesgk1, mesg_adj, mesg_y_or_n)))
                         else: result.append(str.format('%s %s\n %s %s\n %s %s' % (str, mesgV, mesg_pro, mesg_krd, dsp.mesgn)))
             else:
-                if adj.numofNouns > 0:
+                if adj != None and adj.numofNouns > 0:
                     if adjFlag: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgV, dsp.mesga1, mesg_y_or_n)))
                     else: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgV, dsp.mesga1, mesg_adj, dsp.mesgn)))
                 else: result.append(str.format('%s %s\n %s\n %s %s' % (str, mesgV, mesg_y_or_n)))
     else:
-        if pro.numofNouns > 0:
+        if pro != None and pro.numofNouns > 0:
             proFlag = checkPronounVerbCompatibility(verb, subject, object, instrument, dative, ablative, locative, genitive, vocative, pro)
             if proFlag:
-                if adj.numofNouns > 0:
+                if pro != None and adj.numofNouns > 0:
                     if adjFlag:
                         if krdtemp.numofKrdantas > 0:
                             if flagk == 1:
@@ -1772,7 +1772,7 @@ def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int
                     else: result.append(str.format('%s\n%s\n' % (str, dsp.mesgP1, dsp.mesgy)))
             else: result.append(str.format('%s\n%s\n' % (str, dsp.mesgP2, dsp.mesgy)))
         else:
-            if adj.numofNouns > 0:
+            if adj != None and adj.numofNouns > 0:
                 if adjFlag:
                     if krdtemp.numofKrdantas > 0:
                         if flagk == 1: result.append(dispMesg6(verb.prayoga, verb.purusha, verb.vacana, str))
@@ -1793,32 +1793,32 @@ def analyseAkarmakaWithoutObjects(str :str, flagp: bool, flagv: bool, flagk: int
 def analyseAkarmakaWithoutObjects1(str :str, flagc: bool, flagv: bool, flagl: bool, adjFlag: bool, proFlag:bool, subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, locative: VIBHAKTI, genitive: VIBHAKTI, vocative: VIBHAKTI, pro: subanta_data, adj: subanta_data, krdanta: PARTICIPLE) -> List[str]:
     result = []
     mesg_y_or_n = [dsp.mesgy, dsp.mesgn][[True, False].index(flagl and flagv)]
-    mesg_adj = [dsp.mesga2, dsp.mesga2a][[1].get(adj.numofNouns, 1)]
-    mesg_pro = [dsp.mesgp2, dsp.mesgp2a][[1].get(pro.numofNouns, 1)]
+    mesg_adj = [dsp.mesga2, dsp.mesga2a][[1].get(adj.numofNouns, 1)] if adj != None else ''
+    mesg_pro = [dsp.mesgp2, dsp.mesgp2a][[1].get(pro.numofNouns, 1)] if pro != None else ''
     mesgK1_5 = [[dsp.mesgK1, dsp.mesgK2],[dsp.mesgK3, dsp.mesgK5]][[True, False].index(flagv)][[True, False].index(flagl)]
     mesgK4_8 = [[dsp.mesgK4, dsp.mesgK6],[dsp.mesgK7, dsp.mesgK8]][[True, False].index(flagv)][[True, False].index(flagl)]
     mesgK = [mesgK1_5, mesgK4_8][[True, False].index(flagc)]
     if subject.numofWords > 0:
-        if pro.numofNouns > 0:
+        if pro != None and pro.numofNouns > 0:
             if proFlag:
-                if adj.numofNouns > 0:
+                if adj != None and adj.numofNouns > 0:
                     if adjFlag: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgK, dsp.mesga1, dsp.mesgp1, mesg_y_or_n)))
                     else: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgK, dsp.mesgp1, mesg_adj, dsp.mesgn)))
                 else: result.append(str.format('%s %s\n %s\n %s %s' % (str, mesgK, dsp.mesgp1, mesg_y_or_n)))
             else:
-                if adj.numofNouns > 0:
+                if adj != None and adj.numofNouns > 0:
                     if adjFlag: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgK, mesg_pro, mesg_adj, dsp.mesgn)))
                     else: result.append(str.format('%s %s\n %s %s\n %s %s'%((str, mesgK, mesg_pro, dsp.mesga2, mesg_adj, dsp.mesgn))))
                 else: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgK, mesg_pro, dsp.mesgn)))
         else:
-            if adj.numofNouns > 0:
+            if adj != None and adj.numofNouns > 0:
                 if adjFlag: result.append(str.format('%s %s\n %s %s\n %s %s'%(str, mesgK, dsp.mesga1, mesg_pro, dsp.mesgn)))
                 else:result.append(str.format('%s %s\n %s %s\n %s %s'%((str, mesgK, mesg_pro, dsp.mesga2, mesg_adj, dsp.mesgn))))
             else:
                 if adjFlag: result.append(str.format('%s %s\n %s %s\n %s %s' % (str, mesgK, dsp.mesga1, mesg_pro, dsp.mesgn)))
                 else:result.append(str.format('%s %s\n %s %s\n %s %s' % ((str, mesgK, mesg_pro, dsp.mesga2, mesg_adj, dsp.mesgn))))
     else:
-        if pro.numofNouns > 0:
+        if pro != None and pro.numofNouns > 0:
             if proFlag:
                 if adj.numofNouns > 0:
                     if adjFlag: result.append(str.format('%s %s\n %s %s\n %s %s' % (str,  dsp.mesgP3, dsp.mesga1, mesg_y_or_n)))
@@ -1826,7 +1826,7 @@ def analyseAkarmakaWithoutObjects1(str :str, flagc: bool, flagv: bool, flagl: bo
                 else: result.append(str.format('%s %s\n %s\n %s %s' % (dsp.mesgP3, mesg_adj, dsp.mesgn)))
             else: result.append(str.format('%s %s\n %s %s\n %s %s' % (dsp.mesga1P4, dsp.mesgn)))
         else:
-            if adj.numofNouns > 0:
+            if  adj != None and adj.numofNouns > 0:
                 if adjFlag: result.append(str.format('%s %s\n %s %s\n %s %s' % (str, mesgK, dsp.mesga1, mesg_pro, dsp.mesgn)))
                 else: result.append(str.format('%s %s\n %s %s\n %s %s' % ((str, mesgK, mesg_pro, dsp.mesga2, mesg_adj, dsp.mesgn))))
             else:
