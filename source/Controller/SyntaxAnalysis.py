@@ -348,8 +348,8 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
         participle.gana[participle.numofKrdantas] = ord(splitSen[14][0]) - 48
         participle.padi[participle.numofKrdantas] = ord(splitSen[14][1]) - 48
         participle.it[participle.numofKrdantas] = ord(splitSen[14][2]) - 48
-        participle.vibhakti[participle.numofKrdantas] = (int(splitSen[7]) - 1) // 3 + 1
-        participle.vacana[participle.numofKrdantas] = (int(splitSen[7]) - 1) % 3 + 1
+        participle.vibhakti[participle.numofKrdantas] = (int(splitSen[7]) - 1) // 3
+        participle.vacana[participle.numofKrdantas] = (int(splitSen[7]) - 1) % 3
         participle.linga[participle.numofKrdantas] = ord(splitSen[6][1]) - 48
         participle.krdType[participle.numofKrdantas] = ord(splitSen[8][0]) - 96
         participle.dhatuVidha[participle.numofKrdantas] = ord(splitSen[8][1]) - 47
@@ -839,13 +839,16 @@ def checkCompatibility2(rec: record, noun: subanta_data, participle: krdanta_dat
     return qflag, result
 def dispMesgNoun(rec: record, noun: subanta_data, indeclinable: avyaya_data, krdav: krdav_data, adj: subanta_data, pro: subanta_data) -> List[str]:
     result = [rec.sentence]
-    for c, cl in enumerate(noun, adj, pro):
-        result.append(['Noun(s) are:', 'Adjective(s) are:', 'Pronoun(s) are:'][c])
-        for i in range(cl.numofNouns):result.append('%s, '%cl.subanta[i])
-    result.append('Avyaya(s) are:')
-    for i in range(indeclinable.numofAvyayas): result.append('%s, ' % indeclinable.avyava[i])
-    result.append('krdavyaya(s) are:')
-    for i in range(krdav.numofKrdavyayas): result.append('%s, ' % krdav.krdavyava[i])
+    for c, cl in enumerate([noun, adj, pro]):
+        if cl != None:
+            result.append(['Noun(s) are:', 'Adjective(s) are:', 'Pronoun(s) are:'][c])
+            for i in range(cl.numofNouns):result.append('%s, '%cl.subanta[i])
+    if indeclinable != None:
+        result.append('Avyaya(s) are:')
+        for i in range(indeclinable.numofAvyayas): result.append('%s, ' % indeclinable.avyava[i])
+    if krdav != None:
+        result.append('krdavyaya(s) are:')
+        for i in range(krdav.numofKrdavyayas): result.append('%s, ' % krdav.krdavyava[i])
     return result
 def getKrdantadata(participle: krdanta_data, tiganta: str) -> krdanta_data():
     krdtemp, m = krdanta_data(), 0
@@ -1025,7 +1028,7 @@ def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, ind
 
         for i in range(participle.numofKrdantas):
             res = ['Subject(s):', 'Object(s):', 'Instrument(s):', 'Dative(s):', 'Ablative(s):', 'Genitive(s):', 'Locative(s):', 'Vocative(s):'][participle.vibhakti[i] - 1] + \
-                  '%s %s / %s / %s' % (participle.krdanta[i], data1.Linga(participle.linga[i]), data1.Case(participle.vibhakti[i]), data1.Vacana(participle.vacana[i]))
+                  '%s %s / %s / %s' % (participle.krdanta[i], data1.Linga[participle.linga[i]], data1.Case[participle.vibhakti[i]], data1.Vacana[participle.vacana[i]])
             result.append(res)
         k, prayoga = None, 0
         for j in range(participle.numofKrdantas):
@@ -1286,7 +1289,7 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
                                 if avyayaFlag:
                                     for j in indeclinable.numofAvyayas: result.append('%s ' % indeclinable.avyava[j])
                                     result.append('in the sentence is not in the correct place. %s' % dsp.mesgn)
-                                else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.\ %s" % dsp.mesgn)
+                                else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence. %s" % dsp.mesgn)
             else:
                 if VinaaSahaFlag > 0:
                     result.append(['ÔÛÆÚ is not handled properly', '×Ø is not handled properly'][VinaaSahaFlag - 1])
