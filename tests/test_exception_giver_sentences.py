@@ -10,13 +10,14 @@ sys.path.append(os.getcwd())
 
 class Test(unittest.TestCase):
     def test_morphological_syntactic_analysis_exception_giving_sentences(self):
-        sentences = ['कमलानि पश्यति ।', 'रामः पूजयति ।', 'व्याधयः नश्यन्ति ।', 'अरिः पीडयति', 'नृपः जयति ।', 'धनं नश्यति ।', 'वारीणि शुष्यन्ति ।', 'नाविकाः नदेन समुद्रं प्रविशन्ति  ।']
+        sentences = ['कमलानि पश्यति ।', 'रामः पूजयति ।', 'व्याधयः नश्यन्ति ।', 'अरिः पीडयति', 'नृपः जयति ।', 'धनं नश्यति ।',
+                     'वारीणि शुष्यन्ति ।', 'नाविकाः नदेन समुद्रं प्रविशन्ति  ।', 'बुधः मोक्षं इच्छति ।', ' मनुष्यः ग्रामाय गच्छति  ।', 'रामः कपिभिः जयति रावणम्  ।']
         # outExpected, resultExpected = {}, {}
         for sentence in sentences:
-            out, result = self.morphological_syntactic_analysis_exception_givers_print(sentence)
-            # outExpected[sentence], resultExpected[sentence] = [AmaraKosha_Database_Queries.iscii_unicode(str(l)) for l in out],\
+            out, result = self.morphological_syntactic_analysis_exception_givers_print(sentence.strip())
+            # outExpected[sentence.strip()], resultExpected[sentence.strip()] = [AmaraKosha_Database_Queries.iscii_unicode(str(l)) for l in out],\
             #                                                   [AmaraKosha_Database_Queries.iscii_unicode(str(l)) for l in result]
-            self.morphological_syntactic_analysis_exception_givers_assert(sentence)
+            self.morphological_syntactic_analysis_exception_givers_assert(sentence.strip())
         # print('outExpected = ', outExpected)
         # print('resultExpected = ', resultExpected)
 
@@ -290,7 +291,120 @@ class Test(unittest.TestCase):
                                                    'वाक्यम् -- नाविकाः नदेन समुद्रं प्रविशन्ति    (  2/ 2 )\n',
                                                    '1) नाविकाः 2 1 नाविक नाविक् a10211 24\n',
                                                    '2) नदेन 1 1 नद नद् a102*1 7\n',
-                                                   '3) समुद्रं 1 1 समुद्र समुद्र् a101*1 4\n', '----------\n']}
+                                                   '3) समुद्रं 1 1 समुद्र समुद्र् a101*1 4\n', '----------\n'],
+            'बुधः मोक्षं इच्छति ।': ['वाक्यम् -- बुधः मोक्षं इच्छति   (  1/ 4 )\n', '1) बुधः 1 1 बुध बुध् a10211 1\n',
+                                     '2) मोक्षं 1 1 मोक्ष मोक्ष् a101*1 4\n',
+                                     '3) इच्छति 1 2 इच्छत् इच्छती d0021 22 f1 71 इष् एकि एषिषिष इच्छायाम 511 * 0\n',
+                                     '----------\n', 'वाक्यम् -- बुधः मोक्षं इच्छति   (  2/ 4 )\n',
+                                     '1) बुधः 1 1 बुध बुध् a10211 1\n', '2) मोक्षं 1 1 मोक्ष मोक्ष् a101*1 4\n',
+                                     '3) इच्छति 2 2 इच्छ इच्छत् s1032 19 f1 71 इष् एकि एषिषिष इच्छायाम 511 * 0\n',
+                                     '----------\n', 'वाक्यम् -- बुधः मोक्षं इच्छति   (  3/ 4 )\n',
+                                     '1) बुधः 1 1 बुध बुध् a10211 1\n', '2) मोक्षं 1 1 मोक्ष मोक्ष् a101*1 4\n',
+                                     '3) इच्छति 3 2 इच्छ इच्छत् s2031 19 f1 71 इष् एकि एषिषिष इच्छायाम 511 * 0\n',
+                                     '----------\n', 'वाक्यम् -- बुधः मोक्षं इच्छति   (  4/ 4 )\n',
+                                     '1) बुधः 1 1 बुध बुध् a10211 1\n', '2) मोक्षं 1 1 मोक्ष मोक्ष् a101*1 4\n',
+                                     '3) इच्छति 4 5 इच्छ् 71 इष् एकि एषिषिष इच्छायाम्1/ 511 1A1 1 * 1\n',
+                                     '----------\n'],
+            'मनुष्यः ग्रामाय गच्छति  ।': ['वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  1/ 24 )\n',
+                                          '1) मनुष्यः 1 1 मनुष्य मनुष्य् a10111 1\n',
+                                          '3) गच्छति 1 2 गच्छ गच्छत् s1011 19 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  2/ 24 )\n',
+                                          '1) मनुष्यः 1 1 मनुष्य मनुष्य् a10111 1\n',
+                                          '3) गच्छति 2 2 गच्छ गच्छत् s2041 3 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  3/ 24 )\n',
+                                          '1) मनुष्यः 1 1 मनुष्य मनुष्य् a10111 1\n',
+                                          '3) गच्छति 3 2 गच्छ गच्छत् s2041 6 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  4/ 24 )\n',
+                                          '1) मनुष्यः 1 1 मनुष्य मनुष्य् a10111 1\n',
+                                          '3) गच्छति 4 2 गच्छ गच्छत् s2041 19 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  5/ 24 )\n',
+                                          '1) मनुष्यः 1 1 मनुष्य मनुष्य् a10111 1\n',
+                                          '3) गच्छति 5 2 गच्छ गच्छत् s2041 24 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  6/ 24 )\n',
+                                          '1) मनुष्यः 1 1 मनुष्य मनुष्य् a10111 1\n',
+                                          '3) गच्छति 6 5 गच्छ् 7 गमॢ गमि जिगमिष् गतौ1/ 012 1A1 1 * 1\n', '----------\n',
+                                          'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  7/ 24 )\n',
+                                          '1) मनुष्यः 2 1 मनुष्य मनुष्य् a10211 1\n',
+                                          '3) गच्छति 1 2 गच्छ गच्छत् s1011 19 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  8/ 24 )\n',
+                                          '1) मनुष्यः 2 1 मनुष्य मनुष्य् a10211 1\n',
+                                          '3) गच्छति 2 2 गच्छ गच्छत् s2041 3 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  9/ 24 )\n',
+                                          '1) मनुष्यः 2 1 मनुष्य मनुष्य् a10211 1\n',
+                                          '3) गच्छति 3 2 गच्छ गच्छत् s2041 6 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  10/ 24 )\n',
+                                          '1) मनुष्यः 2 1 मनुष्य मनुष्य् a10211 1\n',
+                                          '3) गच्छति 4 2 गच्छ गच्छत् s2041 19 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  11/ 24 )\n',
+                                          '1) मनुष्यः 2 1 मनुष्य मनुष्य् a10211 1\n',
+                                          '3) गच्छति 5 2 गच्छ गच्छत् s2041 24 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  12/ 24 )\n',
+                                          '1) मनुष्यः 2 1 मनुष्य मनुष्य् a10211 1\n',
+                                          '3) गच्छति 6 5 गच्छ् 7 गमॢ गमि जिगमिष् गतौ1/ 012 1A1 1 * 1\n', '----------\n',
+                                          'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  13/ 24 )\n',
+                                          '1) मनुष्यः 3 1 मनुषी मनुष् d00101 3\n',
+                                          '3) गच्छति 1 2 गच्छ गच्छत् s1011 19 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  14/ 24 )\n',
+                                          '1) मनुष्यः 3 1 मनुषी मनुष् d00101 3\n',
+                                          '3) गच्छति 2 2 गच्छ गच्छत् s2041 3 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  15/ 24 )\n',
+                                          '1) मनुष्यः 3 1 मनुषी मनुष् d00101 3\n',
+                                          '3) गच्छति 3 2 गच्छ गच्छत् s2041 6 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  16/ 24 )\n',
+                                          '1) मनुष्यः 3 1 मनुषी मनुष् d00101 3\n',
+                                          '3) गच्छति 4 2 गच्छ गच्छत् s2041 19 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  17/ 24 )\n',
+                                          '1) मनुष्यः 3 1 मनुषी मनुष् d00101 3\n',
+                                          '3) गच्छति 5 2 गच्छ गच्छत् s2041 24 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  18/ 24 )\n',
+                                          '1) मनुष्यः 3 1 मनुषी मनुष् d00101 3\n',
+                                          '3) गच्छति 6 5 गच्छ् 7 गमॢ गमि जिगमिष् गतौ1/ 012 1A1 1 * 1\n', '----------\n',
+                                          'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  19/ 24 )\n',
+                                          '1) मनुष्यः 4 1 मनुषी मनुष् d00101 24\n',
+                                          '3) गच्छति 1 2 गच्छ गच्छत् s1011 19 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  20/ 24 )\n',
+                                          '1) मनुष्यः 4 1 मनुषी मनुष् d00101 24\n',
+                                          '3) गच्छति 2 2 गच्छ गच्छत् s2041 3 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  21/ 24 )\n',
+                                          '1) मनुष्यः 4 1 मनुषी मनुष् d00101 24\n',
+                                          '3) गच्छति 3 2 गच्छ गच्छत् s2041 6 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  22/ 24 )\n',
+                                          '1) मनुष्यः 4 1 मनुषी मनुष् d00101 24\n',
+                                          '3) गच्छति 4 2 गच्छ गच्छत् s2041 19 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  23/ 24 )\n',
+                                          '1) मनुष्यः 4 1 मनुषी मनुष् d00101 24\n',
+                                          '3) गच्छति 5 2 गच्छ गच्छत् s2041 24 f1 7 गमॢ गमि जिगमिष् गत 012 * 0\n',
+                                          '----------\n', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  24/ 24 )\n',
+                                          '1) मनुष्यः 4 1 मनुषी मनुष् d00101 24\n',
+                                          '3) गच्छति 6 5 गच्छ् 7 गमॢ गमि जिगमिष् गतौ1/ 012 1A1 1 * 1\n',
+                                          '----------\n'],
+            'रामः कपिभिः जयति रावणम्  ।': ['वाक्यम् -- रामः कपिभिः जयति रावणम्    (  1/ 6 )\n',
+                                           '1) रामः 1 1 राम राम् a10111 1\n', '2) कपिभिः 1 1 कपि कप् c102*1 9\n',
+                                           '3) जयति 1 2 जय जयत् s1032 19 f1 191 जि जापि जिगीषि अबिभव 012 * 0\n',
+                                           '4) रावणम् 1 1 रावण रावण् a10211 4\n', '----------\n',
+                                           'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  2/ 6 )\n',
+                                           '1) रामः 1 1 राम राम् a10111 1\n', '2) कपिभिः 1 1 कपि कप् c102*1 9\n',
+                                           '3) जयति 2 2 जय जयत् s2031 19 f1 191 जि जापि जिगीषि अबिभव 012 * 0\n',
+                                           '4) रावणम् 1 1 रावण रावण् a10211 4\n', '----------\n',
+                                           'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  3/ 6 )\n',
+                                           '1) रामः 1 1 राम राम् a10111 1\n', '2) कपिभिः 1 1 कपि कप् c102*1 9\n',
+                                           '3) जयति 3 5 जय् 191 जि जापि जिगीषि अबिभवे1/ 012 1A1 1 * 1\n',
+                                           '4) रावणम् 1 1 रावण रावण् a10211 4\n', '----------\n',
+                                           'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  4/ 6 )\n',
+                                           '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                                           '2) कपिभिः 1 1 कपि कप् c102*1 9\n',
+                                           '3) जयति 1 2 जय जयत् s1032 19 f1 191 जि जापि जिगीषि अबिभव 012 * 0\n',
+                                           '4) रावणम् 1 1 रावण रावण् a10211 4\n', '----------\n',
+                                           'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  5/ 6 )\n',
+                                           '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                                           '2) कपिभिः 1 1 कपि कप् c102*1 9\n',
+                                           '3) जयति 2 2 जय जयत् s2031 19 f1 191 जि जापि जिगीषि अबिभव 012 * 0\n',
+                                           '4) रावणम् 1 1 रावण रावण् a10211 4\n', '----------\n',
+                                           'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  6/ 6 )\n',
+                                           '1) रामः 2 5 र् 206 रा रापि रिरास् दाने1/ 112 1A111 9 * 1\n',
+                                           '2) कपिभिः 1 1 कपि कप् c102*1 9\n',
+                                           '3) जयति 3 5 जय् 191 जि जापि जिगीषि अबिभवे1/ 012 1A1 1 * 1\n',
+                                           '4) रावणम् 1 1 रावण रावण् a10211 4\n', '----------\n']}
         resultExpected = {
             'कमलानि पश्यति ।': ['वाक्यम् -- कमलानि पश्यति   (  1/ 9 )', 'The sentence is in ACTIVE VOICE', '',
                                 'Noun(s)', 'Subject(s) : कमलानि  (  नपुंसकलिङ्गः / प्रथमाविभक्तिः /  बहुवचनम् )',
@@ -679,7 +793,209 @@ class Test(unittest.TestCase):
                                                    'Noun(s) are:', 'नाविकाः, ', 'नदेन, ', 'समुद्रं, ',
                                                    'वाक्यम् -- नाविकाः नदेन समुद्रं प्रविशन्ति    (  2/ 2 )',
                                                    'वाक्यम् -- नाविकाः नदेन समुद्रं प्रविशन्ति    (  2/ 2 )',
-                                                   'Noun(s) are:', 'नाविकाः, ', 'नदेन, ', 'समुद्रं, ']}
+                                                   'Noun(s) are:', 'नाविकाः, ', 'नदेन, ', 'समुद्रं, '],
+            'बुधः मोक्षं इच्छति ।': ['वाक्यम् -- बुधः मोक्षं इच्छति   (  1/ 4 )', 'The sentence is in ACTIVE VOICE', '',
+                                     'Noun(s)', 'Subject(s) : बुधः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                     'Object(s) : मोक्षं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                     'Krdanta(s)  : इच्छति ( स्त्रीलिङ्गः / सप्तमीविभक्तिः / बहुवचनम् )\n',
+                                     'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                     '---------------', 'वाक्यम् -- बुधः मोक्षं इच्छति   (  2/ 4 )',
+                                     'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                     'Subject(s) : बुधः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                     'Object(s) : मोक्षं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                     'Krdanta(s)  : इच्छति ( पुल्लिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                     'The subject agrees with the krdanta in linga only\n The sentence is syntactically not compatible',
+                                     '---------------', 'वाक्यम् -- बुधः मोक्षं इच्छति   (  3/ 4 )',
+                                     'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                     'Subject(s) : बुधः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                     'Object(s) : मोक्षं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                     'Krdanta(s)  : इच्छति ( नपुंसकलिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                     'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                     '---------------', 'वाक्यम् -- बुधः मोक्षं इच्छति   (  4/ 4 )',
+                                     'The sentence is in ACTIVE VOICE', '',
+                                     'Considering the verb as Akarmaka(intransitive)', 'Noun(s)',
+                                     'Subject(s) : बुधः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                     'Object(s) : मोक्षं  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                     'Verb : इच्छति ( इष् / प्रथमपुरुषः / द्विवचनम् )',
+                                     '\nThe subject agrees with the verb in purusha and vacana\n The sentence is syntactically compatible',
+                                     '---------------'],
+            'मनुष्यः ग्रामाय गच्छति  ।': ['वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  1/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( पुल्लिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                          'The subject agrees with the krdanta in linga only\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  2/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  3/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / प्रथमाविभक्तिः / द्विवचनम् )\n',
+                                          'The subject agrees with the krdanta in vibhakti and vacana only\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  4/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  5/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / सप्तमीविभक्तिः / द्विवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  6/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Verb is Akarmaka(intransitive)',
+                                          'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Verb : गच्छति ( गमॢ / प्रथमपुरुषः / द्विवचनम् )',
+                                          '\nThe subject agrees with the verb in purusha and vacana\n The sentence is syntactically compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  7/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( पुल्लिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                          'The subject agrees with the krdanta in linga only\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  8/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  9/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / प्रथमाविभक्तिः / द्विवचनम् )\n',
+                                          'The subject agrees with the krdanta in vibhakti and vacana only\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  10/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  11/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / सप्तमीविभक्तिः / द्विवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  12/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Verb is Akarmaka(intransitive)',
+                                          'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                          'Verb : गच्छति ( गमॢ / प्रथमपुरुषः / द्विवचनम् )',
+                                          '\nThe subject agrees with the verb in purusha and vacana\n The sentence is syntactically compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  13/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  स्त्रीलिङ्गः / प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( पुल्लिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  14/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  स्त्रीलिङ्गः / प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  15/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  स्त्रीलिङ्गः / प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / प्रथमाविभक्तिः / द्विवचनम् )\n',
+                                          'The subject agrees with the krdanta in vibhakti and vacana only\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  16/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  स्त्रीलिङ्गः / प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  17/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  स्त्रीलिङ्गः / प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / सप्तमीविभक्तिः / द्विवचनम् )\n',
+                                          'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  18/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Verb is Akarmaka(intransitive)',
+                                          'Noun(s)',
+                                          'Subject(s) : मनुष्यः  (  स्त्रीलिङ्गः / प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Verb : गच्छति ( गमॢ / प्रथमपुरुषः / द्विवचनम् )',
+                                          '\nThe subject agrees with the verb in purusha and vacana\n The sentence is syntactically compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  19/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Vocative(s) हे :मनुष्यः  (  स्त्रीलिङ्गः / सं/प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( पुल्लिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                          'No matching subject is available',
+                                          'The adjective has a matching noun in all aspects The sentence is syntactically compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  20/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Vocative(s) हे :मनुष्यः  (  स्त्रीलिङ्गः / सं/प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / सं/प्रथमाविभक्तिः / द्विवचनम् )\n',
+                                          'No matching subject is available',
+                                          'The adjective has a matching noun in all aspects The sentence is syntactically compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  21/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Vocative(s) हे :मनुष्यः  (  स्त्रीलिङ्गः / सं/प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / प्रथमाविभक्तिः / द्विवचनम् )\n',
+                                          'Any subanta in प्रथमविभक्ति, द्विवचनम् \nand in पुल्लिङ्गः can be the subject\n',
+                                          'The adjective has a matching noun in all aspects The sentence is syntactically compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  22/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Vocative(s) हे :मनुष्यः  (  स्त्रीलिङ्गः / सं/प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                          'No matching subject is available',
+                                          'The adjective has a matching noun in all aspects The sentence is syntactically compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  23/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                          'Vocative(s) हे :मनुष्यः  (  स्त्रीलिङ्गः / सं/प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Krdanta(s)  : गच्छति ( नपुंसकलिङ्गः / सप्तमीविभक्तिः / द्विवचनम् )\n',
+                                          'No matching subject is available',
+                                          'The adjective has a matching noun in all aspects The sentence is syntactically compatible',
+                                          '---------------', 'वाक्यम् -- मनुष्यः ग्रामाय गच्छति    (  24/ 24 )',
+                                          'The sentence is in ACTIVE VOICE', '', 'Verb is Akarmaka(intransitive)',
+                                          'Noun(s)',
+                                          'Vocative(s) हे :मनुष्यः  (  स्त्रीलिङ्गः / सं/प्रथमाविभक्तिः /  बहुवचनम् )',
+                                          'Verb : गच्छति ( गमॢ / प्रथमपुरुषः / द्विवचनम् )',
+                                          '\nअहम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                                          '---------------'],
+            'रामः कपिभिः जयति रावणम्  ।': ['वाक्यम् -- रामः कपिभिः जयति रावणम्    (  1/ 6 )',
+                                           'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                           'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                           'Object(s) : रावणम्  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                           'Instrument(s) : कपिभिः  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  बहुवचनम् )',
+                                           'Krdanta(s)  : जयति ( पुल्लिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                           'The subject agrees with the krdanta in linga only\n The sentence is syntactically not compatible',
+                                           '---------------', 'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  2/ 6 )',
+                                           'The sentence is in ACTIVE VOICE', '', 'Noun(s)',
+                                           'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                           'Object(s) : रावणम्  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                           'Instrument(s) : कपिभिः  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  बहुवचनम् )',
+                                           'Krdanta(s)  : जयति ( नपुंसकलिङ्गः / षष्ठीविभक्तिः / बहुवचनम् )\n',
+                                           'The subject does not agree with the krdanta in vibhakti, vacana & linga\n The sentence is syntactically not compatible',
+                                           '---------------', 'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  3/ 6 )',
+                                           'The sentence is in ACTIVE VOICE', '',
+                                           'Considering the verb as Akarmaka(intransitive)', 'Noun(s)',
+                                           'Subject(s) : रामः  (  पुल्लिङ्गः / प्रथमाविभक्तिः /  एकवचनम् )',
+                                           'Object(s) : रावणम्  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                           'Instrument(s) : कपिभिः  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  बहुवचनम् )',
+                                           'Verb : जयति ( जि / प्रथमपुरुषः / द्विवचनम् )',
+                                           '\nThe subject agrees with the verb in purusha and vacana\n The sentence is syntactically compatible',
+                                           '---------------', 'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  4/ 6 )',
+                                           'The sentence is in ACTIVE VOICE', '',
+                                           'Considering the verb as Akarmaka(intransitive)', 'Noun(s)',
+                                           'Object(s) : रावणम्  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                           'Instrument(s) : कपिभिः  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  बहुवचनम् )',
+                                           'Krdanta(s)',
+                                           'Genitive(s) :   जयति ( पुल्लिङ्गः / सप्तमीविभक्तिः / एकवचनम् )',
+                                           'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                                           '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                                           '---------------', 'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  5/ 6 )',
+                                           'The sentence is in ACTIVE VOICE', '',
+                                           'Considering the verb as Akarmaka(intransitive)', 'Noun(s)',
+                                           'Object(s) : रावणम्  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                           'Instrument(s) : कपिभिः  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  बहुवचनम् )',
+                                           'Krdanta(s)',
+                                           'Genitive(s) :   जयति ( नपुंसकलिङ्गः / सप्तमीविभक्तिः / एकवचनम् )',
+                                           'Verb : रामः ( रा / उत्तमपुरुषः / एकवचनम् )',
+                                           '\nयूयम् can be assumed to be the subject\nThe sentence is syntactically compatible',
+                                           '---------------', 'वाक्यम् -- रामः कपिभिः जयति रावणम्    (  6/ 6 )',
+                                           'The sentence is in ACTIVE VOICE', '',
+                                           'Considering the verb as Akarmaka(intransitive)', 'Noun(s)',
+                                           'Object(s) : रावणम्  (  पुल्लिङ्गः / द्वितीयाविभक्तिः /  एकवचनम् )',
+                                           'Instrument(s) : कपिभिः  (  पुल्लिङ्गः / तृतीयाविभक्तिः /  बहुवचनम् )',
+                                           'Verb(s) are : रामः ( रा / उत्तमपुरुषः / एकवचनम् )\nजयति ( जि / प्रथमपुरुषः / द्विवचनम् )',
+                                           'The verbs do not agree in purusha and vacana', '---------------']}
 
         syntaxInputFile = []
         for i, word in enumerate(sentence.split(' ')):
@@ -741,5 +1057,69 @@ class Test(unittest.TestCase):
             result = SyntaxAnalysis.write_result_aci(out)
             self.assertEqual(outExpected[sentence], [AmaraKosha_Database_Queries.iscii_unicode(l) for l in out])
             self.assertEqual(resultExpected[sentence], [AmaraKosha_Database_Queries.iscii_unicode(l) for l in result])
+        except Exception as e:
+            ic.ic(sentence, e)
+
+    def test_morphological_syntactic_analysis_more_sentences(self):
+        f = open('Bandarkar.txt', 'r')
+        with f:
+            dataIscii = f.readlines()
+            data = [AmaraKosha_Database_Queries.iscii_unicode(item) for item in dataIscii]
+        self.morphological_analysis(random.choice(data))
+    def morphological_analysis(self, sentence):
+        numpages, subforms, krdforms, tigforms, Subantas, Krdantas, Tigantas, syntaxInputFile = 0, [], [], [], [], [], [], []
+        for i, word in enumerate(sentence.split(' ')):
+            word = AmaraKosha_Database_Queries.unicode_iscii(word)
+            try:
+                wids = 1
+                forms, subDetails = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word)
+                if not forms == []: subforms += forms
+                for item in subDetails:
+                    numpages += 1
+                    Subantas.append([item.rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base), IndianLanguages[0]),
+                                    item.anta, item.linga, item.vib, item.vach, item.vibvach])
+                    syntaxInputFile.append([i + 1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
+                    wids += 1
+            except Exception as e:
+                print(e)
+            try:
+                forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word)
+                if not forms == []: krdforms += forms
+                if not krdData == []:
+                    Krdantas += krdData
+                    numpages += len(krdData)
+                    for krdDetail in krdData:
+                        syntaxInputFile.append(  [i + 1, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
+                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii, krdDetail.nijverb_iscii,
+                             krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
+                        wids += 1
+            except Exception as e:
+                print(e)
+            try:
+                forms, tigDatas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word)
+                if not forms == []: tigforms += forms
+                if not tigDatas == []:
+                    Tigantas += tigDatas
+                    numpages += len(tigDatas)
+                    for tigData in tigDatas:
+                        # ic.ic('tiganta', i+1, word, wids)
+                        syntaxInputFile.append( [i + 1, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
+                                                tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning_iscii, tigData.GPICode,
+                                                tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
+                        wids += 1
+            except Exception as e:
+                print(e)
+        morphologicalOutput = [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्') + ' -- %s' % AmaraKosha_Database_Queries.unicode_iscii(sentence)]
+        for line in syntaxInputFile:
+            morphologicalOutput.append('%d) ' % line[0] + ' '.join([str(x) for x in line[1:]]))
+        morphologicalOutput.append('----------')
+        # ic.ic(sentence, numpages, subforms, krdforms, tigforms, Subantas, [item.get() for item in Krdantas], [item.get() for item in Tigantas],
+              # morphologicalOutput)
+            # [AmaraKosha_Database_Queries.iscii_unicode(line) for line in morphologicalOutput])
+
+        try:
+            out = SyntaxAnalysis.write_out_aci(morphologicalOutput)
+            result = SyntaxAnalysis.write_result_aci(out)
+            print(sentence, ' ಸರಿಯಾಗಿದೆ!') # [AmaraKosha_Database_Queries.iscii_unicode(line) for line in out], [AmaraKosha_Database_Queries.iscii_unicode(line) for line in result])
         except Exception as e:
             ic.ic(sentence, e)

@@ -330,7 +330,7 @@ def subanta_Analysis(word, requested_script=1):
         subDetail = subantaDetails()
         subDetails = []
         for codeset in codes.split(' '):
-            subDetail.vibvach = int(codeset.split(',')[1])
+            subDetail.vibvach = int(codeset.split(',')[1]) - 1
             subDetail.vib = Sandhi_Convt.vibstr[subDetail.vibvach//3]
             subDetail.vach = Sandhi_Convt.vachstr[subDetail.vibvach%3]
             for entry in Sandhi_Convt.antas:

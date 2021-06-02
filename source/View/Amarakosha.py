@@ -1002,7 +1002,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 try:
                     self.subforms, self.tigforms, self.krdforms = [], [], []
                     self.Subantas, self.Krdantas, self.Tigantas = [], [], []
-                    syntaxInputFile, bas = [], base
+                    syntaxInputFile, bas = [], base.strip()
                     listOfControls = [self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
                                       self.lblSaniDhatu, self.txtSaniDhatu, self.lblGana, self.txtGana, self.lblPadi, self.txtPadi, self.lblKarma, self.txtKarma,
                                       self.lblIt, self.txtIt, self.lblDhatuVidah, self.txtDhatuVidah, self.lblKrdantaVidah_prayoga, self.txtKrdantaVidah_prayoga,
