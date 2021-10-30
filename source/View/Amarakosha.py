@@ -1,14 +1,18 @@
 __author__ = 'NarasMG'
 
-import logging #, icecream as ic #, inspect
+import logging  #, icecream as ic #, inspect
 import sys, os, pandas
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtWidgets import QDialog, QPushButton, QVBoxLayout, QRadioButton, QGridLayout, QGroupBox, QHBoxLayout, QListView, QFileDialog
+from matplotlib.font_manager import FontProperties
+
 sys.path.append(os.getcwd())
 from source.Controller import Kosha_Subanta_Krdanta_Tiganta, SyntaxAnalysis
 from source.Controller.Transliterate import *
 from source.Model import AmaraKosha_Database_Queries, models
+import networkx as nx
+import matplotlib.pyplot as plt
 
 qt_creator_file = os.path.join(os.getcwd(), "source/View", "amara_uiComposition.xml")
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qt_creator_file)
@@ -1162,7 +1166,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else: #Analysis
                 if self.Categories.text() == 'Syntax':
                     self.modelFinalResults._data = pandas.DataFrame(self.conclusions[indx]['cells'],
-                                            columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', 'लिंग',  'विभक्ति',  'वचन' ]],
+                                            columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', '', 'लिंग',  'विभक्ति',  'वचन' ]],
                                             index=[' '] * len(self.conclusions[indx]['cells']))
                     for i, conclusion in enumerate(self.conclusions[indx]['conclusions']):
                         listofTxts[i].setText(conclusion)
@@ -1366,42 +1370,63 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.synonymsButton.setEnabled(False)
         typeList = ['Noun(s)', 'Pronoun(s)', 'Adjective(s)', 'Krdanta(s)', 'KrdAvyaya(s)', 'Avyaya(s)']
         subtypeList = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)', 'Vocative(s)', 'Verb(s)', 'Verb']
+        edges, set_edge_labels = {}, []
+        font_prop = FontProperties(fname='C://Users//NARASIMHAN//Downloads//Noto_Sans_Devanagari//NotoSansDevanagari-Regular.ttf', size=12)
         try:
             # out = SyntaxAnalysis.write_out_aci('OSOut.aci', outfile='out.aci')
             out = SyntaxAnalysis.write_out_aci(self.syntaxInputFile) #, outfile='out.aci')
-            result = SyntaxAnalysis.write_result_aci(out) #, resultfile='result.aci')
+            result = SyntaxAnalysis.write_result_aci(out)  #, resultfile='result.aci')
             # fresult = open('result.aci', 'r')
             # result = fresult.readlines()
             self.conclusions, sentence_no = [{'cells':[], 'conclusions':[]}], 0
+            graphs = []
+            plt.close()
             for line_no, line in enumerate(result):
                 line = line.replace('\t', '').replace('\n', '').strip()
                 words = line.split(' ')
                 word = words[0]
                 # if word == "ÔÚ³èÍÌè": sentence = line
                 # if word in ["ÔÚ³èÍÌè", "", "The"] or "VOICE" in word or "can be assumed to be the" in line: pass
-                if word == AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्'): sentence = line
+                if word == AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्'): sentence = AmaraKosha_Database_Queries.iscii_unicode(line[line.index(' -- ') + 4:line.index(' (')])
                 if word in [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्'), ""] or (len(words) == 1 and word == "subject"): pass
                 elif word == "The" or "VOICE" in words or "Considering the verb" in line: self.conclusions[sentence_no]['conclusions'].append(line)
                 elif any([phrase in line for phrase in ["can be assumed to be the", "Any subanta"]]):
-                    self.conclusions[sentence_no]['conclusions'].append(transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(line), IndianLanguages[self.wanted_script]))
-                elif any([phrase in line for phrase in ["Verb is", "No matching subject is available", "Considering krdanta"]]):
-                    self.conclusions[sentence_no]['conclusions'].append(line)
+                    cell = transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(line), IndianLanguages[self.wanted_script])
+                    edges['Subject(s)'] = [cell.split()[0], '', '', '']
+                    self.conclusions[sentence_no]['conclusions'].append(cell)
+                elif any([phrase in line for phrase in ["Verb is", "No matching subject is available", "Considering krdanta", "There is an object"]]): self.conclusions[sentence_no]['conclusions'].append(line)
                 elif word in typeList:
                     if len(words) <= 1: parts = ''
                     else: parts = line[line.index(' ( ') + 2:].split(' / ')
-                    if parts == '': self.conclusions[sentence_no]['cells'].append([word, '', '', ''])
-                    else: self.conclusions[sentence_no]['cells'].append([transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script]) for w in [word, parts[0], parts[1], parts[2][:-2]]])
+                    if parts == '': self.conclusions[sentence_no]['cells'].append([word, '', '', '', ''])
+                    else:
+                        cell = [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script]) for w in [word, words[2], parts[0], parts[1], parts[2][:-2]]]
+                        self.conclusions[sentence_no]['cells'].append(cell)
+                        w = line[:line.index(' ( ')].split(' : ')[1]
+                        edges[word] = transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script])
+                        edges[word] = [edges[word]] + cell[1:]
                 elif word in subtypeList or 'Verb(s) are : ' in result[line_no - 1]:
                     parts = line[line.index(' ( ') + 2:].split(' / ')
                     if 'Verb(s) are : ' in result[line_no - 1]: word = 'Verb(s)'
-                    self.conclusions[sentence_no]['cells'].append([transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script]) for w in [word, parts[0], parts[1], parts[2][:-2]]])
+                    cell = [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script]) for w in [word, words[2], parts[0], parts[1], parts[2][:-2]]]
+                    w = line[line.index(' '):line.index(' ( ')]
+                    if w[0] == ':': w = w[1:]
+                    edges[word] = transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script])
+                    edges[word] = [edges[word]] + cell[1:]
+                    self.conclusions[sentence_no]['cells'].append(cell)
                 elif word[0] == '-':
                     self.conclusions.append({'cells':[], 'conclusions':[]})
                     sentence_no += 1
+                    if 'Verb' in edges.keys():
+                        graph, edge_labels = self.karakaGraph(edges)
+                        if edge_labels not in set_edge_labels:
+                            set_edge_labels.append(edge_labels)
+                            graphs.append((graph, edge_labels))
+                    edges = {}
                 # elif 'Verb(s) are : ' in result[line_no - 1]: pass
                 else: raise NameError(line + '-' + word + ' -> Invalid Category')
             self.modelFinalResults._data = pandas.DataFrame(self.conclusions[0]['cells'],
-                                            columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', 'लिंग',  'विभक्ति',  'वचन' ]],
+                                            columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', '',  'लिंग',  'विभक्ति',  'वचन' ]],
                                             index=[' '] * len(self.conclusions[0]['cells'])) #[transliterate_lines(role, IndianLanguages[self.wanted_script]) for role in subtypeList[:5]])
             self.Categories.setText('Syntax')
             listOfControls = [self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
@@ -1430,9 +1455,31 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 control.setVisible(True)
 
             self.modelFinalResults.layoutChanged.emit()
+
+            no_of_subplots = 100 + len(graphs) * 10
+            for subplot_no, (graph, edge_labels) in enumerate(graphs):
+                subax = plt.subplot(no_of_subplots + subplot_no + 1)
+                pos = nx.spring_layout(graph)
+                nx.draw(graph, pos, with_labels=True, font_family='Mangal')
+                nx.draw_networkx_edge_labels(graph, pos, font_family='Mangal', edge_labels=edge_labels)
+            plt.axis('off')
+            plt.title(sentence, fontproperties=font_prop)
+            plt.show()
         except Exception as e:
             self.statusBar().showMessage(str(e))
-
+    def karakaGraph(self, interpretation):
+        g = nx.Graph()
+        edge_labels = {}
+        for k, v in interpretation.items():
+                if v[0] != '':
+                    g.add_node(v[0])
+                    if k != 'Verb': g.nodes[v[0]]['role'], g.nodes[v[0]]['linga'], g.nodes[v[0]]['vibhakti'], g.nodes[v[0]]['vacana'] = k, v[1], v[2], v[3]
+                    else:  g.nodes[v[0]]['role'], g.nodes[v[0]]['purusha'], g.nodes[v[0]]['vacana'] = k, v[2], v[3]
+        for k, v in interpretation.items():
+            if k != 'Verb':
+                g.add_edge(interpretation['Verb'][0], interpretation[k][0])
+                edge_labels[(interpretation['Verb'][0], interpretation[k][0])] = k
+        return g, edge_labels
 logging.basicConfig(level=logging.DEBUG, filename='../../Amarakosha.log', format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p')
 app = QtWidgets.QApplication(sys.argv)
 window = MainWindow()

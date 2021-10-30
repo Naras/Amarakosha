@@ -1,6 +1,6 @@
 __author__ = 'NarasMG'
 
-import json, source.Controller.data1 as data1, source.Controller.disp as dsp, functools as ft #, icecream as ic
+import json, source.Controller.data1 as data1, source.Controller.disp as dsp, functools as ft  #, icecream as ic
 from typing import List
 
 class subanta:
@@ -838,7 +838,8 @@ def checkCompatibility2(rec: record, noun: subanta_data, participle: krdanta_dat
                                            genitive, participle, participle.numofKrdantas, counter, dvithiya, karmaFlag, saflag)
     return qflag, result
 def dispMesgNoun(rec: record, noun: subanta_data, indeclinable: avyaya_data, krdav: krdav_data, adj: subanta_data, pro: subanta_data) -> List[str]:
-    result = [rec.sentence]
+    # result = [rec.sentence]
+    result = []
     for c, cl in enumerate([noun, adj, pro]):
         if cl != None:
             result.append(['Noun(s) are:', 'Adjective(s) are:', 'Pronoun(s) are:'][c])
@@ -1450,7 +1451,7 @@ def compatibilityCheck2(participle: krdanta_data, krdanta: PARTICIPLE, subject: 
         VinaaSahaFlag = checkVinaaSahaCompatibility(indeclinable, adj, pro, object, instrument, ablative, participle, krdanta.prayoga, True)
         flag['a'] = False if VinaaSahaFlag else True
     result.append(displaytheInformation1(subject, object, instrument, dative, ablative, locative, vocative, genitive, indeclinable, krdav, adj, pro, krdanta.prayoga))
-    result.append('Krdanta(s)  : %s ( %s / %s / %s )\n'%(krdanta.krdanta, data1.Linga[krdanta.linga], data1.Case[krdanta.vibhakti - 1], data1.Vacana[krdanta.vacana - 1]))
+    result.append('Krdanta(s) : %s ( %s / %s / %s )\n'%(krdanta.krdanta, data1.Linga[krdanta.linga], data1.Case[krdanta.vibhakti - 1], data1.Vacana[krdanta.vacana - 1]))
     clas = subject if krdanta.prayoga == karthari else object
     clasName = 'subject' if krdanta.prayoga == karthari else 'object'
     if krdanta.prayoga == karthari or (krdanta.prayoga == karmani and dvithiya == ''): SubjectOrObject(flag, clas, clasName, proFlag, adjFlag, adj, pro)
@@ -2067,7 +2068,6 @@ def commoncode(out):
         if sentend:
             res.append(rec.sentence)
             res.append(checkForSyntacticCompatibility(rec))
-    # ic.ic(res)
     return res
 
 
