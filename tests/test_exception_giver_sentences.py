@@ -13,7 +13,7 @@ class Test(unittest.TestCase):
         sentences = ['कमलानि पश्यति ।', 'रामः पूजयति ।', 'व्याधयः नश्यन्ति ।', 'अरिः पीडयति', 'नृपः जयति ।', 'धनं नश्यति ।', 'वारीणि शुष्यन्ति ।',
                      'नाविकाः नदेन समुद्रं प्रविशन्ति  ।', 'बुधः मोक्षं इच्छति ।', ' मनुष्यः ग्रामाय गच्छति  ।', 'रामः कपिभिः जयति रावणम्  ।', 'वारिणा हस्तौ क्षालयति  ।', 'कमले नृत्यत ।',
                      'नृपः जयति', 'जनाः वदन्ति']
-        # sentences = ['नाविकाः नदेन समुद्रं प्रविशन्ति ']
+        sentences = ['नाविकाः नदेन समुद्रं प्रविशन्ति ', 'स्तेनः धान्यं चॊरयति']
         # outExpected, resultExpected = {}, {}
         for sentence in sentences:
             # out, result = self.morphological_syntactic_analysis_exception_givers_print(sentence.strip())
@@ -1396,7 +1396,7 @@ class Test(unittest.TestCase):
             ic.ic(sentence)
         except Exception as e:
             ic.ic(sentence, e)
-
+'''
     def test_morphological_syntactic_analysis_more_sentences(self):
         f = open('Bandarkar.txt', 'r')
         with f:
@@ -1460,3 +1460,4 @@ class Test(unittest.TestCase):
             print(sentence, ' ಸರಿಯಾಗಿದೆ!') # [AmaraKosha_Database_Queries.iscii_unicode(line) for line in out], [AmaraKosha_Database_Queries.iscii_unicode(line) for line in result])
         except Exception as e:
             ic.ic(sentence, e)
+'''

@@ -1371,7 +1371,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         typeList = ['Noun(s)', 'Pronoun(s)', 'Adjective(s)', 'Krdanta(s)', 'KrdAvyaya(s)', 'Avyaya(s)']
         subtypeList = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)', 'Vocative(s)', 'Verb(s)', 'Verb']
         edges, set_edge_labels = {}, []
-        font_prop = FontProperties(fname='C://Users//NARASIMHAN//Downloads//Noto_Sans_Devanagari//NotoSansDevanagari-Regular.ttf', size=12)
+        font_prop = FontProperties(fname='NotoSansDevanagari-Regular.ttf', size=12)
         try:
             # out = SyntaxAnalysis.write_out_aci('OSOut.aci', outfile='out.aci')
             out = SyntaxAnalysis.write_out_aci(self.syntaxInputFile) #, outfile='out.aci')
