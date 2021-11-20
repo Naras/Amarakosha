@@ -3,6 +3,7 @@ __author__ = 'NarasMG'
 import peewee, os
 from iscii2utf8 import *
 conn = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
+conn_unicode = peewee.SqliteDatabase(os.getcwd() + '\WordsDataUnicode.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
 cursor = conn.cursor()
 rowcursor = conn.cursor()
 maxrows = 5
@@ -36,9 +37,16 @@ def iscii_unicode(iscii_string, script=1):
     return ''.join([ch for ch in mypar.write_output()])
 def unicode_iscii(unicode_string, script=1):
     mypar.set_script(script)
-    scripts_map_unicode = mypar.make_script_maps_unicode_to_iscii()
-    return ''.join([chr(scripts_map_unicode[ord(ch)]) for ch in unicode_string])
-
+    try:
+        scripts_map_unicode = mypar.make_script_maps_unicode_to_iscii()
+        result_as_list = []
+        for i, ch in enumerate(unicode_string):
+            # print('ch %s hex %s dec %s'%(ch, hex(ord(ch)), ord(ch)))
+            result_as_list.append(chr(scripts_map_unicode[ord(ch)]))
+            if ord(ch) in nukta_specials.values(): result_as_list.append(chr(ISCII_NUKTA))
+        return ''.join(result_as_list)
+    except Exception as e:
+        raise Exception('unicode_iscii: character %s unicode-string %s character %s' % (e, unicode_string, ch))
 def schemaParse():
     cursor = conn.get_tables()
     mypar = Parser()
@@ -103,50 +111,98 @@ def tblSelect(table_name,maxrows=5,duplicate=True, script=1):
     if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
 
     return columns, tbl
-    '''
-    # print(columns)
-    qry = 'select ' + ','.join(columns) + ' from ' + row.table_name
-    # print(qry)
-    tblDF = pd.DataFrame(pd.read_sql_query(qry, conn), columns=columns)  # 'select * from ' + row.table_name,conn)
-    # rowcursor.execute('select * from ' + row.table_name)
-    # tblDF = pd.DataFrame(rowcursor.fetchall())
-    # df = pd.DataFrame()
-    # for fld in tblDF: print(type(fld),fld)
-    # tblDF.columns = columns
-    df = []
-    for i in tblDF.head().index:
-        r = []
-        for col in columns:
-            if not isascii(str(tblDF[col][i])):
-                r.append(iscii_unicode(tblDF[col][i]))
-            else:
-                r.append(tblDF[col][i])
-        df.append(r)
-    print(df)
-    tblDF = pd.DataFrame(df)
-    tblDF.columns = columns
-    # tblDF.at[i, k] = iscii_unicode(str(v))
-    # print(tblDF.head())
-    '''
+def sqlQueryUnicode(sql, param=None, maxrows=5, duplicate=True, script=1):
+    # lstParam = [x for x in param] if isinstance(param,tuple) else param
+    # print('sql=%s param=%s'%(sql, lstParam))
+    current = 0
+    if param==None: rowcursor = conn_unicode.execute_sql(sql)
+    else:
+        if not isinstance(param,tuple): param = (param,)
+        rowcursor = conn_unicode.execute_sql(sql, param)
+    try:
+        result = []
+        for r in rowcursor.fetchall():
+            # print(r)
+            resultRow = []
+            for field in r:
+                # resultRow.append(field)
+                if isascii(str(field)):
+                    resultRow.append(field)
+                    if duplicate: resultRow.append(field)
+                else:
+                    resultRow.append(field)
+                    if duplicate: resultRow.append(unicode_iscii(field))
+            result += [resultRow]
+            current += 1
+            if maxrows > 0 and current > maxrows:
+                break
+    except IllegalInput as e:
+        logging.warning('%s' % e)
+
+    columns = [column[0] for column in rowcursor.description]
+    if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
+    return columns, result
+def tblSelectUnicode(table_name,maxrows=5,duplicate=True, script=1):
+    current = 0
+    rowcursor = conn_unicode.execute_sql('select * from ' + table_name)
+    try:
+        tbl = []
+        for r in rowcursor.fetchall():
+            # print(r)
+            tblRow = []
+            for field in r:
+                if isascii(str(field)):
+                    tblRow.append(field)
+                    if duplicate: tblRow.append(field)
+                else:
+                    tblRow.append(field)
+                    if duplicate: tblRow.append(unicode_iscii(str(field), script))
+            tbl += [tblRow]
+            current += 1
+            if maxrows > 0 and current > maxrows:
+                break
+    except IllegalInput as e:
+        logging.warning('%s' % e)
+    columns = [column[0] for column in rowcursor.description]
+    if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
+
+    return columns, tbl
 if __name__ == '__main__':
     cols, lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
-    print('%s\n%s'%(cols, lines))
+    print('Subanta: %s\n%s'%(cols, lines))
+    cols, lines = sqlQueryUnicode('Select * from Subanta where Base = ?', 'अंशुमती') #×èÔÏè
+    print('Subanta: %s\n%s'%(cols, lines))
 
     cols, lines = sqlQuery('Select * from SubFin where Finform = ?', 'ÏÚÌ£')
-    print('%s\n%s' % (cols, lines))
+    print('SubFin: %s\n%s' % (cols, lines))
+    cols, lines = sqlQueryUnicode('Select * from SubFin where Finform = ?', 'राम')
+    print('SubFin: %s\n%s' % (cols, lines))
 
     cols, lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?', (383, "1A"))
-    print('%s\n%s' % (cols, lines))
+    print('stinfin: %s\n%s' % (cols, lines))
 
     cols, lines = sqlQuery('select * from Sdhatu where field2 = ? ', unicode_iscii('अंश्'))
-    print('%s\n%s' % (cols, lines))
+    print('Sdhatu: %s\n%s' % (cols, lines))
 
     cols2, lines2 = sqlQuery('select * from Sdhatu where field1 = ? ', 383)
-    # print('%s\n%s' % (cols, lines))
+    # print('%s\n%s' % (cols_unicode, lines))
 
     print(cols == cols2, lines == lines2)
 
+    cols, lines = sqlQueryUnicode('select * from Sdhatu where field2 = ? ', 'अंश्')
+    print('Sdhatu: %s\n%s' % (cols, lines))
+
     tbls = schemaParse()
     print('tables %s' % tbls)
+
+    cols, data = tblSelect('sdhatu', maxrows=5)
+    print('sdhatu: %s\n%s' % (cols, data))
+    cols, data = tblSelectUnicode('sdhatu', maxrows=5)
+    print('sdhatu: %s\n%s' % (cols, data))
+
+    # cols, lines = sqlQuery('Select * from Amara_Words where Word = ?', "×èÔÏè")
+    # print('Amara_words: %s\n%s'%(cols, lines))
+    # cols, lines = sqlQueryUnicode('Select * from Amara_Words where Word = ?', 'स्वर्') #×èÔÏè
+    # print('Amara_words: %s\n%s'%(cols, lines))
 
 

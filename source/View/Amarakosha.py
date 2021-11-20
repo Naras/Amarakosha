@@ -727,7 +727,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.resetToolbarItems()
         self.amaraAction.setChecked(True)
         self.wanted_script = self.scriptSelector.currentIndex()
-        cols, data = AmaraKosha_Database_Queries.tblSelect('Amara_Words', maxrows=0)
+        cols, data = AmaraKosha_Database_Queries.tblSelectUnicode('Amara_Words', maxrows=0)
         self.modelDhatus.data = list(map(lambda item: (False, transliterate_lines(item[2], IndianLanguages[self.wanted_script])), data))
         self.modelDhatus.dataIscii = list(map(lambda item: (False, item[3]), data))
         self.listView.setModel(self.modelDhatus)
@@ -775,7 +775,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lblNishpatthi.setVisible(False)
         self.txtNishpatthi.setVisible(False)
         self.wanted_script = 0 if self.wanted_script == 5 else self.wanted_script  # ban tamil, always screws up things!
-        cols, data = AmaraKosha_Database_Queries.tblSelect('Subanta', maxrows=0, script=self.wanted_script + 1)
+        cols, data = AmaraKosha_Database_Queries.tblSelectUnicode('Subanta', maxrows=0, script=self.wanted_script + 1)
         self.modelDhatus.data = list(map(lambda item: (False, item[2]), data))
         self.modelDhatus.dataIscii = list(map(lambda item: (False, item[3]), data))
         self.listView.setModel(self.modelDhatus)
@@ -802,7 +802,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lblNishpatthi.setVisible(False)
         self.txtNishpatthi.setVisible(False)
         try:
-            cols, data = AmaraKosha_Database_Queries.tblSelect('Sdhatu', maxrows=0, script=self.wanted_script + 1)
+            cols, data = AmaraKosha_Database_Queries.tblSelectUnicode('Sdhatu', maxrows=0, script=self.wanted_script + 1)
             # print('%s\n%s'%(cols, data))
             self.modelDhatus.data = list(map(lambda item: (False, item[4]), data))
             self.modelDhatus.dataIscii = list(map(lambda item: (False, item[5]), data))
@@ -828,7 +828,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lblNishpatthi.setVisible(False)
         self.txtNishpatthi.setVisible(False)
         try:
-            self.colsSdhatudata, self.Sdhatudata = AmaraKosha_Database_Queries.tblSelect('Sdhatu', maxrows=0, script=self.wanted_script + 1)
+            self.colsSdhatudata, self.Sdhatudata = AmaraKosha_Database_Queries.tblSelectUnicode('Sdhatu', maxrows=0, script=self.wanted_script + 1)
             self.modelDhatus.data = list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2')]), self.Sdhatudata))
             self.modelDhatus.dataIscii = list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2') + 1]), self.Sdhatudata))
             # print('loadTiganta gana=%i padi=%i it=%i'%(self.gana, self.padi, self.it))
@@ -871,7 +871,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 index = indexes[0]
                 row = index.row()
                 try:
-                    status, self.amaraWord = self.modelDhatus.dataIscii[row]
+                    status, self.amaraWord = self.modelDhatus.data[row]  #  dataIscii[row]
                     self.Amarasynonyms, KanWord, EngWord, HinWord = Kosha_Subanta_Krdanta_Tiganta.Amarakosha(self.amaraWord, self.wanted_script+1)
                     text = list(map(lambda i : i or '', KanWord))
                     text = [item for item in text if not item=='']
@@ -895,7 +895,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                       pg.setVisible(True)
                     self.modelFinalResults.layoutChanged.emit()
                 except Exception as e:
-                    print('%s for amara word %s'%(e, AmaraKosha_Database_Queries.iscii_unicode(self.amaraWord)))
+                    print('%s for amara word %s'%(e, self.amaraWord))  # AmaraKosha_Database_Queries.iscii_unicode(self.amaraWord)
                     self.statusBar().showMessage(str(e)) #str('%s for amara word %s' % (e, AmaraKosha_Database_Queries.iscii_unicode(self.amaraWord, self.wanted_script))))
         elif self.menuItemChosen == 'Subanta':
             self.formWidget_2.setVisible(False)
@@ -909,7 +909,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if indexes:
                 index = indexes[0]
                 row = index.row()
-                status, base = self.modelDhatus.dataIscii[row]
+                status, base = self.modelDhatus.data[row]
                 try:
                     forms, anta, linga = Kosha_Subanta_Krdanta_Tiganta.subanta_Generation(base, self.wanted_script + 1)
                     self.antaLineEdit.setText(AmaraKosha_Database_Queries.iscii_unicode(anta, self.wanted_script+1))
@@ -932,7 +932,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if indexes:
                     index = indexes[0]
                     row = index.row()
-                    status, krdantaWord = self.modelDhatus.dataIscii[row]
+                    status, krdantaWord = self.modelDhatus.data[row]
                 dialog = modalDialog_Krdanta(self, krdantaWord, self.wanted_script + 1)
                 # print('%s DhatuVidhas %s KrdantaVidha %s Krdanta Mode %s'%(dialog.ok, dialog.DhatuVidah, dialog.KrdantaVidah, dialog.KrdMode))
                 if dialog.okClicked:
@@ -975,10 +975,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if indexes:
                     index = indexes[0]
                     row = index.row()
-                    status, tigantaWord = self.modelDhatus.dataIscii[row]
-                    self.gana = int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][0])
-                    self.padi = int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][1])
-                    self.it = int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][2])
+                    status, tigantaWord = self.modelDhatus.data[row]
+                    self.gana = self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] // 100  # int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][0])
+                    self.padi = (self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 100) // 10  #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][1])
+                    self.it = self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 10  #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][2])
                 dialog = modalDialog_Tiganta(self, tigantaWord, requested_script=self.wanted_script+1)
                 # print('%s DhatuVidhas %s KrdantaVidha %s Krdanta Mode %s'%(dialog.ok, dialog.DhatuVidah, dialog.KrdantaVidah, dialog.KrdMode))
                 if dialog.okClicked:
@@ -1002,7 +1002,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if indexes:
                 index = indexes[0]
                 row = index.row()
-                status, base = self.modelDhatus.dataIscii[row]
+                status, base = self.modelDhatus.data[row]
                 try:
                     self.subforms, self.tigforms, self.krdforms = [], [], []
                     self.Subantas, self.Krdantas, self.Tigantas = [], [], []
@@ -1028,9 +1028,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                             for item in subDetails:
                                 numpages += 1
                                 # anta, linga, rupam, vibhakti, vacana, base, erb, det, vibvach = item.anta, item.linga, item.rupam, item.vib, item.vach, item.base, item.erb, item.det, item.vibvach
-                                self.Subantas.append([item.rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base),
+                                self.Subantas.append([item.rupam, transliterate_lines(item.base,
                                                      IndianLanguages[self.wanted_script]), item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                                syntaxInputFile.append([i+1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
+                                syntaxInputFile.append([i+1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 1, AmaraKosha_Database_Queries.unicode_iscii(item.base), AmaraKosha_Database_Queries.unicode_iscii(item.erb), item.det, item.vibvach + 1])
                                 # ic.ic('subanta', i+1, word, wids, item.det, AmaraKosha_Database_Queries.iscii_unicode(word))
                                 wids += 1
                             self.setTexts(zip([self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
@@ -1059,7 +1059,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                 for krdDetail in krdData:
                                     # ic.ic('krdanta', i+1, word, wids)
                                     syntaxInputFile.append(
-                                        [i + 1, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii,
+                                        [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii,
                                          krdDetail.det,
                                          krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii,
                                          krdDetail.nijverb_iscii,
@@ -1076,14 +1076,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                 numpages += len(tigDatas)
                                 for tigData in tigDatas:
                                     # ic.ic('tiganta', i+1, word, wids)
-                                    syntaxInputFile.append([i+1, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
+                                    syntaxInputFile.append([i+1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
                                                             tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning_iscii,
-                                                            tigData.GPICode, tigData.pralak, tigData.purvach,
+                                                            ('%03d'%tigData.GPICode), tigData.pralak, tigData.purvach,
                                                             tigData.CombinedM, tigData.karmaCode])
                                     wids += 1
                         except Exception as e:
                             print(e)
-                    # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(bas), numpages)
+                    # ic.ic(bas, numpages)
                     # ic.ic(self.Subantas, self.subforms, [tig.get() for tig in self.Tigantas], self.tigforms, [tig.get() for tig in self.Krdantas], self.krdforms)
 
                     for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button,
@@ -1108,7 +1108,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     #     fOSOut.write('\n')
                     # fOSOut.write('----------\n')
                     # fOSOut.close()
-                    self.syntaxInputFile = ['ÔÚ³èÍÌè -- %s' % bas]
+                    self.syntaxInputFile = ['ÔÚ³èÍÌè -- %s' % AmaraKosha_Database_Queries.unicode_iscii(bas)]
                     for line in syntaxInputFile:
                         self.syntaxInputFile.append('%d) '%line[0] + ' '.join([str(x) for x in line[1:]]))
                     self.syntaxInputFile.append('----------')
@@ -1292,7 +1292,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.setTexts(zip([self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu,
                  self.txtGana, self.txtPadi, self.txtKarma, self.txtIt, self.txtDhatuVidah,
                  self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara],
-                [transliterate_lines(txt, IndianLanguages[self.wanted_script]) for txt in [AmaraKosha_Database_Queries.iscii_unicode(dialog.tigantaWord), dialog.arthas,
+                [transliterate_lines(txt, IndianLanguages[self.wanted_script]) for txt in [dialog.tigantaWord, dialog.arthas,
                                                                                            self.Sdhatudata[0][self.colsSdhatudata.index('Field3')], self.Sdhatudata[0][self.colsSdhatudata.index('Field4')],
                                                                                            Kosha_Subanta_Krdanta_Tiganta.Tganas[self.gana], Kosha_Subanta_Krdanta_Tiganta.Tganas[self.padi], self.karmas[0],
                                                                                            Kosha_Subanta_Krdanta_Tiganta.Tganas[self.it],

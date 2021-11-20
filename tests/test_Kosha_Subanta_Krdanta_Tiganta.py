@@ -13,22 +13,26 @@ from source.Model import AmaraKosha_Database_Queries
 class Test(unittest.TestCase):
     def common(self, tbl, parameterName):
         colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5, duplicate=False)
-        # print('%s\n%s'%(colsHeader, dataHeader))
         for field in dataHeader:
             parameter = field[colsHeader.index(parameterName)]
-            cols, data = AmaraKosha_Database_Queries.sqlQuery('Select * from ' + tbl + ' where ' + parameterName + ' = ?',
-                                                               AmaraKosha_Database_Queries.unicode_iscii(parameter))
-            for line in data:
-                self.assertEqual(line[cols.index(parameterName)], parameter)
+            cols, data = AmaraKosha_Database_Queries.sqlQuery('Select * from ' + tbl + ' where ' + parameterName + ' = ?', AmaraKosha_Database_Queries.unicode_iscii(parameter), duplicate=False)
+            for line in data: self.assertEqual(line[cols.index(parameterName)], parameter)
+        colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelectUnicode(tbl, maxrows=5, duplicate=False)
+        for field in dataHeader:
+            parameter = field[colsHeader.index(parameterName)]
+            cols, data = AmaraKosha_Database_Queries.sqlQuery('Select * from ' + tbl + ' where ' + parameterName + ' = ?', parameter, duplicate=False)
+            for line in data: self.assertEqual(line[cols.index(parameterName)], parameter)
     def common_with_duplicates(self, tbl, parameterName):
-        colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
-        # print('%s\n%s'%(colsHeader, dataHeader))
+        colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5, duplicate=True)
         for field in dataHeader:
             parameter = field[colsHeader.index(parameterName)]
-            cols, data = AmaraKosha_Database_Queries.sqlQuery('Select * from ' + tbl + ' where ' + parameterName + ' = ?',
-                                                               AmaraKosha_Database_Queries.unicode_iscii(parameter))
-            for line in data:
-                self.assertEqual(line[cols.index(parameterName) + 1], AmaraKosha_Database_Queries.unicode_iscii(parameter))
+            cols, data = AmaraKosha_Database_Queries.sqlQuery('Select * from ' + tbl + ' where ' + parameterName + ' = ?', AmaraKosha_Database_Queries.unicode_iscii(parameter), duplicate=True)
+            for line in data: self.assertEqual(line[cols.index(parameterName) + 1], AmaraKosha_Database_Queries.unicode_iscii(parameter))
+        colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelectUnicode(tbl, maxrows=5, duplicate=True)
+        for field in dataHeader:
+            parameter = field[colsHeader.index(parameterName)]
+            cols, data = AmaraKosha_Database_Queries.sqlQueryUnicode('Select * from ' + tbl + ' where ' + parameterName + ' = ?', parameter, duplicate=True)
+            for line in data: self.assertEqual(line[cols.index(parameterName) + 1], AmaraKosha_Database_Queries.unicode_iscii(parameter))
 
     def test_amara(self):
         self.common('Amara_Words', 'Word')
@@ -81,17 +85,17 @@ class Test(unittest.TestCase):
                             ['स्वर्गलोक ']), ([[['स्वर्ग', 'स्वर्', 'नाक', 'त्रिदिव'], ['त्रिदशालय', 'सुरलोक', 'द्यो', 'दिव्'], ['त्रिविष्टप', 'मन्दर']]],
                               ['ಸ್ವರ್ಗಲೋಕ'], ['Paradise '], ['स्वर्गलोक ']), ([[['स्वर्ग', 'स्वर्', 'नाक', 'त्रिदिव'], ['त्रिदशालय', 'सुरलोक', 'द्यो', 'दिव्'],
                             ['त्रिविष्टप', 'मन्दर']]], ['ಸ್ವರ್ಗಲೋಕ'], ['Paradise '], ['स्वर्गलोक '])]
-        # cols, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
+        # cols_unicode, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
         # for fields in data:
-        #     self.assertIn(fields[cols.index(parameterName)], parameters)
-        #     parameter = AmaraKosha_Database_Queries.unicode_iscii(fields[cols.index(parameterName)])
+        #     self.assertIn(fields[cols_unicode.index(parameterName)], parameters)
+        #     parameter = AmaraKosha_Database_Queries.unicode_iscii(fields[cols_unicode.index(parameterName)])
         #     self.assertIn(Kosha_Subanta_Krdanta_Tiganta.Amarakosha(parameter, 1), resultsExpected)
         for resultno, parameter in enumerate(parameters):
-            self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.Amarakosha(AmaraKosha_Database_Queries.unicode_iscii((parameter), 1)), resultsExpected[resultno])
+            self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.Amarakosha(parameter), resultsExpected[resultno])
     def test_kosha_subanta_generation(self):
         # tbl, parameterName = 'Subanta', 'Base'
-        # cols, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
-        parameters = ['अंशक', 'अंशुक', 'अंशुमत्', 'अंशुमत्', 'अंशुमती', 'अंशुमालिन्']
+        # cols_unicode, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
+        parameters = ['अंशक', 'अंशुक', 'अंशुमत्', 'अंशुमत्', 'अंशुमती', 'अंशुमालिन्']  #
         resultsExpected = {'अंशक': (
                          [['अंशः ', 'अंशौ ', 'अंशाः '], ['अंशम् ', 'अंशौ ', 'अंशान् '], ['अंशेन ', 'अंशाभ्याम् ', 'अंशैः '],
                           ['अंशाय ', 'अंशाभ्याम् ', 'अंशेभ्यः '], ['अंशात् ', 'अंशाभ्याम् ', 'अंशेभ्यः '], ['अंशस्य ', 'अंशयोः ', 'अंशानाम् '], ['अंशे ', 'अंशयोः ', 'अंशेषु '], ['हे अंशः ', 'हे अंशौ ', 'हे अंशाः ']],
@@ -100,19 +104,17 @@ class Test(unittest.TestCase):
                           ['अंशोः ', 'अंशुभ्याम् ', 'अंशुभ्यः '], ['अंशोः ', 'अंश्वोः ', 'अंशूनाम् '], ['अंशौ ', 'अंश्वोः ', 'अंशुषु '], ['हे अंशुः ', 'हे अंशू ', 'हे अंशवः ']],
                          AmaraKosha_Database_Queries.unicode_iscii('उकारान्तः'), AmaraKosha_Database_Queries.unicode_iscii('पुल्लिङ्गः')),
                            'अंशुमत्': ([], '', ''), 'अंशुमती': ([], '', ''), 'अंशुमालिन्': ([], '', '')}
-        for parameter in parameters:
-            self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.subanta_Generation(AmaraKosha_Database_Queries.unicode_iscii(parameter)), resultsExpected[parameter])
+        for parameter in parameters: self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.subanta_Generation(parameter), resultsExpected[parameter])
     def test_kosha_krdanta_arthas_karmas(self):
         collist = ['ID', 'ID', 'Field1', 'Field1', 'Field2', 'Field2', 'Field3', 'Field3', 'Field4', 'Field4', 'Field5', 'Field5', 'Field6', 'Field6',
                    'Field7', 'Field7', 'Field8', 'Field8', 'Field9', 'Field9','Field10', 'Field10']
         parameters = ['अंश्', 'अंह्', 'अज', 'अञ्चु', 'अञ्ज्', 'अट्']
-        resultsExpected =  {'अंश्': (['समाधाने'], ['सकर्मकः'], 383, [[1, 1, 383, 383, 'अंश्', '¤¢Õè', 'अंशय्', '¤¢ÕÍè', 'अंशि', '¤¢ÕÛ', '*', '*', '*', '*', '*', '*', 'समाधाने1', '×ÌÚÅÚÆá1', '931', '931', '*', '*']], collist), 'अंह्': (['गतौ'], ['अकर्मकः'], 384, [[2, 2, 384, 384, 'अंह्', '¤¢Øè', 'अंहय्', '¤¢ØÍè', 'अंहि', '¤¢ØÛ', '*', '*', '*', '*', '*', '*', 'गतौ2', 'µÂæ2', '021', '021', '*', '*']], collist), 'अज': (['गतौ', 'क्षेपणे'], ['अकर्मकः', 'सकर्मकः'], 385, [[3, 3, 385, 385, 'अज', '¤º', 'अजय्', '¤ºÍè', 'अजि', '¤ºÛ', '*', '*', '*', '*', '*', '*', 'गतौ2/क्षेपणे1', 'µÂæ2/³èÖáÈÁá1', '011', '011', '*', '*']], collist), 'अञ्चु': (['गतौ', 'पूजने'], ['सकर्मकः', 'सकर्मकः'], 2, [[4, 4, 2, 2, 'अञ्चु', '¤¼è¸Ý', 'अञ्चि', '¤¼è¸Û', 'आञ्चिचिष्', '¥¼è¸Û¸ÛÖè', '*', '*', '*', '*', '*', '*', 'गतौ1/पूजने1', 'µÂæ1/ÈÞºÆá1', '011', '011', 'गतिपूजनयोः', 'µÂÛÈÞºÆÍå£']], collist), 'अञ्ज्': (['व्यक्तौय', 'म्रक्षणे', 'कान्तौ', 'गतौ'], ['सकर्मकः', 'सकर्मकः', 'सकर्मकः', 'सकर्मकः'], 75, [[5, 5, 75, 75, 'अञ्ज्', '¤¼èºè', 'अञ्जि', '¤¼èºÛ', 'अञ्जिजिष्', '¤¼èºÛºÛÖè', '*', '*', '*', '*', '*', '*', 'व्यक्तौय1/म्रक्षणे1/कान्तौ1/गतौ1', 'ÔèÍ³èÂæÍ1/ÌèÏ³èÖÁá1/³ÚÆèÂæ1/µÂæ1', '613', '613', 'व्यक्तिम्रक्षणकान्तिगतिषु', 'ÔèÍ³èÂÛÌèÏ³èÖÁ³ÚÆèÂÛµÂÛÖÝ']], collist), 'अट्': (['गतौ'], ['सकर्मकः'], 94, [[6, 6, 94, 94, 'अट्', '¤½è', 'आटि', '¥½Û', 'अटिटिष्', '¤½Û½ÛÖè', '*', '*', '*', '*', '*', '*', 'गतौ1', 'µÂæ1', '011', '011', '*', '*']], collist)}
+        resultsExpected = {'अंश्': (['समाधाने'], ['सकर्मकः'], 383, [[1, 1, 383, 383, 'अंश्', '¤¢Õè', 'अंशय्', '¤¢ÕÍè', 'अंशि', '¤¢ÕÛ', '*', '*', '*', '*', '*', '*', 'समाधाने1', '×ÌÚÅÚÆá1', 931, 931, '*', '*']], collist), 'अंह्': (['गतौ'], ['अकर्मकः'], 384, [[2, 2, 384, 384, 'अंह्', '¤¢Øè', 'अंहय्', '¤¢ØÍè', 'अंहि', '¤¢ØÛ', '*', '*', '*', '*', '*', '*', 'गतौ2', 'µÂæ2', 21, 21, '*', '*']], collist), 'अज': (['गतौ', 'क्षेपणे'], ['अकर्मकः', 'सकर्मकः'], 385, [[3, 3, 385, 385, 'अज', '¤º', 'अजय्', '¤ºÍè', 'अजि', '¤ºÛ', '*', '*', '*', '*', '*', '*', 'गतौ2/क्षेपणे1', 'µÂæ2/³èÖáÈÁá1', 11, 11, '*', '*']], collist), 'अञ्चु': (['गतौ', 'पूजने'], ['सकर्मकः', 'सकर्मकः'], 2, [[4, 4, 2, 2, 'अञ्चु', '¤¼è¸Ý', 'अञ्चि', '¤¼è¸Û', 'आञ्चिचिष्', '¥¼è¸Û¸ÛÖè', '*', '*', '*', '*', '*', '*', 'गतौ1/पूजने1', 'µÂæ1/ÈÞºÆá1', 11, 11, 'गतिपूजनयोः', 'µÂÛÈÞºÆÍå£']], collist), 'अञ्ज्': (['व्यक्तौय', 'म्रक्षणे', 'कान्तौ', 'गतौ'], ['सकर्मकः', 'सकर्मकः', 'सकर्मकः', 'सकर्मकः'], 75, [[5, 5, 75, 75, 'अञ्ज्', '¤¼èºè', 'अञ्जि', '¤¼èºÛ', 'अञ्जिजिष्', '¤¼èºÛºÛÖè', '*', '*', '*', '*', '*', '*', 'व्यक्तौय1/म्रक्षणे1/कान्तौ1/गतौ1', 'ÔèÍ³èÂæÍ1/ÌèÏ³èÖÁá1/³ÚÆèÂæ1/µÂæ1', 613, 613, 'व्यक्तिम्रक्षणकान्तिगतिषु', 'ÔèÍ³èÂÛÌèÏ³èÖÁ³ÚÆèÂÛµÂÛÖÝ']], collist), 'अट्': (['गतौ'], ['सकर्मकः'], 94, [[6, 6, 94, 94, 'अट्', '¤½è', 'आटि', '¥½Û', 'अटिटिष्', '¤½Û½ÛÖè', '*', '*', '*', '*', '*', '*', 'गतौ1', 'µÂæ1', 11, 11, '*', '*']], collist)}
         # resultsExpected = {}
         # for parameter in parameters:
         #     resultsExpected[parameter] = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(AmaraKosha_Database_Queries.unicode_iscii(parameter))
         # print('resultsExpected = ', resultsExpected)
-        for parameter in parameters:
-            self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(AmaraKosha_Database_Queries.unicode_iscii(parameter)), resultsExpected[parameter])
+        for parameter in parameters: self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(parameter), resultsExpected[parameter])
     def test_krdanta_generation(self):
         # resultExpectedForms = {}
         # resultExpectedKrdgens = {}
@@ -7368,29 +7370,19 @@ class Test(unittest.TestCase):
                         emptyTig.append([dhatuVidah, voice, lakara])
         return f, k, emptyForms, emptyTig, dupFormKeys, dupTigKeys
     def test_subanta_analysis(self):
-        '''tbl, parameterName = 'Subanta', 'Field1'
-        cols, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
-        for ro in data:
-            try:
-                word = AmaraKosha_Database_Queries.unicode_iscii(ro[cols.index('Base')])
-                forms, anta, linga, rupam, vibhakti, vacana, base, erb, det, vibvach = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word)
-                ic.ic(ro[cols.index('Base')], anta, linga, rupam, vibhakti, vacana, AmaraKosha_Database_Queries.iscii_unicode(base), AmaraKosha_Database_Queries.iscii_unicode(erb), det, vibvach)
-            except Exception as e:
-                print(e)
-                continue'''
         # print(' '.join(AmaraKosha_Database_Queries.iscii_unicode(word) for word in ['ÏÚÌ£', '¤Ïè¶èÍáÁ', 'ªÖÛ¢', 'ÈÞºÍÂÛ', 'ê']))
         Devanagari, Bengali, Gurmukhi, Gujarati, Oriya, Tamizh, Telugu, Kannada, Malayalam = 1, 2, 3, 4, 5, 6, 7, 8, 9
         languageScript = Devanagari
         for word in 'रामः अर्घ्येण ऋषिं पूजयति ।'.split(' '):  # ['ÏÚÌ£', '¤Ïè¶èÍáÁ', 'ªÖÛ¢', 'ÈÞºÍÂÛ', 'ê']:
             try:
-                word = AmaraKosha_Database_Queries.unicode_iscii(word)
+                # word = AmaraKosha_Database_Queries.unicode_iscii(word)
                 forms, subantas = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word, languageScript)
                 # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(word, languageScript), forms)
-                # for item in subantas: ic.ic(item.anta, item.linga, item.rupam, item.vib, item.vach, AmaraKosha_Database_Queries.iscii_unicode(item.base), AmaraKosha_Database_Queries.iscii_unicode(item.erb), item.det, item.vibvach)
+                # for item in subantas: ic.ic(item.anta, item.linga, item.rupam, item.vib, item.vach, item.base, item.erb, item.det, item.vibvach)
             except Exception as e:
                 wrd = str(e).split(' ')[3]
                 self.assertIn(wrd, ['पूजयति', '।'])
-                print('Subanta Analysis - ', e)
+                # print('Subanta Analysis - %s(%s) exception %s'%(word, AmaraKosha_Database_Queries.unicode_iscii(word), e))
                 continue
     def test_krdanta_analysis(self):
         # f, k = {}, {}
@@ -7437,14 +7429,14 @@ class Test(unittest.TestCase):
         languageScript = Devanagari
         for word in 'रामः अर्घ्येण ऋषिं पूजयति ।'.split(' '):  # ['ÏÚÌ£', '¤Ïè¶èÍáÁ', 'ªÖÛ¢', 'ÈÞºÍÂÛ', 'ê']:
             try:
-                forms, krdantas = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(AmaraKosha_Database_Queries.unicode_iscii(word), languageScript)
+                forms, krdantas = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word, languageScript)
                 # f[word], k[word] = forms, [krdDetail.get() for krdDetail in krdantas]
                 self.assertEqual(forms, resultsExpectedForms[word])
                 self.assertEqual([krdDetail.get() for krdDetail in krdantas], resultsExpectedKrd[word])
             except Exception as e:
                 wrd = str(e).split(' ')[3]
                 self.assertIn(wrd, ['रामः', 'अर्घ्येण', 'ऋषिं', '।'])
-                print('Krdanta Analysis - ', e)
+                # print('Krdanta Analysis - ', e)
                 continue
         # print('resultsExpectedForms = ', f, '\nresultsExpectedKrd = ', k)
     def test_tiganta_analysis(self):
@@ -7454,16 +7446,16 @@ class Test(unittest.TestCase):
                                            ['पूजयामि', 'पूजयावः', 'पूजयामः'], ['पूजय्', 'पूजयतु', 'पूजयुः'],
                                            ['पूजयि', 'पूजयथु', 'पूजय्'], ['पूजय्', 'पूजयि', 'पूजयि']]}
         resultsExpectedTig = {'रामः': [
-            {'tigform': 'र्आम्अः', 'verb': 'रा', 'nijverb': 'रापि', 'sanverb': 'रिरास्', 'GPICode': '112',
+            {'tigform': 'र्आम्अः', 'verb': 'रा', 'nijverb': 'रापि', 'sanverb': 'रिरास्', 'GPICode': 112,
              'gana': 'अदादिगणः', 'padi': 'परस्मैपदी', 'it': 'अनिट्', 'dhatuVidah': 'केवलतिगंतः', 'karma': 'सकर्मकः',
              'meaning': 'दाने1/', 'vacana': 'बहुवचन', 'purusha': 'उत्तमपुरुषः', 'purvach': 9, 'lakaras': 'लट्'}],
                               'पूजयति': [
                                   {'tigform': 'प्ऊज्अय्अत्इ', 'verb': 'पूज्', 'nijverb': 'पूजय्', 'sanverb': 'पुपूजि',
-                                   'GPICode': '931', 'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्',
+                                   'GPICode': 931, 'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्',
                                    'dhatuVidah': 'केवलतिगंतः', 'karma': 'सकर्मकः', 'meaning': 'पूजायाम्1/',
                                    'vacana': 'एकवचन', 'purusha': 'प्रथमपुरुषः', 'purvach': 1, 'lakaras': 'लट्'},
                                   {'tigform': 'प्ऊज्अय्अत्इ', 'verb': 'पूज्', 'nijverb': 'पूजय्', 'sanverb': 'पुपूजि',
-                                   'GPICode': '931', 'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्',
+                                   'GPICode': 931, 'gana': 'चुरादिगणः', 'padi': 'उभयपदी', 'it': 'सेट्',
                                    'dhatuVidah': 'णिजन्तः', 'karma': 'सकर्मकः', 'meaning': 'पूजायाम्1/',
                                    'vacana': 'एकवचन', 'purusha': 'प्रथमपुरुषः', 'purvach': 1, 'lakaras': 'लट्'}]}
 
@@ -7471,30 +7463,30 @@ class Test(unittest.TestCase):
         languageScript = Devanagari
         for word in 'रामः अर्घ्येण ऋषिं पूजयति ।'.split(' '):  # ['ÏÚÌ£', '¤Ïè¶èÍáÁ', 'ªÖÛ¢', 'ÈÞºÍÂÛ', 'ê']:
             try:
-                forms, tigantas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(AmaraKosha_Database_Queries.unicode_iscii(word), languageScript)
+                forms, tigantas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word, languageScript)
                 # f[word], t[word] = forms, [tigDetail.get() for tigDetail in tigantas]
                 self.assertEqual(forms, resultsExpectedForms[word])
                 self.assertEqual([tigDetail.get() for tigDetail in tigantas], resultsExpectedTig[word])
             except Exception as e:
                 wrd = str(e).split(' ')[3]
-                self.assertIn(wrd, ['अर्घ्य्ए', 'ऋष्इ', ''])
-                print('Tiganta Analysis - ', e)
+                self.assertIn(wrd, ['अर्घ्येण', 'ऋषिं', '।'])
+                # print('Tiganta Analysis - ', e)
                 continue
         # print('resultsExpectedForms = ', f, '\nresultsExpectedTig = ', t)
     def test_morphological_syntactic_analysis(self):
         numpages, subforms, krdforms, tigforms, Subantas, Krdantas, Tigantas, syntaxInputFile = 0, [], [], [], [], [], [], []
         sentence = 'रामः अर्घ्येण ऋषिं पूजयति ।'
         for i, word in enumerate(sentence.split(' ')):
-            word = AmaraKosha_Database_Queries.unicode_iscii(word)
+            # word = AmaraKosha_Database_Queries.unicode_iscii(word)
             try:
                 wids = 1
                 forms, subDetails = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word)
                 if not forms == []: subforms += forms
                 for item in subDetails:
                     numpages += 1
-                    Subantas.append([item.rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base), IndianLanguages[0]),
+                    Subantas.append([item.rupam, transliterate_lines(item.base, IndianLanguages[0]),
                                     item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                    syntaxInputFile.append([i + 1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
+                    syntaxInputFile.append([i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 1, AmaraKosha_Database_Queries.unicode_iscii(item.base), AmaraKosha_Database_Queries.unicode_iscii(item.erb), item.det, item.vibvach + 1])
                     wids += 1
             except Exception as e:
                 print(e)
@@ -7505,7 +7497,7 @@ class Test(unittest.TestCase):
                     Krdantas += krdData
                     numpages += len(krdData)
                     for krdDetail in krdData:
-                        syntaxInputFile.append(  [i + 1, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
+                        syntaxInputFile.append([i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
                              krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii, krdDetail.nijverb_iscii,
                              krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
                         wids += 1
@@ -7519,7 +7511,7 @@ class Test(unittest.TestCase):
                     numpages += len(tigDatas)
                     for tigData in tigDatas:
                         # ic.ic('tiganta', i+1, word, wids)
-                        syntaxInputFile.append( [i + 1, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
+                        syntaxInputFile.append( [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
                                                 tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning_iscii, tigData.GPICode,
                                                 tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
                         wids += 1
@@ -7692,7 +7684,7 @@ class Test(unittest.TestCase):
                                          'vibhakti': 'सप्तमी',
                                          'vibvach': 18,
                                          'wtype': None}])
-        self.assertEqual([item.get() for item in Tigantas], [{'GPICode': '112',
+        self.assertEqual([item.get() for item in Tigantas], [{'GPICode': 112,
                                          'dhatuVidah': 'केवलतिगंतः',
                                          'gana': 'अदादिगणः',
                                          'it': 'अनिट्',
@@ -7707,7 +7699,7 @@ class Test(unittest.TestCase):
                                          'tigform': 'र्आम्अः',
                                          'vacana': 'बहुवचन',
                                          'verb': 'रा'},
-                                        {'GPICode': '931',
+                                        {'GPICode': 931,
                                          'dhatuVidah': 'केवलतिगंतः',
                                          'gana': 'चुरादिगणः',
                                          'it': 'सेट्',
@@ -7722,7 +7714,7 @@ class Test(unittest.TestCase):
                                          'tigform': 'प्ऊज्अय्अत्इ',
                                          'vacana': 'एकवचन',
                                          'verb': 'पूज्'},
-                                        {'GPICode': '931',
+                                        {'GPICode': 931,
                                          'dhatuVidah': 'णिजन्तः',
                                          'gana': 'चुरादिगणः',
                                          'it': 'सेट्',

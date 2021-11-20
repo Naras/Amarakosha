@@ -312,8 +312,8 @@ validation_table = [
 # special characters formed by combination of consonants and nukta
 
 nukta_specials = {
-    0xA6: 0x090c,
-    0xEA: 0x093D,
+    # 0xA6: 0x090c,
+    # 0xEA: 0x0964,    #   0x093D
     0xDF: 0x0944,
     0xA1: 0x0950,
     0xB3: 0x0958,
@@ -325,7 +325,7 @@ nukta_specials = {
     0xC9: 0x095E,
     0xAA: 0x0960,
     0xA7: 0x0961,
-    0xDB: 0x0962,
+    # 0xDB: 0x093F,   # 0x0962
     0xDC: 0x0963
 }
 
@@ -622,6 +622,31 @@ class Parser:
     def make_script_maps_unicode_to_iscii(self):
         unicode_to_iscii = {}
         for k, v in iscii_to_unicode.items(): unicode_to_iscii[v] = k
+        unicode_to_iscii[2316] = unicode_to_iscii[2315]  # Vowel L -> R
+        unicode_to_iscii[2317] = unicode_to_iscii[2318]  # candra E -> E
+        unicode_to_iscii[2321] = unicode_to_iscii[2322]  # candra O -> O
+        unicode_to_iscii[2372] = unicode_to_iscii[2371]  # Vowel Sign R -> RR, missing in iscii
+        unicode_to_iscii[2382] = unicode_to_iscii[2367]  # Vowel Sign AI -> I (prishtamatra)
+        unicode_to_iscii[2383] = unicode_to_iscii[2380]  # Vowel Sign AW -> AU
+        unicode_to_iscii[2389] = unicode_to_iscii[2373]  # iscii candra long -> candra short
+        unicode_to_iscii[2390] = unicode_to_iscii[2370]  # Vowel Sign kashmiri UE -> U
+        unicode_to_iscii[2391] = unicode_to_iscii[2371]  # Vowel Sign kashmiri UUE -> UU
+        unicode_to_iscii[2392] = unicode_to_iscii[2325]  # QA -> ka
+        unicode_to_iscii[2393] = unicode_to_iscii[2326]  # KHHA -> kha
+        unicode_to_iscii[2394] = unicode_to_iscii[2327]  # GHHA -> gha
+        unicode_to_iscii[2395] = unicode_to_iscii[2332]  # ZA -> ja
+        unicode_to_iscii[2396] = unicode_to_iscii[2337]  # DDDHA -> DDA
+        unicode_to_iscii[2397] = unicode_to_iscii[2338]  # RHA -> DDHA
+        unicode_to_iscii[2364] = ISCII_NUKTA  # unicode_to_iscii[2381] Vowel Sign Nukta -> Virama(Halant)
+        unicode_to_iscii[2365] = unicode_to_iscii[2381]  # Vowel Sign Avagraha -> Virama(Halant)
+        unicode_to_iscii[2402] = unicode_to_iscii[2371]  # Vowel Sign L -> R
+        unicode_to_iscii[2403] = unicode_to_iscii[2372]  # Vowel Sign LL -> RR
+        unicode_to_iscii[ZWNJ], unicode_to_iscii[ZWJ] = ISCII_HALANT, ISCII_NUKTA  # Zero width Non  Joiner and Zero widthJoiner
+
+        # if script==1: # Extra Devanagari -> क़	ख़	ग़	ज़	ड़	ढ़	फ़	य़
+        #     map = {0x0955:0x093a, 0x0956:0x093b, 0x0957:0x093c, 0x0958:0x0915, 0x0959:0x0916, 0x095a:0x0917, 0x095b:0x091c, 0x095d:0x0921,
+        #            0x095e:0x0922, 0x095e:0x092b, 0x095f:0x092f}
+        #     for k, v in map.items(): scripts_map_unicode[k] = scripts_map_unicode[v]
 
         # _invalid_range = itertools.chain(range(0xEB, 0xF1), range(0xFB, 0xFF + 1))
         curr_scr = {}
