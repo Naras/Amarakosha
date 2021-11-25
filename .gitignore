@@ -20,3 +20,5 @@ sourceAll.txt
 /out.Aci
 /OSout.Aci
 /TODO.txt
+/databaseModel.py
+/tests/test_exception_giver_sentences_working.py

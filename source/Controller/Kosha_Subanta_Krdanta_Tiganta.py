@@ -122,7 +122,7 @@ def subanta_Generation(base: str, requested_script=1) -> (List[str], str, str):
     # dbSufcodes = []
     for row in dbdata_subanta:
         suffixes = []
-        erb = row[cols_subanta.index('Erb') + 1]
+        erb = row[cols_subanta.index('Erb')]
         code = row[cols_subanta.index('Code')]
         # print('subgen 2 erb %s(%s) code %s'%(erb,AmaraKosha_Database_Queries.iscii_unicode(erb), code))
         qry = 'select * from Sufcode where code=?'
@@ -139,17 +139,17 @@ def subanta_Generation(base: str, requested_script=1) -> (List[str], str, str):
         # print([erb+item for item in subforms])
         # print([cli_browse.iscii_unicode(erb+item) for item in subforms])
         # print('subgen4 subforms %s\n%s'%(subforms,[AmaraKosha_Database_Queries.iscii_unicode(item) for item in subforms]))
-        subforms_with_sandhi = [AmaraKosha_Database_Queries.iscii_unicode(
-            Sandhi_Convt.Sandhi(erb + item + ' '), script=requested_script) for item in subforms]
+        subforms_with_sandhi = [transliterate_lines(Sandhi_Convt.Sandhi(erb + item + ' '), IndianLanguages[requested_script - 1]) for item in subforms]
         # print(subforms_with_sandhi)
         # print([Functions_Sandhi_Convt.Sandhi(erb + item) for item in subforms])
         for entry in Sandhi_Convt.antas:
             if code[0] == entry[0]:
                 anta = entry[2]  # equivalent of Right$(antas(i), Len(antas(i)) - 2) in VB code
-                if code[0] == 'A': anta += "ÚÆèÂ£"
-                else: anta += "³ÚÏÚÆèÂ£"
+                if code[0] == 'A': anta += "ान्तः"
+                else: anta += "कारान्तः"
                 break
-        linga = Sandhi_Convt.lingas[int(code[1:2])]
+        anta = transliterate_lines(anta, IndianLanguages[requested_script - 1])
+        linga = transliterate_lines(Sandhi_Convt.lingas[int(code[1:2])], IndianLanguages[requested_script - 1])
         # print('anta %s linga %s'%(cli_browse.iscii_unicode(anta), cli_browse.iscii_unicode(linga)))
         forms = [subforms_with_sandhi[0:3], subforms_with_sandhi[3:6], subforms_with_sandhi[6:9],
                  subforms_with_sandhi[9:12],
@@ -227,14 +227,14 @@ def krdanta_Generation(dhatuNo: str, DhatuVidah: str, KrdantaVidah: str, KrdMode
         code = item[2][:4]
         for entry in Sandhi_Convt.antas:
             if code[0] == entry[0]:
-                krdDetail.anta = AmaraKosha_Database_Queries.iscii_unicode(entry[2] + '³ÚÏÚÆèÂ£', requested_script)
+                krdDetail.anta = transliterate_lines(entry[2] + 'कारान्तः', IndianLanguages[requested_script - 1])
                 break
         # print('krdGener Sufcode: qry %s code %s'%(qry,code))
         cols, dataSufcode = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, code, duplicate=False, maxrows=0)
         # print(('krdGener sufcode %s cols %s\n%s')%(code, cols, dataSufcode))
         krdDetail.erb, krdDetail.erb_iscii = item[erbInColumn], item[erbInColumn + 1]
         krdDetail.sabda = AmaraKosha_Database_Queries.iscii_unicode(item[sabdaInColumn], requested_script)
-        krdDetail.linga = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.lingas[int(code[1])], requested_script)
+        krdDetail.linga = transliterate_lines(Sandhi_Convt.lingas[int(code[1])], IndianLanguages[requested_script - 1])
         if dataSufcode != [] and len(dataSufcode[0]) > 2: suffixes = str(dataSufcode[0][2]).split(' ')
         else: return [], None
         # from VB SplitAndDisplay routine
@@ -243,8 +243,8 @@ def krdanta_Generation(dhatuNo: str, DhatuVidah: str, KrdantaVidah: str, KrdMode
             subforms.append(Sandhi_Convt.Convt(sufcode))
         # print('subforms %s'%([erb+item for item in subforms]))
         # print([Kosha_Subanta_Synonyms_Queries.iscii_unicode(erb+item) for item in subforms])
-        subforms_with_sandhi = [AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.Sandhi(krdDetail.erb_iscii + item), requested_script) for item in subforms]
-        # print([Sandhi_Convt.Sandhi(erb + item) for item in subforms])
+        subforms_with_sandhi = [transliterate_lines(Sandhi_Convt.Sandhi(krdDetail.erb + item), IndianLanguages[requested_script - 1]) for item in subforms]
+        # print('krdanta gen %s'%[Sandhi_Convt.Sandhi(krdDetail.erb + item) for item in subforms])
         forms += [subforms_with_sandhi[0:3], subforms_with_sandhi[3:6], subforms_with_sandhi[6:9],
                  subforms_with_sandhi[9:12], subforms_with_sandhi[12:15], subforms_with_sandhi[15:18],
                  subforms_with_sandhi[18:21], subforms_with_sandhi[21:24]]
@@ -351,17 +351,17 @@ def subanta_Analysis(word, requested_script=1):
                     subDetails.append(subDetail)
     # wrd = AmaraKosha_Database_Queries.unicode_iscii(word)
     # print('subanaly about to do visandhi %s(%s) %s %s'%(word, AmaraKosha_Database_Queries.unicode_iscii(word), [ord(ch) for ch in word], [hex(ord(ch)) for ch in word]))
-    word_visandhi = Sandhi_Convt.visandhi(AmaraKosha_Database_Queries.unicode_iscii(word))
+    word_visandhi = Sandhi_Convt.visandhi(word)
     # ic.ic(word, word_visandhi, AmaraKosha_Database_Queries.iscii_unicode(word),AmaraKosha_Database_Queries.iscii_unicode(word_visandhi))
     # print('subAnaly-visandhi word %s(%s) visandhi %s %s'%(word, AmaraKosha_Database_Queries.unicode_iscii(word), word_visandhi, AmaraKosha_Database_Queries.iscii_unicode(word_visandhi)))
-    halanth = chr(232)
+    halanth = chr(0x094d)   # AmaraKosha_Database_Queries.iscii_unicode(chr(232))
     subDetails = []
     for i in range(len(word_visandhi)-1):
         # print('visandhi left %s'%word_visandhi[::-1][i])
         if not word_visandhi[::-1][i] == halanth:
             subDetail = subantaDetails()
-            subDetail.erb = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.Sandhi(word_visandhi[:-(i+1)]))
-            subDetail.suf = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.Sandhi(word_visandhi[len(word_visandhi)-(i+1):]))
+            subDetail.erb = Sandhi_Convt.Sandhi(word_visandhi[:-(i+1)])
+            subDetail.suf = Sandhi_Convt.Sandhi(word_visandhi[len(word_visandhi)-(i+1):])
             # print('subAnaly 1 erb %s -> %s(%s) suf %s -> %s(%s)'%(word_visandhi[:-(i+1)], AmaraKosha_Database_Queries.unicode_iscii(subDetail.erb), subDetail.erb, word_visandhi[len(word_visandhi)-(i+1):], AmaraKosha_Database_Queries.unicode_iscii(subDetail.suf), subDetail.suf))
             # splits += 1
             subDetails.append(subDetail)
@@ -398,53 +398,52 @@ def subanta_Analysis(word, requested_script=1):
                                             ss = ss[1:]
                                         else:
                                             ss = Sandhi_Convt.Convt(sufcode)
-                                        if ss != '': subforms.append(AmaraKosha_Database_Queries.iscii_unicode(ss))
+                                        if ss != '': subforms.append(ss)
                                     for subformItemNo, subformItem in enumerate(subforms):
                                         for tstr in subformItem.split('/'):
-                                            if Sandhi_Convt.Sandhi(AmaraKosha_Database_Queries.unicode_iscii(subDetailsRec.erb + tstr)) == AmaraKosha_Database_Queries.unicode_iscii(word):
+                                            if Sandhi_Convt.Sandhi(subDetailsRec.erb + tstr) == word:
                                                 subDetail = subantaDetails()
                                                 subDetail.vibvach = subformItemNo
-                                                subDetail.vib = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.vibstr[subformItemNo // 3], requested_script)
-                                                subDetail.vach = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.vachstr[subformItemNo % 3], requested_script)
+                                                subDetail.vib = transliterate_lines(Sandhi_Convt.vibstr[subformItemNo // 3], IndianLanguages[requested_script - 1])
+                                                subDetail.vach = transliterate_lines(Sandhi_Convt.vachstr[subformItemNo % 3], IndianLanguages[requested_script - 1])
                                                 subDetail.base = subantaDetailRec[cols_subanta.index('Base')]
                                                 subDetail.erb = subantaDetailRec[cols_subanta.index('Erb')]
                                                 subDetail.det = subantaDetailRec[cols_subanta.index('Code')]
                                                 for entry in Sandhi_Convt.antas:
                                                     if subantaDetailRec[cols_subanta.index('Code')][0] == entry[0]:
-                                                        subDetail.anta = AmaraKosha_Database_Queries.iscii_unicode(entry[2])  # equivalent of Right$(antas(i), Len(antas(i)) - 2) in VB code
+                                                        subDetail.anta = entry[2]  # equivalent of Right$(antas(i), Len(antas(i)) - 2) in VB code
                                                         if subantaDetailRec[cols_subanta.index('Code')][0] == 'A':
                                                             subDetail.anta += "ान्तः"  # ÚÆèÂ£
                                                         else:
                                                             subDetail.anta += "कारान्तः"  # ³ÚÏÚÆèÂ£
                                                         break
-                                                # subDetail.anta = AmaraKosha_Database_Queries.iscii_unicode(subDetail.anta, requested_script)
-                                                subDetail.linga = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.lingas[int(subantaDetailRec[cols_subanta.index('Code')][1:2])], requested_script)
-                                                subDetail.rupam = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.Sandhi(AmaraKosha_Database_Queries.unicode_iscii(subDetailsRec.erb + tstr)), requested_script)
+                                                subDetail.anta = transliterate_lines(subDetail.anta, IndianLanguages[requested_script - 1])
+                                                subDetail.linga = transliterate_lines(Sandhi_Convt.lingas[int(subantaDetailRec[cols_subanta.index('Code')][1:2])], IndianLanguages[requested_script - 1])
+                                                subDetail.rupam = transliterate_lines(Sandhi_Convt.Sandhi(subDetailsRec.erb + tstr), IndianLanguages[requested_script - 1])
                                                 subRecs.append(subDetail)
                             # print([erb+item for item in subforms])
                             # print([AmaraKosha_Database_Queries.iscii_unicode(subDetails[i].erb+item) for item in subforms])
-                            subforms_with_sandhi += [AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.Sandhi(AmaraKosha_Database_Queries.unicode_iscii(subDetailsRec.erb + item + ' ')), script=requested_script) for item in subforms]
+                            subforms_with_sandhi += [Sandhi_Convt.Sandhi(subDetailsRec.erb + item + ' ') for item in subforms]
                 # print(len(subforms_with_sandhi),subforms_with_sandhi)
+    subforms_with_sandhi = [transliterate_lines(item, IndianLanguages[requested_script - 1]) for item in subforms_with_sandhi]
     if subforms_with_sandhi == []:
-        # return [], subDetails[0].base, subDetail.anta, subDetail.linga, '', subDetails[0].vib, subDetails[0].vach
         raise Exception('Subanta Forms for ' + word + ' not found in Database')
     else:
         forms = [subforms_with_sandhi[0:3], subforms_with_sandhi[3:6], subforms_with_sandhi[6:9], subforms_with_sandhi[9:12],
              subforms_with_sandhi[12:15], subforms_with_sandhi[15:18], subforms_with_sandhi[18:21],
              # subforms_with_sandhi[21:24]]
              list(map(lambda word: 'हे ' + word, subforms_with_sandhi[0:3]))]
-        # return forms, subDetail.anta, subDetail.linga, subforms_with_sandhi[0], subDetail.vib, subDetail.vach, subDetail.base, subDetail.erb, subDetail.det, subDetail.vibvach
         return forms, subRecs
 def krdanta_Analysis(word, requested_script=1):
-    word_visandhi = Sandhi_Convt.visandhi(AmaraKosha_Database_Queries.unicode_iscii(word))
-    halanth = chr(232)
+    word_visandhi = Sandhi_Convt.visandhi(word)
+    halanth = chr(0x094d)  # chr(232)
     krdAnalyDetails, krdDetails = [], []
     forms = []
     for i in range(len(word_visandhi)-1):
         if not word_visandhi[::-1][i] == halanth:
             krdAnalyDetail = krdAnalyData()
-            krdAnalyDetail.erb = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.Sandhi(word_visandhi[:-(i + 1)]))
-            krdAnalyDetail.suf = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.Sandhi(word_visandhi[len(word_visandhi) - (i + 1):]))
+            krdAnalyDetail.erb = Sandhi_Convt.Sandhi(word_visandhi[:-(i + 1)])
+            krdAnalyDetail.suf = Sandhi_Convt.Sandhi(word_visandhi[len(word_visandhi) - (i + 1):])
             # print('krdAnaly erb %s -> %s(%s) suf %s -> %s(%s)'%(word_visandhi[:-(i+1)], krdAnalyDetail.erb,AmaraKosha_Database_Queries.iscii_unicode(krdAnalyDetail.erb), word_visandhi[len(word_visandhi)-(i+1):], krdAnalyDetail.suf, AmaraKosha_Database_Queries.iscii_unicode(krdAnalyDetail.suf)))
             krdAnalyDetails.append(krdAnalyDetail)
     subforms_with_sandhi = []
@@ -467,15 +466,14 @@ def krdanta_Analysis(word, requested_script=1):
                             if chCode in sufixes:
                                 for sufcode in sufixes.split(' '):
                                     subforms.append(Sandhi_Convt.Convt(sufcode))
-                                subforms = [AmaraKosha_Database_Queries.iscii_unicode(item) for item in subforms]
-                                # print('subforms %s'%subforms)
+                                # print('krdAnaly 1 subforms %s'%subforms)
                                 for subformItemNo, subformItem in enumerate(subforms):
                                     for tstr in subformItem.split('/'):
                                         if Sandhi_Convt.Sandhi(krdAnalyDetail.erb + tstr) == word:
                                             krdDetail = krdData()
                                             krdDetail.vibvach = subformItemNo
-                                            krdDetail.vibhakti = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.vibstr[subformItemNo // 3])
-                                            krdDetail.vacana = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.vachstr[subformItemNo % 3])
+                                            krdDetail.vibhakti = transliterate_lines(Sandhi_Convt.vibstr[subformItemNo // 3], IndianLanguages[requested_script - 1])
+                                            krdDetail.vacana = transliterate_lines(Sandhi_Convt.vachstr[subformItemNo % 3], IndianLanguages[requested_script - 1])
                                             krdDetail.sabda = transliterate_lines(krdDetailRec[cols_krdanta.index('Field3')], IndianLanguages[requested_script-1])
                                             krdDetail.erb = krdDetailRec[cols_krdanta.index('Field1')]
                                             krdDetail.sabda_iscii = krdDetailRec[cols_krdanta.index('Field3')+1]
@@ -483,10 +481,10 @@ def krdanta_Analysis(word, requested_script=1):
                                             krdDetail.det = krdDetailRec[cols_krdanta.index('Field2')]
                                             krdDetail.ddet = krdDetailRec[cols_krdanta.index('Field4')]
                                             krdDetail.Dno = krdDetailRec[cols_krdanta.index('Field5')]
-                                            krdDetail.linga = AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.lingas[int(code[1])], requested_script)
+                                            krdDetail.linga = transliterate_lines(Sandhi_Convt.lingas[int(code[1])], IndianLanguages[requested_script - 1])
                                             for entry in Sandhi_Convt.antas:
                                                 if code[0] == entry[0]:
-                                                    krdDetail.anta = AmaraKosha_Database_Queries.iscii_unicode(entry[2] + '³ÚÏÚÆèÂ£', requested_script)
+                                                    krdDetail.anta = transliterate_lines(entry[2] + 'कारान्तः', IndianLanguages[requested_script - 1])
                                                     break
                                             KrdCode = krdDetailRec[cols_krdanta.index('Field4')][0]
                                             krdDetail.pratyayaVidhah = transliterate_lines(pratyayaVidhahs[ord(KrdCode) - ord('a')], IndianLanguages[requested_script-1])
@@ -494,10 +492,11 @@ def krdanta_Analysis(word, requested_script=1):
                                             krdDetail.krdantaVidhah = transliterate_lines(krdantaVidhahs[{'a':0, 'b':0, 'c':0, 'd':1, 'e':1, 'f':2, 'g':2, 'h':3, 'i':3}[KrdCode]], IndianLanguages[requested_script-1])
 
                                             krdDetails.append(getAnalysedinfo(krdDetail, krdDetailRec[cols_krdanta.index('Field5')], requested_script))
-                                subforms_with_sandhi += [AmaraKosha_Database_Queries.iscii_unicode(Sandhi_Convt.Sandhi(AmaraKosha_Database_Queries.unicode_iscii(krdAnalyDetail.erb + item + ' ')), script=requested_script) for item in subforms]
+                                subforms_with_sandhi += [transliterate_lines(Sandhi_Convt.Sandhi(krdAnalyDetail.erb + item + ' '), IndianLanguages[requested_script - 1]) for item in subforms]
                         # print('krdAnaly %i %s'%(len(subforms_with_sandhi),subforms_with_sandhi))
     if subforms_with_sandhi == []:
         raise Exception('Krdanta Forms for ' + word + ' not found in Database')
+    subforms_with_sandhi = [transliterate_lines(item, IndianLanguages[requested_script - 1]) for item in subforms_with_sandhi]
     for grp in range(len(subforms_with_sandhi)//24):
         indx = grp*3
         forms += [subforms_with_sandhi[indx:indx+3], subforms_with_sandhi[indx+3:indx+6],subforms_with_sandhi[indx+6:indx+9],
@@ -646,7 +645,7 @@ def genTigforms(word: str, tigDataInstance: tigantaData, tiggenDataInstance: tig
     dhatuVidhaIndex = {"केवलतिगंतः": "1", "णिजन्तः": "2", "सन्नन्तः": "3"}[DhatuVidah]
     lvstr = dhatuVidhaIndex + chr(2 * lakaraIndex + voiceIndex + ord('A'))
     tigResformsInstance = tigResult()
-    tigResformsInstance.roopam = "" if word[:1] == lvstr and dhatuVidhaIndex == 2 else "¥ÂèÌÆáÈÄÛÆÛ ÏÞÈÌè" if word[2] == "0" else "ÈÏ×èÌâÈÄÛÆÛ ÏÞÈÌè "
+    tigResformsInstance.roopam = "" if word[:1] == lvstr and dhatuVidhaIndex == 2 else "आत्मनेपदिनि रूपम्" if word[2] == "0" else "परस्मैपदिनि रूपम् "
     suffixCode = word[3:len(word) - len(lvstr)] if dhatuVidhaIndex == 2 and lvstr[1] == "O" else word[2:len(word) - len(lvstr)]
     if word[:2] == lvstr:
         qry = 'select * from stinsuf where field1 = ?'  # VB genTigforms
@@ -676,7 +675,7 @@ def genTigforms(word: str, tigDataInstance: tigantaData, tiggenDataInstance: tig
                     if not (tiggenDataInstance.upasarga == '' or tiggenDataInstance.upasarga == None):
                         tigantaForm = blast.phoneticallyJoin(
                             Sandhi_Convt.doSandhiofUpasargaAndTigantaForm(tigantaForm, tiggenDataInstance.upasarga))
-                    # print('tiganthaform=%s %s'%(tigantaForm, AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(tigantaForm)))
+                    # print('tiganthaform=%s %s' % (tigantaForm, AmaraKosha_Database_Queries.iscii_unicode(tigantaForm)))
                     tigResformsInstance.tigforms[x] += AmaraKosha_Database_Queries.iscii_unicode(tigantaForm,script=requested_script)
     return tigResformsInstance
 def tiganta_Generation(dhatuNo: str, DhatuVidah: str, voice: str, lakara: str, prefixUpasarga=False, requested_script=1) -> (List[str], List[tigResult]):

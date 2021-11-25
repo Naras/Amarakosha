@@ -776,7 +776,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.txtNishpatthi.setVisible(False)
         self.wanted_script = 0 if self.wanted_script == 5 else self.wanted_script  # ban tamil, always screws up things!
         cols, data = AmaraKosha_Database_Queries.tblSelectUnicode('Subanta', maxrows=0, script=self.wanted_script + 1)
-        self.modelDhatus.data = list(map(lambda item: (False, item[2]), data))
+        self.modelDhatus.data = list(map(lambda item: (False, transliterate_lines(item[2], IndianLanguages[self.wanted_script])), data))
         self.modelDhatus.dataIscii = list(map(lambda item: (False, item[3]), data))
         self.listView.setModel(self.modelDhatus)
         self.modelDhatus.layoutChanged.emit()
@@ -804,7 +804,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         try:
             cols, data = AmaraKosha_Database_Queries.tblSelectUnicode('Sdhatu', maxrows=0, script=self.wanted_script + 1)
             # print('%s\n%s'%(cols, data))
-            self.modelDhatus.data = list(map(lambda item: (False, item[4]), data))
+            self.modelDhatus.data = list(map(lambda item: (False, transliterate_lines(item[4], IndianLanguages[self.wanted_script])), data))  #list(map(lambda item: (False, item[4]), data))
             self.modelDhatus.dataIscii = list(map(lambda item: (False, item[5]), data))
             self.listView.setModel(self.modelDhatus)
             self.modelDhatus.layoutChanged.emit()
@@ -829,7 +829,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.txtNishpatthi.setVisible(False)
         try:
             self.colsSdhatudata, self.Sdhatudata = AmaraKosha_Database_Queries.tblSelectUnicode('Sdhatu', maxrows=0, script=self.wanted_script + 1)
-            self.modelDhatus.data = list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2')]), self.Sdhatudata))
+            self.modelDhatus.data = list(map(lambda item: (False, transliterate_lines(item[self.colsSdhatudata.index('Field2')], IndianLanguages[self.wanted_script])), self.Sdhatudata))  #list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2')]), self.Sdhatudata))
             self.modelDhatus.dataIscii = list(map(lambda item: (False, item[self.colsSdhatudata.index('Field2') + 1]), self.Sdhatudata))
             # print('loadTiganta gana=%i padi=%i it=%i'%(self.gana, self.padi, self.it))
             self.listView.setModel(self.modelDhatus)
@@ -910,10 +910,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 index = indexes[0]
                 row = index.row()
                 status, base = self.modelDhatus.data[row]
+                base = transliterate_lines(base, IndianLanguages[0])
                 try:
                     forms, anta, linga = Kosha_Subanta_Krdanta_Tiganta.subanta_Generation(base, self.wanted_script + 1)
-                    self.antaLineEdit.setText(AmaraKosha_Database_Queries.iscii_unicode(anta, self.wanted_script+1))
-                    self.lingaLineEdit.setText(AmaraKosha_Database_Queries.iscii_unicode(linga, self.wanted_script+1))
+                    self.antaLineEdit.setText(anta)
+                    self.lingaLineEdit.setText(linga)
                     self.labelSubanta.setText(transliterate_lines("अंत/लिंग", IndianLanguages[self.wanted_script]))
                     self.antaLabel.setText(transliterate_lines("अंत", IndianLanguages[self.wanted_script]))
                     self.lingaLabel.setText(transliterate_lines("लिंग", IndianLanguages[self.wanted_script]))
@@ -933,6 +934,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     index = indexes[0]
                     row = index.row()
                     status, krdantaWord = self.modelDhatus.data[row]
+                    krdantaWord = transliterate_lines(krdantaWord, IndianLanguages[0])
                 dialog = modalDialog_Krdanta(self, krdantaWord, self.wanted_script + 1)
                 # print('%s DhatuVidhas %s KrdantaVidha %s Krdanta Mode %s'%(dialog.ok, dialog.DhatuVidah, dialog.KrdantaVidah, dialog.KrdMode))
                 if dialog.okClicked:
@@ -976,6 +978,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     index = indexes[0]
                     row = index.row()
                     status, tigantaWord = self.modelDhatus.data[row]
+                    tigantaWord = transliterate_lines(tigantaWord, IndianLanguages[0])
                     self.gana = self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] // 100  # int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][0])
                     self.padi = (self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 100) // 10  #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][1])
                     self.it = self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 10  #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][2])
@@ -1003,6 +1006,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 index = indexes[0]
                 row = index.row()
                 status, base = self.modelDhatus.data[row]
+                base = transliterate_lines(base, IndianLanguages[0])
                 try:
                     self.subforms, self.tigforms, self.krdforms = [], [], []
                     self.Subantas, self.Krdantas, self.Tigantas = [], [], []
@@ -1394,6 +1398,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     cell = transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(line), IndianLanguages[self.wanted_script])
                     edges['Subject(s)'] = [cell.split()[0], '', '', '']
                     self.conclusions[sentence_no]['conclusions'].append(cell)
+                elif 'Noun(s) are:' in line:
+                    self.conclusions[sentence_no]['cells'].append(['Noun(s)'] + ['']*4)
+                    self.conclusions[sentence_no]['conclusions'].append('Blah')
+                elif 'Noun(s) are:' in result[line_no - 1]:
+                    parts = line.split(',')
+                    cell = [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script]) for w in ['word', word, parts[0][:-1], parts[1].strip(), parts[2].strip()]]
+                    self.conclusions[sentence_no]['cells'].append(cell)
+                    # self.conclusions[sentence_no]['cells'].append(['?'] + ['']*4)
                 elif any([phrase in line for phrase in ["Verb is", "No matching subject is available", "Considering krdanta", "There is an object"]]): self.conclusions[sentence_no]['conclusions'].append(line)
                 elif word in typeList:
                     if len(words) <= 1: parts = ''
@@ -1401,18 +1413,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     if parts == '': self.conclusions[sentence_no]['cells'].append([word, '', '', '', ''])
                     else:
                         cell = [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script]) for w in [word, words[2], parts[0], parts[1], parts[2][:-2]]]
+                        cellDevanagari = [AmaraKosha_Database_Queries.iscii_unicode(w) for w in [word, words[2], parts[0], parts[1], parts[2][:-2]]]
                         self.conclusions[sentence_no]['cells'].append(cell)
                         w = line[:line.index(' ( ')].split(' : ')[1]
-                        edges[word] = transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script])
-                        edges[word] = [edges[word]] + cell[1:]
+                        edges[word] = AmaraKosha_Database_Queries.iscii_unicode(w)
+                        edges[word] = [edges[word]] + cellDevanagari[1:]
                 elif word in subtypeList or 'Verb(s) are : ' in result[line_no - 1]:
                     parts = line[line.index(' ( ') + 2:].split(' / ')
                     if 'Verb(s) are : ' in result[line_no - 1]: word = 'Verb(s)'
                     cell = [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script]) for w in [word, words[2], parts[0], parts[1], parts[2][:-2]]]
+                    cellDevanagari = [AmaraKosha_Database_Queries.iscii_unicode(w) for w in [word, words[2], parts[0], parts[1], parts[2][:-2]]]
                     w = line[line.index(' '):line.index(' ( ')]
                     if w[0] == ':': w = w[1:]
-                    edges[word] = transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[self.wanted_script])
-                    edges[word] = [edges[word]] + cell[1:]
+                    edges[word] = AmaraKosha_Database_Queries.iscii_unicode(w)
+                    edges[word] = [edges[word]] + cellDevanagari[1:]
                     self.conclusions[sentence_no]['cells'].append(cell)
                 elif word[0] == '-':
                     self.conclusions.append({'cells':[], 'conclusions':[]})
@@ -1426,7 +1440,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 # elif 'Verb(s) are : ' in result[line_no - 1]: pass
                 else: raise NameError(line + '-' + word + ' -> Invalid Category')
             self.modelFinalResults._data = pandas.DataFrame(self.conclusions[0]['cells'],
-                                            columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', '',  'लिंग',  'विभक्ति',  'वचन' ]],
+                                            columns=[transliterate_lines(category, IndianLanguages[self.wanted_script]) for category in ['', '',  'लिंग',  'विभक्ति',  'वचन']],
                                             index=[' '] * len(self.conclusions[0]['cells'])) #[transliterate_lines(role, IndianLanguages[self.wanted_script]) for role in subtypeList[:5]])
             self.Categories.setText('Syntax')
             listOfControls = [self.lblDhatu, self.txtDhatu, self.lblDhatvarya, self.txtDhatvarya, self.lblNijidhatu, self.txtNijiDhatu,
@@ -1456,15 +1470,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.modelFinalResults.layoutChanged.emit()
 
-            no_of_subplots = 100 + len(graphs) * 10
-            for subplot_no, (graph, edge_labels) in enumerate(graphs):
-                subax = plt.subplot(no_of_subplots + subplot_no + 1)
-                pos = nx.spring_layout(graph)
-                nx.draw(graph, pos, with_labels=True, font_family='Mangal')
-                nx.draw_networkx_edge_labels(graph, pos, font_family='Mangal', edge_labels=edge_labels)
-            plt.axis('off')
-            plt.title(sentence, fontproperties=font_prop)
-            plt.show()
+            if not graphs == []:
+                no_of_subplots = 100 + len(graphs) * 10
+                for subplot_no, (graph, edge_labels) in enumerate(graphs):
+                    subax = plt.subplot(no_of_subplots + subplot_no + 1)
+                    pos = nx.spring_layout(graph)
+                    nx.draw(graph, pos, with_labels=True, font_family='Mangal')
+                    nx.draw_networkx_edge_labels(graph, pos, font_family='Mangal', edge_labels=edge_labels)
+                plt.axis('off')
+                plt.title(sentence, fontproperties=font_prop)
+                plt.show()
         except Exception as e:
             self.statusBar().showMessage(str(e))
     def karakaGraph(self, interpretation):

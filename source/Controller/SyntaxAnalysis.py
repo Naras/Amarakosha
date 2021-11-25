@@ -843,7 +843,10 @@ def dispMesgNoun(rec: record, noun: subanta_data, indeclinable: avyaya_data, krd
     for c, cl in enumerate([noun, adj, pro]):
         if cl != None:
             result.append(['Noun(s) are:', 'Adjective(s) are:', 'Pronoun(s) are:'][c])
-            for i in range(cl.numofNouns):result.append('%s, '%cl.subanta[i])
+            are = ''
+            for i in range(cl.numofNouns): are += ('%s, '%cl.subanta[i])
+            result.append(are)
+            result.append('---------------')
     if indeclinable != None:
         result.append('Avyaya(s) are:')
         for i in range(indeclinable.numofAvyayas): result.append('%s, ' % indeclinable.avyava[i])

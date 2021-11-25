@@ -99,10 +99,10 @@ class Test(unittest.TestCase):
         resultsExpected = {'अंशक': (
                          [['अंशः ', 'अंशौ ', 'अंशाः '], ['अंशम् ', 'अंशौ ', 'अंशान् '], ['अंशेन ', 'अंशाभ्याम् ', 'अंशैः '],
                           ['अंशाय ', 'अंशाभ्याम् ', 'अंशेभ्यः '], ['अंशात् ', 'अंशाभ्याम् ', 'अंशेभ्यः '], ['अंशस्य ', 'अंशयोः ', 'अंशानाम् '], ['अंशे ', 'अंशयोः ', 'अंशेषु '], ['हे अंशः ', 'हे अंशौ ', 'हे अंशाः ']],
-                       AmaraKosha_Database_Queries.unicode_iscii('अकारान्तः'), AmaraKosha_Database_Queries.unicode_iscii('पुल्लिङ्गः')),
+                       'अकारान्तः', 'पुल्लिङ्गः'),
                        'अंशुक': ([['अंशुः ', 'अंशू ', 'अंशवः '], ['अंशुम् ', 'अंशू ', 'अंशून् '], ['अंशुना ', 'अंशुभ्याम् ', 'अंशुभिः '], ['अंशवे ', 'अंशुभ्याम् ', 'अंशुभ्यः '],
                           ['अंशोः ', 'अंशुभ्याम् ', 'अंशुभ्यः '], ['अंशोः ', 'अंश्वोः ', 'अंशूनाम् '], ['अंशौ ', 'अंश्वोः ', 'अंशुषु '], ['हे अंशुः ', 'हे अंशू ', 'हे अंशवः ']],
-                         AmaraKosha_Database_Queries.unicode_iscii('उकारान्तः'), AmaraKosha_Database_Queries.unicode_iscii('पुल्लिङ्गः')),
+                         'उकारान्तः', 'पुल्लिङ्गः'),
                            'अंशुमत्': ([], '', ''), 'अंशुमती': ([], '', ''), 'अंशुमालिन्': ([], '', '')}
         for parameter in parameters: self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.subanta_Generation(parameter), resultsExpected[parameter])
     def test_kosha_krdanta_arthas_karmas(self):
@@ -7484,7 +7484,7 @@ class Test(unittest.TestCase):
                 if not forms == []: subforms += forms
                 for item in subDetails:
                     numpages += 1
-                    Subantas.append([item.rupam, transliterate_lines(item.base, IndianLanguages[0]),
+                    Subantas.append([item.rupam, item.base,
                                     item.anta, item.linga, item.vib, item.vach, item.vibvach])
                     syntaxInputFile.append([i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 1, AmaraKosha_Database_Queries.unicode_iscii(item.base), AmaraKosha_Database_Queries.unicode_iscii(item.erb), item.det, item.vibvach + 1])
                     wids += 1

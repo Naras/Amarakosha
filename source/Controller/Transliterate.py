@@ -1,5 +1,6 @@
 __author__ = 'NarasMG'
 
+
 IndianLanguages = ('devanagari','bengali','gurmukhi','gujarati','oriya','tamizh','telugu','kannada','malayalam')
 IndianUnicodeValue = [['devanagari'],['bengali'],['gurmukhi'],['gujarati'],['oriya'],['tamizh'],['telugu'],['kannada'],['malayalam']]
 def detectLang(ch):
@@ -11,8 +12,12 @@ def detectLang(ch):
             return k
     return None
 def transliterate(ch,targetScript):
+    ZWJ = u'\u200d'  # Zero Width Joiner
+    ZWNJ = u'\u200c'  # Zero Width Non Joiner
+    DANDA = u'\u0964'
+    DOUBLE_DANDA = u'\u0965'
     if ord(ch) < 128: return ch  # ascii
-    elif ch in [u'\u0964',u'\u0965']: return ch # extra devanagari chars .. danda/double danda
+    elif ch in [DANDA, DOUBLE_DANDA, ZWJ, ZWNJ]: return ch # extra devanagari chars
     else:
         return IndianUnicodeValue[targetScript][ord(ch) - ord(IndianUnicodeValue[detectLang(ch)][1])+1]
 def transliterate_lines(source,scriptTarget='devanagari'):
@@ -21,11 +26,14 @@ def transliterate_lines(source,scriptTarget='devanagari'):
             trg = i
             break
     target = ''
-    for s in source:
-        t = ''
-        for c in s:
-            t += transliterate(c,trg)
-        target += t
+    try:
+        for s in source:
+            t = ''
+            for c in s:
+                t += transliterate(c,trg)
+            target += t
+    except Exception as e:
+        raise Exception('transliterate - %s char %s(%s) source %s'%(e, s, ord(s), source))
     return target
 def init():
     for j in range(9):

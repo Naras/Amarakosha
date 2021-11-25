@@ -1,82 +1,27 @@
 __author__ = 'NarasMG'
 
 from source.Controller import blast
+from source.Model import AmaraKosha_Database_Queries
 
 global lingas, antas, vibstr, vachstr, Tganas, Tkarmas, Tpadis, Tyit, purstr, mesg, Voices
-lingas = ["×èÂèÏÜÑÛ·èµ£", "ÈÝÑèÑÛ·èµ£", "ÆÈÝ¢×³ÑÛ·èµ£", "×èÂèÏÜ.ÈÝ¢", "×èÂèÏÜ.ÆÈÝ¢", "ÈÝ¢.ÆÈÝ¢", "×èÂèÏÜ.ÈÝ¢.ÆÈÝ¢",
-          "¤ÑÛ·èµ"]
+lingas = ["स्त्रीलिङ्गः", "पुल्लिङ्गः", "नपुंसकलिङ्गः", "स्त्री.पुं", "स्त्री.नपुं", "पुं.नपुं", "स्त्री.पुं.नपुं", "अलिङ्ग"]
+antas = ["a,अ", "b,आ", "c,इ", "d,ई", "e,उ", "f,ऊ", "g,ऋ", "h,ॠ", "i,ङ", "j,इ़", "k,ए", "l,ऎ", "m,ओ", "n,औ", "p,च",
+         "r,ण", "s,त", "t,थ", "u,द", "v,ध", "w,न", "x,प", "y,भ", "z,म", "A,रेफ", "B,व", "C,श", "D,ष", "E,स", "F,ह"]
 
-antas = ["a,¤",
-         "b,¥",
-         "c,¦",
-         "d,§",
-         "e,¨",
-         "f,©",
-         "g,ª",
-         "h,ªé",
-         "i,·",
-         "j,¦é",
-         "k,¬",
-         "l,­",
-         "m,°",
-         "n,±",
-         "p,¸",
-         "q,º",
-         "r,Á",
-         "s,Â",
-         "t,Ã",
-         "u,Ä",
-         "v,Å",
-         "w,Æ",
-         "x,È",
-         "y,Ë",
-         "z,Ì",
-         "A,ÏáÉ",
-         "B,Ô",
-         "C,Õ",
-         "D,Ö",
-         "E,×",
-         "F,Ø"]
 
-vibstr = ["ÈèÏÃÌÚ",
-          "ÄèÔÛÂÜÍÚ",
-          "ÂßÂÜÍÚ",
-          "¸ÂÝÏèÃÜ",
-          "È¢¸ÌÜ",
-          "ÖÖè¾Ü",
-          "×ÈèÂÌÜ",
-          "×¢ ÈèÏÃÌÚ"]
+vibstr = ["प्रथमा", "द्वितीया", "तृतीया", "चतुर्थी", "पंचमी", "षष्ठी", "सप्तमी", "सं प्रथमा"]
 
-vachstr = ["¬³Ô¸Æ",
-           "ÄèÔÛÔ¸Æ",
-           "ÊØÝÔ¸Æ"]
+vachstr = ["एकवचन", "द्विवचन", "बहुवचन"]
 
-Tganas = ["ËèÔÚÄÛµÁ£",
-          "¤ÄÚÄÛµÁ£",
-          "ºÝØåÂèÍÚÄÛµÁ£",
-          "ÄÛÔÚÄÛµÁ£",
-          "×èÔÚÄÛµÁ£",
-          "ÂÝÄÚÄÛµÁ£",
-          "ÏÝÅÚÄÛµÁ£",
-          "ÂÆÚÄÛµÁ£",
-          "³èÏÍÚÄÛµÁ£",
-          "¸ÝÏÚÄÛµÁ£"]
+Tganas = ["भ्वादिगणः", "अदादिगणः", "जुहोत्यादिगणः", "दिवादिगणः", "स्वादिगणः", "तुदादिगणः", "रुधादिगणः", "तनादिगणः", "क्रयादिगणः", "चुरादिगणः"]
 
-Tkarmas = ["×³ÏèÌ³£",
-           "¤³ÏèÌ³£",
-           "ÄèÔÛ³ÏèÌ³£"]
+Tkarmas = ["सकर्मकः", "अकर्मकः", "द्विकर्मकः"]
 
-Tpadis = ["ÈÏ×èÌâÈÄÜ"
-          "¥ÂèÌÆáÈÄÜ",
-          "¨ËÍÈÄÜ"]
+Tpadis = ["परस्मैपदी", "आत्मनेपदी", "उभयपदी"]
 
-Tyit = ["×á½è",
-        "¤ÆÛ½è",
-        "Ôá½è"]
+Tyit = ["सेट्","अनिट्", "वेट्"]
 
-purstr = ["ÈèÏÃÌÈÝÏÝÖ£",
-          "ÌÅèÍÌÈÝÏÝÖ£",
-          "¨ÂèÂÌÈÝÏÝÖ£"]
+purstr = ["प्रथमपुरुषः", "मध्यमपुरुषः", "उत्तमपुरुषः"]
 
 mesg = ["The sentence is syntactically compatible"
         "The sentence is syntactically not compatible",
@@ -116,8 +61,7 @@ mesg = ["The sentence is syntactically compatible"
         "Locative(s)",
         "Vocative(s)"]
 
-Voices = ["³ÏèÂÏÛ",
-          "³ÏèÌÁÛ"]
+Voices = ["कर्तरि", "कर्मणि"]
 
 Suffix = ["¤"
     , "¤£"
@@ -823,7 +767,7 @@ def Convt(sufcode):   # copied from old VB code and changed to get the suffix, r
             No.append(nr - 87)
     res = 36 * No[0] + No[1]
     # print('Sandhi_Convt - sufcode % s Convt %i Suffix %s'%(sufcode, res, Suffix[res]))
-    if res in range(len(Suffix)): return Suffix[res]
+    if res in range(len(Suffix)): return AmaraKosha_Database_Queries.iscii_unicode(Suffix[res])
     else: return ''
 def Sandhi(inword):
     # print('iscii %s devanagari %s'%(inword, Amarakosha_Database_Queries.iscii_unicode(inword)))
@@ -831,6 +775,7 @@ def Sandhi(inword):
     # inword = inword.split()
     outword = ''
     if inword == '': return ''
+    inword = AmaraKosha_Database_Queries.unicode_iscii(inword)
     i = 0
     while i < len(inword):
         ch = inword[i]
@@ -860,7 +805,7 @@ def Sandhi(inword):
           else: outword += ch
         i += 1
     # print('%s after %s %s %s'%(inword, outword, cli_browse.iscii_unicode(inword), cli_browse.iscii_unicode(outword)))
-    return outword
+    return AmaraKosha_Database_Queries.iscii_unicode(outword)
 def doSandhi1(tigantaForm: str, upasarga: str) -> str:
     aDict1 = {"¤":"¥", "¥":"¥", "¦":"¬", "§":"¬", "¨":"°", "©":"°", "ª":"¥Ïè", "¬":"­", "­":"­", "°":"±", "±":"±"}
     bDict = {"¤": aDict1, "¥": aDict1,
@@ -913,6 +858,7 @@ def visandhi(inword: str) -> str:
     # inword = inword.split()
     outword = ''
     i = 0
+    inword = AmaraKosha_Database_Queries.unicode_iscii(inword)
     while i < len(inword):
         ch = inword[i]
         if ord(ch) in range(164,178): outword+= ch
@@ -929,7 +875,7 @@ def visandhi(inword: str) -> str:
             else: i += 1
         else: outword+= ch
         i += 1
-    return outword
+    return AmaraKosha_Database_Queries.iscii_unicode(outword)
 def decode(code: int) -> str:
     if code in range(10): return '0' + str(code)
     elif code in range(10,36): return '0' + chr(code + 87)
