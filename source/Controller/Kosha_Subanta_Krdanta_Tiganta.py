@@ -1,6 +1,6 @@
 __author__ = 'NarasMG'
 
-import json #, icecream as ic
+import json  #, icecream as ic
 from typing import List
 
 from source.Controller import Sandhi_Convt, Transliterate, blast
@@ -505,17 +505,19 @@ def krdanta_Analysis(word, requested_script=1):
     # ic.ic(AmaraKosha_Database_Queries.iscii_unicode(word), len(subforms_with_sandhi), subforms_with_sandhi, len(forms), forms)
     return forms, krdDetails
 def tiganta_Analysis(word, requested_script=1):
-    halanth = chr(232)
+    halanth = chr(0x094d)  # chr(232)
     tigDatas = []
     qry = 'Select * from stinfin where Field1=?'
     cols_stinfin, data_stinfin = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, word, maxrows=0, script=requested_script)
+    if data_stinfin != []: ic(cols_stinfin, data_stinfin)
     for row in data_stinfin:
         dhatuNo = row[cols_stinfin.index('Field2')]
         pralak = row[cols_stinfin.index('Field3')]
         purvach = row[cols_stinfin.index('Field4')]
         tigDatas = WriteAnalysedInformation(pralak, dhatuNo, purvach, word, row[cols_stinfin.index('Field1')])
     wordUni = word
-    word = blast.performBlast(AmaraKosha_Database_Queries.unicode_iscii(word))
+    word = blast.performBlast(word)
+    # ic.ic(word, wordUni, tigDatas)
     tiggenDatas = []
     tigResforms = []
     forms = []
@@ -526,13 +528,13 @@ def tiganta_Analysis(word, requested_script=1):
             sword = word[len(word) - (i + 1):]
             tiggenData.tigerr = blast.phoneticallyJoin(fword)
             tiggenData.tigsuf = blast.phoneticallyJoin(sword)
-            # print('tigAnaly 1 tigerr %s(%s) tigsuf %s(%s)'%(tiggenData.tigerr, AmaraKosha_Database_Queries.unicode_iscii(tiggenData.tigerr), tiggenData.tigsuf, sword))
+            # ic.ic(tiggenData.get())
             tiggenDatas.append(tiggenData)
 
     for tiggenData in tiggenDatas: #VB Function searchForError
         qry = 'select * from stinnew where field1=?'
-        cols_stinnew, data_stinnew = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, AmaraKosha_Database_Queries.iscii_unicode(tiggenData.tigerr), script=requested_script)
-        # print('tigAnaly 2 tigerr %s(%s) cols_stinnew %s data_stinnew %s' % (tiggenData.tigerr, AmaraKosha_Database_Queries.unicode_iscii(tiggenData.tigerr), cols_stinnew, data_stinnew))
+        cols_stinnew, data_stinnew = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, tiggenData.tigerr)
+        # ic.ic(tiggenData.tigerr, cols_stinnew, data_stinnew)
         for tiggen in data_stinnew:
             dhatu = tiggen[cols_stinnew.index('Field2')]
             suffixStr = tiggen[cols_stinnew.index('Field3')]
@@ -541,12 +543,12 @@ def tiganta_Analysis(word, requested_script=1):
                 scode = sufwrd[start:]
                 qry = 'select * from stinsuf where Field1=?'
                 cols_stinsuf, data_stinsuf = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, scode, script=requested_script)
-                # print('tigAnaly 3 scode %s cols_stinsuf %s data_stinsuf %s' % (scode, cols_stinsuf, data_stinsuf))
+                # ic.ic(scode, cols_stinsuf, data_stinsuf)
                 for sufrec in data_stinsuf:
-                    for sufxStr in sufrec[cols_stinsuf.index('Field2')+1].split('/'):
+                    for sufxStr in sufrec[cols_stinsuf.index('Field2')].split('/'):
                         for s, sufx in enumerate(sufxStr.split(' ')):
                           if sufx == tiggenData.tigsuf:
-                            tigData = WriteAnalysedInformation(sufwrd, dhatu, s, AmaraKosha_Database_Queries.iscii_unicode(word), tiggen[cols_stinnew.index('Field1')])
+                            tigData = WriteAnalysedInformation(sufwrd, dhatu, s, word, tiggen[cols_stinnew.index('Field1')])
                             tigDatas.append(tigData)
                             tigResform = genTigforms(sufwrd, tigData, tiggenData, tigData.dhatuVidah, tigData.voice, tigData.lakara, requested_script)
                             tigResforms.append(tigResform)
@@ -650,10 +652,8 @@ def genTigforms(word: str, tigDataInstance: tigantaData, tiggenDataInstance: tig
     if word[:2] == lvstr:
         qry = 'select * from stinsuf where field1 = ?'  # VB genTigforms
         colsStinsuf, dataStinsuf = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, lvstr[0], maxrows=0)
-        # print('word %s lvstr %s colsStinsuf %s dataStinsuf %s' % (word, lvstr, colsStinsuf, dataStinsuf))
         for sufrec in dataStinsuf:
-            tstr = sufrec[colsStinsuf.index('Field2') + 1].split(' ')
-            # print('tstr=%s\n%s'%(tstr, [AmaraKosha_Database_Queries.iscii_unicode(c) for c in tstr]))
+            tstr = sufrec[colsStinsuf.index('Field2')].split(' ')
             for x, wrd in enumerate(tstr):
                 if '/' in wrd:
                     subwrd = wrd.split('/')
@@ -661,22 +661,16 @@ def genTigforms(word: str, tigDataInstance: tigantaData, tiggenDataInstance: tig
                         tstr1 = blast.performBlast(tiggenDataInstance.tigerr) + blast.performBlast(s)
                         tigantaForm = blast.phoneticallyJoin(tstr1)
                         if tigDataInstance.upasarga != '':
-                            tigantaForm = blast.phoneticallyJoin(
-                                Sandhi_Convt.doSandhiofUpasargaAndTigantaForm(tigantaForm, tigDataInstance.upasarga))
+                            tigantaForm = blast.phoneticallyJoin(Sandhi_Convt.doSandhiofUpasargaAndTigantaForm(tigantaForm, tigDataInstance.upasarga))
                         tigResformsInstance.tigform[x] += tigantaForm
                 else:
                     tstr1 = blast.performBlast(tiggenDataInstance.tigerr)
-                    # print('tstr1=%s %s'%(tstr1, AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(tstr1)))
                     tstr2 = blast.performBlast(wrd)
-                    # print('tstr2=%s %s'%(tstr2, AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(tstr2)))
                     tstr1 += tstr2
                     tigantaForm = blast.phoneticallyJoin(tstr1)
-                    # print('tiganthaform=%s'%AmaraKosha_Subanta_Krdanta_Queries.iscii_unicode(tigantaForm))
                     if not (tiggenDataInstance.upasarga == '' or tiggenDataInstance.upasarga == None):
-                        tigantaForm = blast.phoneticallyJoin(
-                            Sandhi_Convt.doSandhiofUpasargaAndTigantaForm(tigantaForm, tiggenDataInstance.upasarga))
-                    # print('tiganthaform=%s %s' % (tigantaForm, AmaraKosha_Database_Queries.iscii_unicode(tigantaForm)))
-                    tigResformsInstance.tigforms[x] += AmaraKosha_Database_Queries.iscii_unicode(tigantaForm,script=requested_script)
+                        tigantaForm = blast.phoneticallyJoin( Sandhi_Convt.doSandhiofUpasargaAndTigantaForm(tigantaForm, tiggenDataInstance.upasarga))
+                    tigResformsInstance.tigforms[x] += tigantaForm
     return tigResformsInstance
 def tiganta_Generation(dhatuNo: str, DhatuVidah: str, voice: str, lakara: str, prefixUpasarga=False, requested_script=1) -> (List[str], List[tigResult]):
     lakaraIndex = lakaras.index(lakara.strip())
@@ -694,10 +688,10 @@ def tiganta_Generation(dhatuNo: str, DhatuVidah: str, voice: str, lakara: str, p
     if len(dataUpacode) == 0:
         tigDataInstance.upasarga = ''
     else:
-        upacode = dataUpacode[0][colsUpacode.index('UpaCode') + 1]
+        upacode = dataUpacode[0][colsUpacode.index('UpaCode')]
         if prefixUpasarga and not upacode == None:
             qry = 'select * from upasarga'
-            colsUpasarga, dataUpasarga = AmaraKosha_Database_Queries.sqlQuery(qry, param=None, maxrows=0)
+            colsUpasarga, dataUpasarga = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, param=None, maxrows=0)
             lstUpa = []
             for ch in upacode:
                 for uparec in dataUpasarga:
@@ -710,8 +704,8 @@ def tiganta_Generation(dhatuNo: str, DhatuVidah: str, voice: str, lakara: str, p
     qry = 'select * from stinnew where field2 = ? and field3 like ?'
     colsStinnew, dataStinnew = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, (dhatuNo, '%' + lvstr + '%'), maxrows=0)
     for stinrec in dataStinnew:
-        tiggenDataInstance.tigerr = stinrec[colsStinnew.index('Field1') + 1]
-        tiggenDataInstance.tigsuf = stinrec[colsStinnew.index('Field3') + 1]
+        tiggenDataInstance.tigerr = stinrec[colsStinnew.index('Field1')]
+        tiggenDataInstance.tigsuf = stinrec[colsStinnew.index('Field3')]
         tiggenDataInstance.upasarga = upacode if prefixUpasarga else ''
         tiggenData.append(tiggenDataInstance)
     # VB Function strtgencb
@@ -725,13 +719,10 @@ def tiganta_Generation(dhatuNo: str, DhatuVidah: str, voice: str, lakara: str, p
     # VB Function tigantaForms
     for tiggenDataInstance in tiggenData:
         words = tiggenDataInstance.tigsuf.split(' ')
-        # print('words=%s'%words)
         for word in words:  # only if padi=2 and dhatuVidhaIndex=2?
             tigResform = genTigforms(word, tigDataInstance, tiggenDataInstance, DhatuVidah, voice, lakara, requested_script)
-            if not tigResform.tigforms == ['']*9:
-                tigResforms.append(tigResform)
-    for tigResformsInstance in tigResforms:
-        forms += [tigResformsInstance.tigforms[:3], tigResformsInstance.tigforms[3:6], tigResformsInstance.tigforms[6:9]] #to_2dList(tigResformsInstance.tigforms,3)
+            if not tigResform.tigforms == ['']*9: tigResforms.append(tigResform)
+    for tigResformsInstance in tigResforms: forms += [tigResformsInstance.tigforms[:3], tigResformsInstance.tigforms[3:6], tigResformsInstance.tigforms[6:9]]
     # print('tigData %s\n%s\ntiggenData %s\n%s\n tgResforms %s\n%s'%(colsUpacode, tigDatas, colsStinnew, tiggenData, colsStinfin, forms))
     # print('no. of items %i subforms with sandhi %s' % (len(forms), forms))
     # for item in tigDatas:

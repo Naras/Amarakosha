@@ -1,5 +1,6 @@
 __author__ = 'NarasMG'
 
+from source.Model import AmaraKosha_Database_Queries
 anusvara, visarga, halanth, nukta, virama = 162, 163, 232, 233, 234
 
 def vowelModifierOf(anIndLangVowel):
@@ -35,8 +36,10 @@ def transform(c1, c2):
         return consonantAsString(c1, c2)
     else: return ''
 def performBlast(s):
-    if s == None or s == '' or (ord(s[0]) == visarga and len(s) == 1): #empty or visarga
-        return s
+    if s == None or s == '' or (ord(s[0]) == visarga and len(s) == 1): return s   #  empty or visarga
+
+    s = AmaraKosha_Database_Queries.unicode_iscii(s)
+
     if ord(s[0]) in [halanth, anusvara, visarga] + list(range(218,232)):  # halanth, visarga or vowel modifier
         raise ValueError('blast function: invalid string ' + s)
     answer, i = '', 0
@@ -45,9 +48,10 @@ def performBlast(s):
         # print('pB answer %s'%answer)
         i += 1
         if ord(s[i]) in [halanth, anusvara, visarga] + list(range(218,232)): i += 1
-    return answer
+    return AmaraKosha_Database_Queries.iscii_unicode(answer)
 def phoneticallyJoin(phoneticallySplitWord):
     output, i = '', 0
+    phoneticallySplitWord = AmaraKosha_Database_Queries.unicode_iscii(phoneticallySplitWord)
     while i <= len(phoneticallySplitWord) - 1:
         c1, c2 = phoneticallySplitWord[i], phoneticallySplitWord[i+1] if i < len(phoneticallySplitWord)-1 else ''
         c = 0 if c1 == '' else ord(c1)
@@ -58,4 +62,4 @@ def phoneticallyJoin(phoneticallySplitWord):
         else:
             if c1 != '': output += c1
             i += 1
-    return output
+    return AmaraKosha_Database_Queries.iscii_unicode(output)

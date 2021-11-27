@@ -807,16 +807,16 @@ def Sandhi(inword):
     # print('%s after %s %s %s'%(inword, outword, cli_browse.iscii_unicode(inword), cli_browse.iscii_unicode(outword)))
     return AmaraKosha_Database_Queries.iscii_unicode(outword)
 def doSandhi1(tigantaForm: str, upasarga: str) -> str:
-    aDict1 = {"¤":"¥", "¥":"¥", "¦":"¬", "§":"¬", "¨":"°", "©":"°", "ª":"¥Ïè", "¬":"­", "­":"­", "°":"±", "±":"±"}
-    bDict = {"¤": aDict1, "¥": aDict1,
-             "¦":{"¦":"§", "§":"§",
-                  "¤":"Íè", "¥":"Íè", "¨":"Íè", "©":"Íè", "ª":"Íè", "¬":"Íè", "­":"Íè", "°":"Íè", "±":"Íè"},
-             "¨":{"¨":"©", "©":"©", "¤":"Ôè", "¥":"Ôè", "¦":"Ôè", "§":"Ôè", "ª":"Ôè", "¬":"Ôè", "­":"Ôè", "°":"Ôè", "±":"Ôè"}    }
+    aDict1 = {"अ":"आ", "आ":"आ", "इ":"ए", "ई":"ए", "उ":"ओ", "ऊ":"ओ", "ऋ":"आर्", "ए":"ऐ", "ऐ":"ऐ", "ओ":"औ", "औ":"औ"}
+    bDict = {"अ": aDict1, "आ": aDict1,
+             "इ":{"इ":"ई", "ई":"ई",
+                  "अ":"य्", "आ":"य्", "उ":"य्", "ऊ":"य्", "ऋ":"य्", "ए":"य्", "ऐ":"य्", "ओ":"य्", "औ":"य्"},
+             "उ":{"उ":"ऊ", "ऊ":"ऊ", "अ":"व्", "आ":"व्", "इ":"व्", "ई":"व्", "ऋ":"व्", "ए":"व्", "ऐ":"व्", "ओ":"व्", "औ":"व्"}    }
     c = bDict.get(upasarga[0], '')
     if c != '': c = c.get(tigantaForm[0], '')
     flag = 1 if upasarga[0] in bDict else 0
-    if upasarga[0] == "¦" and tigantaForm[0] in ["¤", "¥", "¨", "©", "ª", "¬", "­", "°", "±"]: flag = 2
-    if upasarga[0] == "¨" and tigantaForm[0] in ["¤", "¥", "¦", "§", "ª", "¬", "­", "°", "±"]: flag = 1
+    if upasarga[0] == "इ" and tigantaForm[0] in ["अ", "आ", "उ", "ऊ", "ऋ", "ए", "ऐ", "ओ", "औ"]: flag = 2
+    if upasarga[0] == "उ" and tigantaForm[0] in ["अ", "आ", "इ", "ई", "ऋ", "ए", "ऐ", "ओ", "औ"]: flag = 1
     if flag > 0:
         sandhiForm = upasarga[:-1] + c
         if flag == 2: sandhiForm += tigantaForm
@@ -825,31 +825,31 @@ def doSandhi1(tigantaForm: str, upasarga: str) -> str:
     return sandhiForm
 def doSandhi2(tigantaForm: str, upasarga: str) -> str:
     sandhiForm = upasarga
-    upasargaDict = {"×Ìè":{"³":"·", "´":"·", "µ":"·", "¶":"·", "·":"·"},
-                    "ÆÛÏè":{"³":"Ö", "´":"Ö", "½":"Ö", "¾":"Ö", "È":"Ö", "É":"Ö", "Ö":"Ö",
-                            "¸":"Õ", "¹":"Õ", "Õ":"Õ",
-                            "Â":"×", "Ã":"×", "×":"×"},
-                    "ÄÝÏè":{"³":"Ö", "´":"Ö", "½":"Ö", "¾":"Ö", "È":"Ö", "É":"Ö", "Ö":"Ö",
-                            "¸":"Õ", "¹":"Õ", "Õ":"Õ",
-                            "Â":"×", "Ã":"×", "×":"×"},
-                    "¨Âè":{"¤":"Ä", "¥":"Ä", "¦":"Ä", "§":"Ä", "¨":"Ä", "©":"Ä", "ª":"Ä", "¬":"Ä", "­":"Ä", "°":"Ä", "±":"Ä",
-                           "µ":"Ä", "¶":"Ä", "Ä":"Ä", "Å":"Ä", "Ê":"Ä", "Ë":"Ä", "Í":"Ä", "Ï":"Ä", "Ô":"Ä",
-                           "¸":"¸", "¹":"¸",
-                           "º":"º", "»":"º",
-                           "¾":"½",
-                           "Æ":"Æ", "Ì":"Æ",
-                           "Ñ":"Ñ",
-                           "Õ":"¸",
-                           "Ø":"Ä"}
+    upasargaDict = {"सम्":{"क":"ङ", "ख":"ङ", "ग":"ङ", "घ":"ङ", "ङ":"ङ"},
+                    "निर्":{"क":"ष", "ख":"ष", "ट":"ष", "ठ":"ष", "प":"ष", "फ":"ष", "ष":"ष",
+                            "च":"श", "छ":"श", "श":"श",
+                            "त":"स", "थ":"स", "स":"स"},
+                    "दुर्":{"क":"ष", "ख":"ष", "ट":"ष", "ठ":"ष", "प":"ष", "फ":"ष", "ष":"ष",
+                            "च":"श", "छ":"श", "श":"श",
+                            "त":"स", "थ":"स", "स":"स"},
+                    "उत्":{"अ":"द", "आ":"द", "इ":"द", "ई":"द", "उ":"द", "ऊ":"द", "ऋ":"द", "ए":"द", "ऐ":"द", "ओ":"द", "औ":"द",
+                           "ग":"द", "घ":"द", "द":"द", "ध":"द", "ब":"द", "भ":"द", "य":"द", "र":"द", "व":"द",
+                           "च":"च", "छ":"च",
+                           "ज":"ज", "झ":"ज",
+                           "ठ":"ट",
+                           "न":"न", "म":"न",
+                           "ल":"ल",
+                           "श":"च",
+                           "ह":"द"}
                    }
     sandhiForm[0] = upasargaDict[tigantaForm[0]][upasarga[0]]
-    if  tigantaForm == "Ï": sandhiForm = {"ÆÛÏè":"ÆÜ", "ÄÝÏè":"ÄÞ"}[upasarga]
-    flag = 2 if upasarga == "¨Âè" and tigantaForm[0] == "Ø" else 0
-    if flag == 1: sandhiForm += "¹"
+    if tigantaForm == "र": sandhiForm = {"निर्":"नी", "दुर्":"दू"}[upasarga]
+    flag = 2 if upasarga == "उत्" and tigantaForm[0] == "ह" else 0
+    if flag == 1: sandhiForm += "छ"
     elif flag == 2: sandhiForm += tigantaForm[:-1]
     else: sandhiForm += tigantaForm
 def doSandhiofUpasargaAndTigantaForm(tigantaForm: str, upasarga: str) -> str:
-    if upasarga in ["×Ìè", "ÆÛÏè", "ÄÝÏè", "¨Âè"]: sandhiForm = doSandhi2(tigantaForm, upasarga)
+    if upasarga in ["सम्", "निर्", "दुर्", "उत्"]: sandhiForm = doSandhi2(tigantaForm, upasarga)
     else: sandhiForm = doSandhi1(blast.performBlast(tigantaForm), blast.performBlast(upasarga) )
     return blast.phoneticallyJoin(sandhiForm)
 def visandhi(inword: str) -> str:
