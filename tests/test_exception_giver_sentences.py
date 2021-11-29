@@ -1150,7 +1150,7 @@ class Test(unittest.TestCase):
                             [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
                              krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii,
                              krdDetail.nijverb_iscii,
-                             krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode,
+                             krdDetail.sanverb_iscii, krdDetail.meaning_iscii, ('%03d'%krdDetail.GPICode),
                              krdDetail.CombinedM,
                              krdDetail.karmaCode])
                         wids += 1

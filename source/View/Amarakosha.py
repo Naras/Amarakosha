@@ -872,7 +872,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 row = index.row()
                 try:
                     status, self.amaraWord = self.modelDhatus.data[row]  #  dataIscii[row]
-                    self.Amarasynonyms, KanWord, EngWord, HinWord = Kosha_Subanta_Krdanta_Tiganta.Amarakosha(self.amaraWord, self.wanted_script+1)
+                    self.Amarasynonyms, KanWord, EngWord, HinWord = Kosha_Subanta_Krdanta_Tiganta.Amarakosha(transliterate_lines(self.amaraWord, IndianLanguages[0]), self.wanted_script+1)
                     text = list(map(lambda i : i or '', KanWord))
                     text = [item for item in text if not item=='']
                     self.kannadaEdit.setText('\n'.join(text))
@@ -1067,7 +1067,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                          krdDetail.det,
                                          krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii,
                                          krdDetail.nijverb_iscii,
-                                         krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode,
+                                         krdDetail.sanverb_iscii, krdDetail.meaning_iscii, ('%03d'%krdDetail.GPICode),
                                          krdDetail.CombinedM, krdDetail.karmaCode])
                                     wids += 1
                         except Exception as e:
@@ -1341,8 +1341,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             index = indexes[0]
             row = index.row()
             try:
-                status, self.amaraWord = self.modelDhatus.dataIscii[row]
-                nishpatthi = Kosha_Subanta_Krdanta_Tiganta.nishpatthi(self.amaraWord)  # don't ask for non-devanagari script, invalid results!
+                status, self.amaraWord = self.modelDhatus.data[row]
+                nishpatthi = Kosha_Subanta_Krdanta_Tiganta.nishpatthi(transliterate_lines(self.amaraWord, IndianLanguages[0]))  # don't ask for non-devanagari script, invalid results!
                 if len(nishpatthi) > 0:
                     txtNishpatthi = '\n'.join([item[0] for item in nishpatthi])
                     self.txtNishpatthi.setText(txtNishpatthi)
@@ -1358,8 +1358,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             index = indexes[0]
             row = index.row()
             try:
-                status, self.amaraWord = self.modelDhatus.dataIscii[row]
-                vyupatthi = Kosha_Subanta_Krdanta_Tiganta.vyutpatthi(self.amaraWord,
+                status, self.amaraWord = self.modelDhatus.data[row]
+                vyupatthi = Kosha_Subanta_Krdanta_Tiganta.vyutpatthi(transliterate_lines(self.amaraWord, IndianLanguages[0]),
                                                                      ['Sanskrit', 'Hindi', 'Odiya'][self.vyutpathiSelector.currentIndex()])
                 if len(vyupatthi) > 0:
                     txtNishpatthi = '\n'.join([item[0] for item in vyupatthi])

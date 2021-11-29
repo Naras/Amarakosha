@@ -192,6 +192,11 @@ if __name__ == '__main__':
     cols, lines = sqlQueryUnicode('select * from Sdhatu where field2 = ? ', 'अंश्')
     print('Sdhatu: %s\n%s' % (cols, lines))
 
+    for i in range(5):
+        cols, lines = sqlQueryUnicode('select * from Sdhatu where cast(field9 as text) like ?', '_' + str(i) + '_', duplicate=False)
+        print('Sdhatu: %s' % (cols))
+        for line in lines: print(line)
+
     tbls = schemaParse()
     print('tables %s' % tbls)
 
