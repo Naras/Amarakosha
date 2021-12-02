@@ -1,6 +1,6 @@
 __author__ = 'NarasMG'
 
-import json  #, icecream as ic
+import json #, icecream as ic
 from typing import List
 
 from source.Controller import Sandhi_Convt, Transliterate, blast
@@ -88,23 +88,23 @@ class subAnalBase:
 def Amarakosha(amaraWord: str, requested_script=1) -> (List[str], str, str, str):
     qry = 'select * from Janani1 where Words like ?'
     param = '%' + amaraWord + '%'
-    cols, dbJanani1 = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, param, maxrows=0, duplicate=False, script=requested_script)
-    # print(amaraWord) #, AmaraKosha_Database_Queries.unicode_iscii(amaraWord))
+    cols, dbJanani1 = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, param, maxrows=0, script=requested_script)
     synonyms = []
     for rec in dbJanani1:
         wordsJanani1 = rec[cols.index('Words')].split(' ')
+        # ic.ic(wordsJanani1, [transliterate_lines(word, IndianLanguages[requested_script-1]) for word in wordsJanani1])
         if amaraWord in wordsJanani1:
             qryMn = 'select * from Janani1 where ID=?'
-            colsMn, dbAmara = AmaraKosha_Database_Queries.sqlQueryUnicode(qryMn, str(rec[cols.index('ID')]), maxrows=0, duplicate=False, script=requested_script)
+            colsMn, dbAmara = AmaraKosha_Database_Queries.sqlQueryUnicode(qryMn, str(rec[cols.index('ID')]), maxrows=0, script=requested_script)
 
             KanWord = [item[colsMn.index('KanWord')] for item in dbAmara]
             EngWord = [item[colsMn.index('EngWord')] for item in dbAmara]
             HinWord = [item[colsMn.index('HinWord')] for item in dbAmara]
-            synonyms.append(to_2dList(list([word for word in wordsJanani1]), 4))
+            synonyms.append(to_2dList([transliterate_lines(word, IndianLanguages[requested_script-1]) for word in wordsJanani1], 4))
             KanWord = [Transliterate.transliterate_lines(item, 'kannada') for item in list(map(lambda i: i or '', KanWord))]
             HinWord = [Transliterate.transliterate_lines(item, 'devanagari') for item in list(map(lambda i: i or '', HinWord))]
     if synonyms == []:
-        raise RecordNotFound('No Synonyms found in database(Janani1)')
+        raise RecordNotFound('No Synonyms found in database(table Janani1) for %s'%param)
     return synonyms, KanWord, EngWord, HinWord
 def to_2dList(l: int, n: int):
     return [l[i:i + n] for i in range(0, len(l), n)]
@@ -144,7 +144,7 @@ def tiganta_krdanta_arthas_karmas(word: str, requested_script=1) -> (List[str], 
         arthas = [transliterate_lines(word[:-1], Transliterate.IndianLanguages[requested_script - 1]) for word in arthas_karmas]
         karmas = [int(word[len(word)-1]) - 1 for word in arthas_karmas]
         karmas = [transliterate_lines(Tkarmas[karma], Transliterate.IndianLanguages[requested_script - 1]) for karma in karmas]
-    dhatuNo = dataDhatu[0][cols.index('Field1') + 1]
+    dhatuNo = dataDhatu[0][cols.index('Field1')]
     return arthas, karmas, dhatuNo, dataDhatu, cols
 def krdanta_Gana(gana: str, requested_script=1) -> (List[str], List[str], str, List[str], List[str]):
     qry = 'select * from Sdhatu where cast(field9 as text) like ?'
@@ -194,27 +194,27 @@ def krdanta_Generation(dhatuNo: str, DhatuVidah: str, KrdantaVidah: str, KrdMode
     forms, krdDatas = [], []
     qry = 'select * from krud where field4=? and field5=?'
     # print('qry %s param %s'%(qry,(KrdCode, dhatuNo)))
-    cols, dataKrud = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, (KrdCode, dhatuNo), maxrows=0)
+    colsKrud, dataKrud = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, (KrdCode, dhatuNo), maxrows=0)
     # print('krud field4=%s field5=%s %s\n%s'%(KrdCode, dhatuNo, cols, dataKrud))
-    erbInColumn = cols.index('Field1')
-    sabdaInColumn = cols.index('Field3') + 1
+    erbInColumn = colsKrud.index('Field1')
+    sabdaInColumn = colsKrud.index('Field3')
     for item in dataKrud:
         krdDetail = krdData()
         krdDetail.dhatuVidhah = transliterate_lines(DhatuVidah, IndianLanguages[requested_script-1])
         krdDetail.krdantaVidhah = transliterate_lines(KrdantaVidah, IndianLanguages[requested_script-1])
         krdDetail.pratyayaVidhah = transliterate_lines(KrdMode, IndianLanguages[requested_script-1])
         qry = 'select * from Sufcode where code=?'
-        if len(item) < 3: return [], None
-        code = item[2][:4]
+        # if len(item) < 2: return [], None
+        code = item[colsKrud.index('Field2')][:4]
         for entry in Sandhi_Convt.antas:
             if code[0] == entry[0]:
                 krdDetail.anta = transliterate_lines(entry[2] + 'कारान्तः', IndianLanguages[requested_script - 1])
                 break
         # print('krdGener Sufcode: qry %s code %s'%(qry,code))
-        cols, dataSufcode = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, code, duplicate=False, maxrows=0)
+        cols, dataSufcode = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, code, maxrows=0)
         # print(('krdGener sufcode %s cols %s\n%s')%(code, cols, dataSufcode))
-        krdDetail.erb, krdDetail.erb_iscii = item[erbInColumn], item[erbInColumn + 1]
-        krdDetail.sabda = AmaraKosha_Database_Queries.iscii_unicode(item[sabdaInColumn], requested_script)
+        krdDetail.erb = item[erbInColumn]
+        krdDetail.sabda = transliterate_lines(item[sabdaInColumn], IndianLanguages[requested_script - 1])
         krdDetail.linga = transliterate_lines(Sandhi_Convt.lingas[int(code[1])], IndianLanguages[requested_script - 1])
         if dataSufcode != [] and len(dataSufcode[0]) > 2: suffixes = str(dataSufcode[0][2]).split(' ')
         else: return [], None
@@ -244,27 +244,23 @@ def getAnalysedinfo(krdDetail: krdData, dhatuNo: str, requested_script=1):
         cols, dataAnalysed = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, dhatuNo, maxrows=0)
     # print('getAnalysedinfo cols %s\nData Analysed %s'%(cols, dataAnalysed))
     # for item in dataAnalysed:
-    arthas, karmas, arthas_iscii = [], [], []
+    arthas, karmas = [], []
     for item in dataAnalysed:  # there will be only one record!
         krdDetail.verb = item[cols.index('Field2')]
         krdDetail.nijverb = transliterate_lines(item[cols.index('Field3')], IndianLanguages[requested_script - 1])
         krdDetail.sanverb = transliterate_lines(item[cols.index('Field4')], IndianLanguages[requested_script - 1])
-        krdDetail.verb_iscii, krdDetail.nijverb_iscii, krdDetail.sanverb_iscii = item[cols.index('Field2')+1], item[cols.index('Field3')+1], item[cols.index('Field4')+1]
         krdDetail.GPICode = item[cols.index('Field9')]
         krdDetail.gana = transliterate_lines(Tganas[krdDetail.GPICode // 100], IndianLanguages[requested_script - 1])
         krdDetail.padi = transliterate_lines(Tpadis[(krdDetail.GPICode % 100) // 10 - 1], IndianLanguages[requested_script - 1])
         krdDetail.it = transliterate_lines(Tyits[krdDetail.GPICode % 10 - 1], IndianLanguages[requested_script - 1])
         krdDetail.CombinedM = item[cols.index('Field10')]
         arthas_karmas = item[cols.index('Field8')].split('/')
-        arthas_karmas_iscii = item[cols.index('Field8')+1].split('/')
         # print('getAnalysedinfo arthas_karmas %s'%arthas_karmas)
         arthas += [transliterate_lines(word[:-2], Transliterate.IndianLanguages[requested_script - 1]) for word in arthas_karmas]
-        arthas_iscii += [word[:-2] for word in arthas_karmas_iscii]
         karmaCodes = [int(word[len(word)-1]) - 1 for word in arthas_karmas]
         krdDetail.karmaCode = ''.join([str(code) for code in karmaCodes])
         karmas += [transliterate_lines(Tkarmas[karma], Transliterate.IndianLanguages[requested_script - 1]) for karma in karmaCodes if karma < len(Tkarmas)]
         krdDetail.meaning = ' '.join(arthas)
-        krdDetail.meaning_iscii = ' '.join(arthas_iscii)
         krdDetail.karma = ' '.join(karmas)
     return krdDetail
 def krdanta_SortedList_KrDantavyayam(dhatuNo: str, DhatuVidah: str, KrdantaVidah: str, KrdMode: str, dataDhatu: List[str], cols_dataDhatu: List[str], requested_script=1):
@@ -276,7 +272,7 @@ def krdanta_SortedList_KrDantavyayam(dhatuNo: str, DhatuVidah: str, KrdantaVidah
     krdDatas = []
     forms = []
     qry = 'select * from krudav where field2 = ? and field1 = ?'
-    cols, datakrdAvyaya = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, (KrdCode, dhatuNo), duplicate=False, maxrows=0, script=requested_script)
+    cols, datakrdAvyaya = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, (KrdCode, dhatuNo), maxrows=0, script=requested_script)
     for item in datakrdAvyaya:
         krdDataInstance = krdData()
         krdDataInstance.sabda = item[cols.index('Field3')]
@@ -437,9 +433,9 @@ def krdanta_Analysis(word, requested_script=1):
                 cols_krdanta, dataKrdanta = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, krdAnalyDetail.erb, maxrows=0)
                 for krdDetailRec in dataKrdanta:
                     qry = 'select * from Sufcode where code=?'
-                    code = krdDetailRec[2][:4]
+                    code = krdDetailRec[cols_krdanta.index('Field2')][:4]
                     # print('krdAnaly Sufcode: qry %s code %s' % (qry, code))
-                    cols_sufcode, dataSufcode = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, code, duplicate=False, maxrows=0)
+                    cols_sufcode, dataSufcode = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, code, maxrows=0)
                     subforms = []
                     for sufrec in dataSufcode:
                         if sufrec[cols_sufcode.index('Code')] == code:
@@ -457,8 +453,6 @@ def krdanta_Analysis(word, requested_script=1):
                                             krdDetail.vacana = transliterate_lines(Sandhi_Convt.vachstr[subformItemNo % 3], IndianLanguages[requested_script - 1])
                                             krdDetail.sabda = transliterate_lines(krdDetailRec[cols_krdanta.index('Field3')], IndianLanguages[requested_script-1])
                                             krdDetail.erb = krdDetailRec[cols_krdanta.index('Field1')]
-                                            krdDetail.sabda_iscii = krdDetailRec[cols_krdanta.index('Field3')+1]
-                                            krdDetail.erb_iscii = krdDetailRec[cols_krdanta.index('Field1')+1]
                                             krdDetail.det = krdDetailRec[cols_krdanta.index('Field2')]
                                             krdDetail.ddet = krdDetailRec[cols_krdanta.index('Field4')]
                                             krdDetail.Dno = krdDetailRec[cols_krdanta.index('Field5')]
@@ -545,24 +539,20 @@ def WriteAnalysedInformation(pralak, dhatuNo, purvach, word, base, requested_scr
     # tigDatas = []
     for tigDetRec in data_sdhatu:
         tigData = tigantaData()
-        tigData.base, tigData.base_iscii = base, AmaraKosha_Database_Queries.unicode_iscii(base)
+        tigData.base = base
         tigData.Dno = tigDetRec[cols_sdhatu.index('Field1')]
         tigData.tigform = word
         tigData.verb = tigDetRec[cols_sdhatu.index('Field2')]
         tigData.nijverb = tigDetRec[cols_sdhatu.index('Field3')]
         tigData.sanverb = tigDetRec[cols_sdhatu.index('Field4')]
-        tigData.verb_iscii = tigDetRec[cols_sdhatu.index('Field2')+1]
-        tigData.nijverb_iscii = tigDetRec[cols_sdhatu.index('Field3')+1]
-        tigData.sanverb_iscii = tigDetRec[cols_sdhatu.index('Field4')+1]
         tigData.GPICode = tigDetRec[cols_sdhatu.index('Field9')]
         tigData.CombinedM = tigDetRec[cols_sdhatu.index('Field10')]
         tigData.pralak = pralak
         tigData.purvach = purvach + 1
         tigData.purusha = purushas[purusha]
         tigData.vacana = vacanas[vacana]
-        tigData.meaning, tigData.meaning_iscii, tigData.karma = '', '', ''
+        tigData.meaning, tigData.karma = '', ''
         for arthas_karmas in tigDetRec[cols_sdhatu.index('Field8')].split('/'):
-            tigData.meaning_iscii += AmaraKosha_Database_Queries.unicode_iscii(arthas_karmas) + '/'
             tigData.meaning += arthas_karmas + '/'
             karmaIndex = int(arthas_karmas[len(arthas_karmas) - 1]) - 1
             tigData.karmaCode = karmaIndex + 1
@@ -597,7 +587,6 @@ class tigantaData:
         self.karmaCode = None
         self.karma = None
         self.meaning = None
-        self.meaning_iscii = None
         self.purvach = None
         self.vacana = None
         self.purusha = None
@@ -663,7 +652,7 @@ def tiganta_Generation(dhatuNo: str, DhatuVidah: str, voice: str, lakara: str, p
     qry = 'select * from upacode where DhatuNo=?'
     # print('qry %s dhatuNo %s'%(qry,dhatuNo))
     colsUpacode, dataUpacode = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, dhatuNo, maxrows=0, script=requested_script)
-    # print('upacode dhatuNo=%s %s\n%s'%(dhatuNo, cols, dataUpacode))
+    # print('upacode dhatuNo=%s %s\n%s'%(dhatuNo, colsUpacode, dataUpacode))
     tiggenData = []
     tigDataInstance = tigantaData()
     if len(dataUpacode) == 0:
@@ -713,13 +702,13 @@ def tiganta_Generation(dhatuNo: str, DhatuVidah: str, voice: str, lakara: str, p
 def nishpatthi(amaraWord: str) -> List[str]:
     qry = 'select Nishpatti from N_Sanskrit N, Amara_Words A where N.IdNo = A.ID and A.Word = ?'
     # print('amaraword:', amaraWord)
-    cols, dbdata = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, param=amaraWord, maxrows=0, duplicate=False)
+    cols, dbdata = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, param=amaraWord, maxrows=0)
     return dbdata
 def vyutpatthi(amaraWord:str, language='Sanskrit') -> List[str]:
     table = ['V_Sanskrit', 'V_Hindi', 'V_Odiya'][['Sanskrit', 'Hindi', 'Odiya'].index(language)]
     qry = 'select Vytpatti from '+ table + ' V, Amara_Words A where V.IdNo = A.ID and A.Word = ?'
     # print('amaraword:', amaraWord)
-    cols, dbdata = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, param=amaraWord, maxrows=0, duplicate=False)
+    cols, dbdata = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, param=amaraWord, maxrows=0)
     return dbdata
 def avyayaAnalysis(word: str, requested_script=1) -> List[str]:
     qry = 'select * from avyaya where field2=?'

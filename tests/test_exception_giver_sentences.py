@@ -13,7 +13,6 @@ class Test(unittest.TestCase):
         sentences = ['कमलानि पश्यति ।', 'रामः पूजयति ।', 'व्याधयः नश्यन्ति ।', 'अरिः पीडयति', 'नृपः जयति ।', 'धनं नश्यति ।', 'वारीणि शुष्यन्ति ।',
                      'नाविकाः नदेन समुद्रं प्रविशन्ति  ।', 'बुधः मोक्षं इच्छति ।', 'रामः कपिभिः जयति रावणम्  ।', 'वारिणा हस्तौ क्षालयति  ।', 'कमले नृत्यत ।',
                      'नृपः जयति', 'जनाः वदन्ति', 'स्तेनः धान्यं चॊरयति', 'मनुष्यः ग्रामाय गच्छति  ।']
-        # sentences = ['मनुष्यः ग्रामाय गच्छति  ।']
         # outExpected, resultExpected = {}, {}
         for sentence in sentences:
             # out, result = self.morphological_syntactic_analysis_exception_givers_print(sentence.strip())
@@ -38,7 +37,7 @@ class Test(unittest.TestCase):
                                      transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base),
                                                          IndianLanguages[0]),
                                      item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                    syntaxInputFile.append([i + 1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
+                    syntaxInputFile.append([i + 1, word, wids, 1, AmaraKosha_Database_Queries.unicode_iscii(item.base), AmaraKosha_Database_Queries.unicode_iscii(item.erb), item.det, item.vibvach + 1])
                     wids += 1
             except Exception as e:
                 print(e)
@@ -50,10 +49,10 @@ class Test(unittest.TestCase):
                     numpages += len(krdData)
                     for krdDetail in krdData:
                         syntaxInputFile.append(
-                            [i + 1, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
-                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii,
-                             krdDetail.nijverb_iscii,
-                             krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode,
+                            [i + 1, word, wids, 2, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.erb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sabda), krdDetail.det,
+                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.verb),
+                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.nijverb),
+                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sanverb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.meaning), krdDetail.GPICode,
                              krdDetail.CombinedM,
                              krdDetail.karmaCode])
                         wids += 1
@@ -68,8 +67,8 @@ class Test(unittest.TestCase):
                     for tigData in tigDatas:
                         # ic.ic('tiganta', i+1, word, wids)
                         syntaxInputFile.append(
-                            [i + 1, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
-                             tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning_iscii, tigData.GPICode,
+                            [i + 1, word, wids, 5, AmaraKosha_Database_Queries.unicode_iscii(tigData.base), tigData.Dno, AmaraKosha_Database_Queries.unicode_iscii(tigData.verb),
+                             AmaraKosha_Database_Queries.unicode_iscii(tigData.nijverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.sanverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.meaning), tigData.GPICode,
                              tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
                         wids += 1
             except Exception as e:
@@ -1147,10 +1146,10 @@ class Test(unittest.TestCase):
                     numpages += len(krdData)
                     for krdDetail in krdData:
                         syntaxInputFile.append(
-                            [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
-                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii,
-                             krdDetail.nijverb_iscii,
-                             krdDetail.sanverb_iscii, krdDetail.meaning_iscii, ('%03d'%krdDetail.GPICode),
+                            [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 2, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.erb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sabda), krdDetail.det,
+                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.verb),
+                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.nijverb),
+                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sanverb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.meaning), ('%03d'%krdDetail.GPICode),
                              krdDetail.CombinedM,
                              krdDetail.karmaCode])
                         wids += 1
@@ -1165,8 +1164,8 @@ class Test(unittest.TestCase):
                     for tigData in tigDatas:
                         # ic.ic('tiganta', i+1, word, wids)
                         syntaxInputFile.append(
-                            [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
-                             tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning_iscii, ('%03d'%tigData.GPICode),
+                            [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 5, AmaraKosha_Database_Queries.unicode_iscii(tigData.base), tigData.Dno, AmaraKosha_Database_Queries.unicode_iscii(tigData.verb),
+                             AmaraKosha_Database_Queries.unicode_iscii(tigData.nijverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.sanverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.meaning), ('%03d'%tigData.GPICode),
                              tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
                         wids += 1
             except Exception as e:
@@ -1205,9 +1204,8 @@ class Test(unittest.TestCase):
                 if not forms == []: subforms += forms
                 for item in subDetails:
                     numpages += 1
-                    Subantas.append([item.rupam, transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item.base), IndianLanguages[0]),
-                                    item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                    syntaxInputFile.append([i + 1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
+                    Subantas.append([item.rupam, item.base, item.anta, item.linga, item.vib, item.vach, item.vibvach])
+                    syntaxInputFile.append([i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 1, AmaraKosha_Database_Queries.unicode_iscii(item.base), AmaraKosha_Database_Queries.unicode_iscii(item.erb), item.det, item.vibvach + 1])
                     wids += 1
             except Exception as e:
                 print(e)
@@ -1218,9 +1216,9 @@ class Test(unittest.TestCase):
                     Krdantas += krdData
                     numpages += len(krdData)
                     for krdDetail in krdData:
-                        syntaxInputFile.append(  [i + 1, word, wids, 2, krdDetail.erb_iscii, krdDetail.sabda_iscii, krdDetail.det,
-                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb_iscii, krdDetail.nijverb_iscii,
-                             krdDetail.sanverb_iscii, krdDetail.meaning_iscii, krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
+                        syntaxInputFile.append(  [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 2, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.erb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sabda), krdDetail.det,
+                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.verb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.nijverb),
+                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sanverb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.meaning), krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
                         wids += 1
             except Exception as e:
                 print(e)
@@ -1232,8 +1230,8 @@ class Test(unittest.TestCase):
                     numpages += len(tigDatas)
                     for tigData in tigDatas:
                         # ic.ic('tiganta', i+1, word, wids)
-                        syntaxInputFile.append( [i + 1, word, wids, 5, tigData.base_iscii, tigData.Dno, tigData.verb_iscii,
-                                                tigData.nijverb_iscii, tigData.sanverb_iscii, tigData.meaning_iscii, tigData.GPICode,
+                        syntaxInputFile.append( [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 5, AmaraKosha_Database_Queries.unicode_iscii(tigData.base), tigData.Dno, AmaraKosha_Database_Queries.unicode_iscii(tigData.verb),
+                                                AmaraKosha_Database_Queries.unicode_iscii(tigData.nijverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.sanverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.meaning), tigData.GPICode,
                                                 tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
                         wids += 1
             except Exception as e:

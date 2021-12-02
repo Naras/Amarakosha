@@ -152,6 +152,8 @@
        <property name="visible"><bool>False</bool></property>
        <property name="MaximumWidth"><number>19</number></property>
       </widget></item>
+      </layout></widget></item>
+     <item><widget class="QWidget" name="pageButtons_13"><layout class="QHBoxLayout" name="pagebuttonsLayout_13">
          <item><widget class="QPushButton" name="page13Button">
        <property name="text"><string>13</string></property>
        <property name="enabled"><bool>False</bool></property>
