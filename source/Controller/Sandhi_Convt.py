@@ -765,8 +765,8 @@ def Convt(sufcode):   # copied from old VB code and changed to get the suffix, r
             No.append(nr - 48)
         elif nr in range(96,123):
             No.append(nr - 87)
-    res = 36 * No[0] + No[1]
-    # print('Sandhi_Convt - sufcode % s Convt %i Suffix %s'%(sufcode, res, Suffix[res]))
+    res = 36 * No[0] + No[1] if No != [] else -1
+    # print('Sandhi_Convt - sufcode %s Convt %i Suffix %s'%(sufcode, res, AmaraKosha_Database_Queries.iscii_unicode(Suffix[res])))
     if res in range(len(Suffix)): return AmaraKosha_Database_Queries.iscii_unicode(Suffix[res])
     else: return ''
 def Sandhi(inword):

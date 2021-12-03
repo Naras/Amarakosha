@@ -1,6 +1,9 @@
 import os, sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt
+
+from source.Controller import Transliterate
+
 sys.path.append(os.getcwd())
 from source.Model import AmaraKosha_Database_Queries
 # from source.Controller import Transliterate
@@ -103,20 +106,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             row = index.row()
             status, self.tbl = self.modelTable.tables[row]
             # self.modelContent._data = list(cli_browse.tblSelect(tbl))
-            self.cols, dbdata = AmaraKosha_Database_Queries.tblSelect(self.tbl, maxrows=0, duplicate=True) #, script=int(scriptSelect)+1)
+            self.cols, dbdata = AmaraKosha_Database_Queries.tblSelect(self.tbl, maxrows=0, duplicate=False) #, script=int(scriptSelect)+1)
             # print('%s\n%s' % (cols, dbdata))
-            # try:
-            #     rows = []
-            #     for item in dbdata:
-            #         rowofcols = []
-            #         for col in item:
-            #             if isascii(str(col)): x = col
-            #             else: x = Transliterate.transliterate_lines(col, Transliterate.IndianLanguages[scriptSelect])
-            #             rowofcols.append(x)
-            #         rows.append(rowofcols)
-            # except Exception as e:
-            #     print(e)
-            self.modelContent._data = pandas.DataFrame(dbdata,columns=self.cols)
+            if scriptSelect == 0: rows = dbdata
+            else:
+                try:
+                    rows = []
+                    for item in dbdata:
+                        rowofcols = []
+                        for col in item:
+                            if isascii(str(col)): x = col
+                            else: x = Transliterate.transliterate_lines(col, Transliterate.IndianLanguages[scriptSelect])
+                            rowofcols.append(x)
+                        rows.append(rowofcols)
+                except Exception as e:
+                    print(e)
+            self.modelContent._data = pandas.DataFrame(rows,columns=self.cols)
             self.modelContent.layoutChanged.emit()
     def detectCell(self, item):
         try:

@@ -114,6 +114,7 @@ def subanta_Generation(base: str, requested_script=1) -> (List[str], str, str):
     base = str(base)[:-1]
     qry = 'select * from Subanta where Base=?'
     cols_subanta, dbdata_subanta = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, base, maxrows=0, script=requested_script)
+    if dbdata_subanta == []: raise RecordNotFound('Subanta Generation - No record found for %s - table Subanta'%base)
     for row in dbdata_subanta:
         suffixes = []
         erb = row[cols_subanta.index('Erb')]
@@ -134,11 +135,13 @@ def subanta_Generation(base: str, requested_script=1) -> (List[str], str, str):
         linga = transliterate_lines(Sandhi_Convt.lingas[int(code[1:2])], IndianLanguages[requested_script - 1])
         forms = [subforms_with_sandhi[0:3], subforms_with_sandhi[3:6], subforms_with_sandhi[6:9], subforms_with_sandhi[9:12],
                  subforms_with_sandhi[12:15], subforms_with_sandhi[15:18], subforms_with_sandhi[18:21],
-                 list(map(lambda word: 'हे ' + word, subforms_with_sandhi[0:3]))]
+                 list(map(lambda word: transliterate_lines('हे', IndianLanguages[requested_script - 1]) + ' ' + word, subforms_with_sandhi[0:3]))]
     return forms, anta, linga
 def tiganta_krdanta_arthas_karmas(word: str, requested_script=1) -> (List[str], List[str], str, List[str], List[str]):
     qry = 'select * from Sdhatu where field2 = ?'
     cols, dataDhatu = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, word, maxrows=0)
+    if dataDhatu == []: raise RecordNotFound('No record found for %s - table Sdhatu, function tiganta_krdanta_arthas_karmas'%word)
+    if len(dataDhatu) > 1: print('function tiganta_krdanta_arthas_karmas - Sdhatu data %d, is this ok? dataDhata %s'%(len(dataDhatu), dataDhatu[:2]))
     for item in dataDhatu:
         arthas_karmas = item[cols.index('Field8')].split('/')
         arthas = [transliterate_lines(word[:-1], Transliterate.IndianLanguages[requested_script - 1]) for word in arthas_karmas]
