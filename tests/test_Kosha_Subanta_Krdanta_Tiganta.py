@@ -7,7 +7,7 @@ import unittest, random, codecs, icecream as ic
 import os, sys
 sys.path.append(os.getcwd())
 from source.Controller import Kosha_Subanta_Krdanta_Tiganta, SyntaxAnalysis
-from source.Controller.Transliterate import transliterate_lines, IndianLanguages
+# from source.Controller.Transliterate import transliterate_lines, IndianLanguages
 from source.Model import AmaraKosha_Database_Queries
 
 class Test(unittest.TestCase):

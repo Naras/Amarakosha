@@ -351,7 +351,7 @@ def subanta_Analysis(word, requested_script=1):
     for subDetailsRec in subDetails:
         # print('subAnaly erb %s(%s) suf %s(%s)' % (AmaraKosha_Database_Queries.unicode_iscii(subDetailsRec.erb), subDetailsRec.erb, AmaraKosha_Database_Queries.unicode_iscii(subDetailsRec.suf), subDetailsRec.suf))
         for j, scode in enumerate(Sandhi_Convt.Suffix):
-            if scode != '' and subDetailsRec.suf == AmaraKosha_Database_Queries.iscii_unicode(scode):
+            if scode != '' and subDetailsRec.suf == scode:
                 chCode = Sandhi_Convt.decode(j)
                 # ic.ic(j, scode, AmaraKosha_Database_Queries.iscii_unicode(scode), chCode)
                 qry = 'select * from subanta where erb = ?'
@@ -429,7 +429,7 @@ def krdanta_Analysis(word, requested_script=1):
     subforms_with_sandhi = []
     for krdAnalyDetail in krdAnalyDetails:
         for j, scode in enumerate(Sandhi_Convt.Suffix):
-            if scode != '' and krdAnalyDetail.suf == AmaraKosha_Database_Queries.iscii_unicode(scode):
+            if scode != '' and krdAnalyDetail.suf == scode:
                 chCode = Sandhi_Convt.decode(j)
                 # print('chcode %s j %s scode %s'%(chCode, j, scode))
                 qry = 'select * from Krud where Field1 = ?'

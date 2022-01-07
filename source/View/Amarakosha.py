@@ -844,9 +844,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.resetToolbarItems()
         self.analysisAction.setChecked(True)
         self.wanted_script = self.scriptSelector.currentIndex()
-    # fname = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
-    # if fname[0]:
-    #     f = open(fname[0], 'r')
+        # fname = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
+        # if fname[0]: f = open(fname[0], 'r')
         f = open('Bandarkar.txt', 'r')
         self.synonymsButton.setText('पदरूप विश्लेषण/ಪದರೂಪ ವಿಶ್ಲೇಷಣೆ/Morphological Analysis')
         # self.syntaxButton.setVisible(True)
