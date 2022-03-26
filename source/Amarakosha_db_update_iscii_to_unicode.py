@@ -1,7 +1,7 @@
 __author__ = 'NarasMG'
 
 import peewee, os, pandas as pd  #, logging
-from iscii2utf8 import *
+from source.Controller.iscii2utf8 import *
 conn_unicode = peewee.SqliteDatabase(os.getcwd() + '\WordsDataUnicode.db', pragmas={'journal_mode': 'wal', 'cache_size': -1024 * 64})
 conn_iscii = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
 cursor = conn_unicode.cursor()

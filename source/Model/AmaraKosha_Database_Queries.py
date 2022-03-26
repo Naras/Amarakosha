@@ -1,11 +1,8 @@
 __author__ = 'NarasMG'
 
 import peewee, os
-from iscii2utf8 import *
-conn = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
-conn_unicode = peewee.SqliteDatabase(os.getcwd() + '\WordsDataUnicode.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
-cursor = conn.cursor()
-rowcursor = conn.cursor()
+from source.Controller.iscii2utf8 import *
+conn_unicode = peewee.SqliteDatabase(os.getcwd() + '\Amarakosha.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
 maxrows = 5
 
 mypar = Parser()
@@ -48,69 +45,13 @@ def unicode_iscii(unicode_string, script=1):
     except Exception as e:
         raise Exception('unicode_iscii: character %s unicode-string %s character %s' % (e, unicode_string, ch))
 def schemaParse():
-    cursor = conn.get_tables()
+    cursor = conn_unicode.get_tables()
     mypar = Parser()
     mypar.set_script(1)
     tbls = []
     for row in cursor:
         tbls.append(row)
     return tbls
-def sqlQuery(sql, param=None, maxrows=5, duplicate=True, script=1):
-    # lstParam = [x for x in param] if isinstance(param,tuple) else param
-    # print('sql=%s param=%s'%(sql, lstParam))
-    current = 0
-    if param==None: rowcursor = conn.execute_sql(sql)
-    else:
-        if not isinstance(param,tuple): param = (param,)
-        rowcursor = conn.execute_sql(sql, param)
-    try:
-        result = []
-        for r in rowcursor.fetchall():
-            # print(r)
-            resultRow = []
-            for field in r:
-                # resultRow.append(field)
-                if isascii(str(field)):
-                    resultRow.append(field)
-                    if duplicate: resultRow.append(field)
-                else:
-                    resultRow.append(iscii_unicode(str(field), script))
-                    if duplicate: resultRow.append(field)
-            result += [resultRow]
-            current += 1
-            if maxrows > 0 and current > maxrows:
-                break
-    except IllegalInput as e:
-        logging.warning('%s' % e)
-
-    columns = [column[0] for column in rowcursor.description]
-    if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
-    return columns, result
-def tblSelect(table_name,maxrows=5,duplicate=True, script=1):
-    current = 0
-    rowcursor = conn.execute_sql('select * from ' + table_name)
-    try:
-        tbl = []
-        for r in rowcursor.fetchall():
-            # print(r)
-            tblRow = []
-            for field in r:
-                if isascii(str(field)):
-                    tblRow.append(field)
-                    if duplicate: tblRow.append(field)
-                else:
-                    tblRow.append(iscii_unicode(str(field), script))
-                    if duplicate: tblRow.append(field)
-            tbl += [tblRow]
-            current += 1
-            if maxrows > 0 and current > maxrows:
-                break
-    except IllegalInput as e:
-        logging.warning('%s' % e)
-    columns = [column[0] for column in rowcursor.description]
-    if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
-
-    return columns, tbl
 def sqlQueryUnicode(sql, param=None, maxrows=5, duplicate=False, script=1):
     # lstParam = [x for x in param] if isinstance(param,tuple) else param
     # print('sql=%s param=%s'%(sql, lstParam))
@@ -168,8 +109,8 @@ def tblSelectUnicode(table_name,maxrows=5,duplicate=False, script=1):
 
     return columns, tbl
 if __name__ == '__main__':
-    # cols, lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
-    # print('Subanta: %s\n%s'%(cols, lines))
+    cols, lines = sqlQueryUnicode('Select * from Subanta where Base = ?', "अंशक") #×èÔÏè
+    print('Subanta: %s\n%s'%(cols, lines))
     # cols, lines = sqlQueryUnicode('Select * from Subanta where Base = ?', 'अंशुमती') #×èÔÏè
     # print('Subanta: %s\n%s'%(cols, lines))
 

@@ -12,22 +12,12 @@ from source.Model import AmaraKosha_Database_Queries
 
 class Test(unittest.TestCase):
     def common(self, tbl, parameterName):
-        colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5, duplicate=False)
-        for field in dataHeader:
-            parameter = field[colsHeader.index(parameterName)]
-            cols, data = AmaraKosha_Database_Queries.sqlQuery('Select * from ' + tbl + ' where ' + parameterName + ' = ?', AmaraKosha_Database_Queries.unicode_iscii(parameter), duplicate=False)
-            for line in data: self.assertEqual(line[cols.index(parameterName)], parameter)
         colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelectUnicode(tbl, maxrows=5, duplicate=False)
         for field in dataHeader:
             parameter = field[colsHeader.index(parameterName)]
-            cols, data = AmaraKosha_Database_Queries.sqlQuery('Select * from ' + tbl + ' where ' + parameterName + ' = ?', parameter, duplicate=False)
+            cols, data = AmaraKosha_Database_Queries.sqlQueryUnicode('Select * from ' + tbl + ' where ' + parameterName + ' = ?', parameter, duplicate=False)
             for line in data: self.assertEqual(line[cols.index(parameterName)], parameter)
     def common_with_duplicates(self, tbl, parameterName):
-        colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5, duplicate=True)
-        for field in dataHeader:
-            parameter = field[colsHeader.index(parameterName)]
-            cols, data = AmaraKosha_Database_Queries.sqlQuery('Select * from ' + tbl + ' where ' + parameterName + ' = ?', AmaraKosha_Database_Queries.unicode_iscii(parameter), duplicate=True)
-            for line in data: self.assertEqual(line[cols.index(parameterName) + 1], AmaraKosha_Database_Queries.unicode_iscii(parameter))
         colsHeader, dataHeader = AmaraKosha_Database_Queries.tblSelectUnicode(tbl, maxrows=5, duplicate=True)
         for field in dataHeader:
             parameter = field[colsHeader.index(parameterName)]
@@ -85,7 +75,7 @@ class Test(unittest.TestCase):
                             ['स्वर्गलोक ']), ([[['स्वर्ग', 'स्वर्', 'नाक', 'त्रिदिव'], ['त्रिदशालय', 'सुरलोक', 'द्यो', 'दिव्'], ['त्रिविष्टप', 'मन्दर']]],
                               ['ಸ್ವರ್ಗಲೋಕ'], ['Paradise '], ['स्वर्गलोक ']), ([[['स्वर्ग', 'स्वर्', 'नाक', 'त्रिदिव'], ['त्रिदशालय', 'सुरलोक', 'द्यो', 'दिव्'],
                             ['त्रिविष्टप', 'मन्दर']]], ['ಸ್ವರ್ಗಲೋಕ'], ['Paradise '], ['स्वर्गलोक '])]
-        # cols_unicode, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
+        # cols_unicode, data = AmaraKosha_Database_Queries.tblSelectUnicode(tbl, maxrows=5)
         # for fields in data:
         #     self.assertIn(fields[cols_unicode.index(parameterName)], parameters)
         #     parameter = AmaraKosha_Database_Queries.unicode_iscii(fields[cols_unicode.index(parameterName)])
@@ -94,7 +84,7 @@ class Test(unittest.TestCase):
             self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.Amarakosha(parameter), resultsExpected[resultno])
     def test_kosha_subanta_generation(self):
         # tbl, parameterName = 'Subanta', 'Base'
-        # cols_unicode, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
+        # cols_unicode, data = AmaraKosha_Database_Queries.tblSelectUnicode(tbl, maxrows=5)
         parameters = ['अंशक', 'अंशुक', 'अंशुमत्', 'अंशुमत्', 'अंशुमती', 'अंशुमालिन्']  #
         resultsExpected = {'अंशक': (
                          [['अंशः ', 'अंशौ ', 'अंशाः '], ['अंशम् ', 'अंशौ ', 'अंशान् '], ['अंशेन ', 'अंशाभ्याम् ', 'अंशैः '],
@@ -5274,7 +5264,7 @@ class Test(unittest.TestCase):
         }
 
         tbl, parameterName = 'Sdhatu', 'Field1'
-        cols, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
+        cols, data = AmaraKosha_Database_Queries.tblSelectUnicode(tbl, maxrows=5)
         for ro in data:
             dhatuNo, word = ro[cols.index(parameterName)], ro[cols.index('Field2')]
             f, k, emptyForms, emptyKrd, dupFormKeys, dupKrdKeys = self.krdantaGeneration(dhatuNo)
@@ -7309,7 +7299,7 @@ class Test(unittest.TestCase):
                     ['सन्नन्तः', 'कर्तरि', 'लृङ्']],
         }
         tbl, parameterName = 'Sdhatu', 'Field1'
-        cols, data = AmaraKosha_Database_Queries.tblSelect(tbl, maxrows=5)
+        cols, data = AmaraKosha_Database_Queries.tblSelectUnicode(tbl, maxrows=5)
         for ro in data:
             dhatuNo, word = ro[cols.index(parameterName)], ro[cols.index('Field2')]
             f, k, emptyForms, emptyTig, dupFormKeys, dupTigKeys = self.tigantaGeneration(dhatuNo)

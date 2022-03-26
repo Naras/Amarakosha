@@ -125,13 +125,9 @@ def subanta_Generation(base: str, requested_script=1) -> (List[str], str, str):
         subforms = []
         for sufcode in suffixes: subforms.append(Sandhi_Convt.Convt(sufcode))
         subforms_with_sandhi = [transliterate_lines(Sandhi_Convt.Sandhi(erb + item + ' '), IndianLanguages[requested_script - 1]) for item in subforms]
-        for entry in Sandhi_Convt.antas:
-            if code[0] == entry[0]:
-                anta = entry[2]  # equivalent of Right$(antas(i), Len(antas(i)) - 2) in VB code
-                if code[0] == 'A': anta += "ान्तः"
-                else: anta += "कारान्तः"
-                break
-        anta = transliterate_lines(anta, IndianLanguages[requested_script - 1])
+        if code[0] in Sandhi_Convt.antas:
+            anta = Sandhi_Convt.antas[code[0]] + "ान्तः" if code[0] == 'A' else Sandhi_Convt.antas[code[0]] + "कारान्तः"
+            anta = transliterate_lines(anta, IndianLanguages[requested_script - 1])
         linga = transliterate_lines(Sandhi_Convt.lingas[int(code[1:2])], IndianLanguages[requested_script - 1])
         forms = [subforms_with_sandhi[0:3], subforms_with_sandhi[3:6], subforms_with_sandhi[6:9], subforms_with_sandhi[9:12],
                  subforms_with_sandhi[12:15], subforms_with_sandhi[15:18], subforms_with_sandhi[18:21],
@@ -209,11 +205,7 @@ def krdanta_Generation(dhatuNo: str, DhatuVidah: str, KrdantaVidah: str, KrdMode
         qry = 'select * from Sufcode where code=?'
         # if len(item) < 2: return [], None
         code = item[colsKrud.index('Field2')][:4]
-        for entry in Sandhi_Convt.antas:
-            if code[0] == entry[0]:
-                krdDetail.anta = transliterate_lines(entry[2] + 'कारान्तः', IndianLanguages[requested_script - 1])
-                break
-        # print('krdGener Sufcode: qry %s code %s'%(qry,code))
+        if code[0] in Sandhi_Convt.antas: krdDetail.anta = transliterate_lines(Sandhi_Convt.antas[code[0]] + 'कारान्तः', IndianLanguages[requested_script - 1])
         cols, dataSufcode = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, code, maxrows=0)
         # print(('krdGener sufcode %s cols %s\n%s')%(code, cols, dataSufcode))
         krdDetail.erb = item[erbInColumn]
@@ -313,13 +305,8 @@ def subanta_Analysis(word, requested_script=1):
             subDetail.vibvach = int(codeset.split(',')[1]) - 1
             subDetail.vib = Sandhi_Convt.vibstr[subDetail.vibvach//3]
             subDetail.vach = Sandhi_Convt.vachstr[subDetail.vibvach%3]
-            for entry in Sandhi_Convt.antas:
-                if codeset[0] == entry[0]:
-                    subDetail.anta = entry[2]  # equivalent of Right$(antas(i), Len(antas(i)) - 2) in VB code
-                    if codeset[0] == 'A': subDetail.anta += "ान्तः"  # ÚÆèÂ£
-                    else: subDetail.anta += "कारान्तः"  ## ³ÚÏÚÆèÂ£
-                    break
             subDetail.linga = Sandhi_Convt.lingas[int(codeset[1:2])]
+            if codeset[0] in Sandhi_Convt.antas: subDetail.anta = Sandhi_Convt.antas[codeset[0]] + "ान्तः" if codeset[0] == 'A' else Sandhi_Convt.antas[codeset[0]] + "कारान्तः"
             subDetail.wtype = 1
             qry = 'select * from fincode where code like ?'
             cols_fincode, dbdata_fincode = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, codeset[0]+'__', maxrows=0, script=requested_script)
@@ -389,14 +376,7 @@ def subanta_Analysis(word, requested_script=1):
                                                 subDetail.base = subantaDetailRec[cols_subanta.index('Base')]
                                                 subDetail.erb = subantaDetailRec[cols_subanta.index('Erb')]
                                                 subDetail.det = subantaDetailRec[cols_subanta.index('Code')]
-                                                for entry in Sandhi_Convt.antas:
-                                                    if subantaDetailRec[cols_subanta.index('Code')][0] == entry[0]:
-                                                        subDetail.anta = entry[2]  # equivalent of Right$(antas(i), Len(antas(i)) - 2) in VB code
-                                                        if subantaDetailRec[cols_subanta.index('Code')][0] == 'A':
-                                                            subDetail.anta += "ान्तः"  # ÚÆèÂ£
-                                                        else:
-                                                            subDetail.anta += "कारान्तः"  # ³ÚÏÚÆèÂ£
-                                                        break
+                                                if subantaDetailRec[cols_subanta.index('Code')][0] in Sandhi_Convt.antas: subDetail.anta = Sandhi_Convt.antas['A'] + "ान्तः" if subantaDetailRec[cols_subanta.index('Code')][0] == 'A' else Sandhi_Convt.antas[subantaDetailRec[cols_subanta.index('Code')][0]] + "कारान्तः"
                                                 subDetail.anta = transliterate_lines(subDetail.anta, IndianLanguages[requested_script - 1])
                                                 subDetail.linga = transliterate_lines(Sandhi_Convt.lingas[int(subantaDetailRec[cols_subanta.index('Code')][1:2])], IndianLanguages[requested_script - 1])
                                                 subDetail.rupam = transliterate_lines(Sandhi_Convt.Sandhi(subDetailsRec.erb + tstr), IndianLanguages[requested_script - 1])
@@ -460,10 +440,7 @@ def krdanta_Analysis(word, requested_script=1):
                                             krdDetail.ddet = krdDetailRec[cols_krdanta.index('Field4')]
                                             krdDetail.Dno = krdDetailRec[cols_krdanta.index('Field5')]
                                             krdDetail.linga = transliterate_lines(Sandhi_Convt.lingas[int(code[1])], IndianLanguages[requested_script - 1])
-                                            for entry in Sandhi_Convt.antas:
-                                                if code[0] == entry[0]:
-                                                    krdDetail.anta = transliterate_lines(entry[2] + 'कारान्तः', IndianLanguages[requested_script - 1])
-                                                    break
+                                            if code[0] in Sandhi_Convt.antas: krdDetail.anta = transliterate_lines(Sandhi_Convt.antas[code[0]] + 'कारान्तः', IndianLanguages[requested_script - 1])
                                             KrdCode = krdDetailRec[cols_krdanta.index('Field4')][0]
                                             krdDetail.pratyayaVidhah = transliterate_lines(pratyayaVidhahs[ord(KrdCode) - ord('a')], IndianLanguages[requested_script-1])
                                             krdDetail.dhatuVidhah = transliterate_lines(DhatuVidhas[int(krdDetailRec[cols_krdanta.index('Field4')][1])], IndianLanguages[requested_script-1])

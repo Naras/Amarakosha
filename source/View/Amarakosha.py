@@ -1367,7 +1367,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         typeList = ['Noun(s)', 'Pronoun(s)', 'Adjective(s)', 'Krdanta(s)', 'KrdAvyaya(s)', 'Avyaya(s)']
         subtypeList = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)', 'Vocative(s)', 'Verb(s)', 'Verb']
         edges, set_edge_labels = {}, []
-        font_family = 'Mangal' if self.wanted_script == 0 else 'Tunga'
+        font_family = 'Nirmala UI'
         font_prop = FontProperties(fname='NotoSansDevanagari-Regular.ttf', size=12) if self.wanted_script == 0 else FontProperties(fname='NotoSansKannada-VariableFont_wdth,wght.ttf', size=12)
         try:
             # out = SyntaxAnalysis.write_out_aci('OSOut.aci', outfile='out.aci')
