@@ -1,7 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'NarasMG'
 
 import logging  #, icecream as ic #, inspect
-import sys, os, pandas
+import sys, os, platform, pandas
+
+import matplotlib
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtGui import QFontMetrics
 from PyQt5.QtWidgets import QDialog, QPushButton, QVBoxLayout, QRadioButton, QGridLayout, QGroupBox, QHBoxLayout, QListView, QFileDialog
@@ -844,20 +848,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.resetToolbarItems()
         self.analysisAction.setChecked(True)
         self.wanted_script = self.scriptSelector.currentIndex()
-        # fname = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
-        # if fname[0]: f = open(fname[0], 'r')
-        f = open('Bandarkar.txt', 'r')
         self.synonymsButton.setText('पदरूप विश्लेषण/ಪದರೂಪ ವಿಶ್ಲೇಷಣೆ/Morphological Analysis')
         # self.syntaxButton.setVisible(True)
         self.wanted_script = self.scriptSelector.currentIndex()
         self.listView.clicked.connect(self.enableSynonymsButton)
-        with f:
-            dataIscii = f.readlines()
-            data = [Kosha_Subanta_Krdanta_Tiganta.transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item), IndianLanguages[self.wanted_script]) for item in dataIscii]
-            self.modelDhatus.data = list(map(lambda item: (False, item[:-1]), data))
-            self.modelDhatus.dataIscii = list(map(lambda item: (False, item[:-1]), dataIscii))
-            self.listView.setModel(self.modelDhatus)
-            self.modelDhatus.layoutChanged.emit()
+        # fname = QFileDialog.getOpenFileName(self, 'Open file', os.getcwd())
+        # if fname[0]: f = open(fname[0], 'r')
+        filename = os.path.join('Bandarkar.txt')
+        with open(filename, "r", encoding="iso-8859-1") as f:
+            dataIscii = [line for line in f]
+        data = [Kosha_Subanta_Krdanta_Tiganta.transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item), IndianLanguages[self.wanted_script]) for item in dataIscii]
+        self.modelDhatus.data = list(map(lambda item: (False, item[:-1]), data))
+        self.modelDhatus.dataIscii = list(map(lambda item: (False, item[:-1]), dataIscii))
+        self.listView.setModel(self.modelDhatus)
+        self.modelDhatus.layoutChanged.emit()
     def synonyms_generate_or_analyse(self):
         self.statusBar().showMessage('Ready')
         if self.menuItemChosen == 'Amara':
@@ -1367,7 +1371,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         typeList = ['Noun(s)', 'Pronoun(s)', 'Adjective(s)', 'Krdanta(s)', 'KrdAvyaya(s)', 'Avyaya(s)']
         subtypeList = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)', 'Vocative(s)', 'Verb(s)', 'Verb']
         edges, set_edge_labels = {}, []
-        font_family = 'Nirmala UI'
+        font_family, availableFontFamilies = 'Arial', matplotlib.font_manager.get_font_names()
+        if platform.system() == "Windows" and 'Nirmala UI' in availableFontFamilies: font_family = 'Nirmala UI'
+        else:
+            if 'Devanagari Sangam MN' in availableFontFamilies: font_family = 'Devanagari Sangam MN'
+            if self.wanted_script != 0 and 'Noto Sans Kannada' in availableFontFamilies: font_family = 'Noto Sans Kannada'
         font_prop = FontProperties(fname='NotoSansDevanagari-Regular.ttf', size=12) if self.wanted_script == 0 else FontProperties(fname='NotoSansKannada-VariableFont_wdth,wght.ttf', size=12)
         try:
             # out = SyntaxAnalysis.write_out_aci('OSOut.aci', outfile='out.aci')

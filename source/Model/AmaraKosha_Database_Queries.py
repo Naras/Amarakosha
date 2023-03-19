@@ -1,8 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'NarasMG'
 
 import peewee, os
 from source.Controller.iscii2utf8 import *
-conn_unicode = peewee.SqliteDatabase(os.getcwd() + '\Amarakosha.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
+# print(os.path.join(os.getcwd(), 'Amarakosha.db'))
+conn_unicode = peewee.SqliteDatabase(os.path.join(os.getcwd(), 'Amarakosha.db'), pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
 maxrows = 5
 
 mypar = Parser()
