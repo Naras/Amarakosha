@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Tigantas</title>
+    <style>
+      label {
+        display: inline-block;
+        width: 100px;
+        height: 28px;
+      }
+  
+      input[type=text], select {
+        width: 70%;
+        padding: 1px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+      }
+  
+      /* button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+  
+      button:hover {
+        background-color: #45a049;
+      } */
+      
+      .flex-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .flex-container > div {
+      margin: 10px;
+      padding: 10px;
+      border: 1px solid black;
+      flex-basis: 40%;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    table, th, td {
+      border: 1px solid black;
+      padding: 2px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+    .tileVertical {
+        display: inline-block;
+        vertical-align: top;
+        width: 7%;
+        padding: 2px;
+        box-sizing: border-box;
+      }
+
+  </style>
+  </head>
+  <body>
+    <div class="flex-container"><h1>Tigantas</h1></div>
+    <button id="refreshButton" onclick="location.reload()">Restart</button>
+    <input id="status" type="text" value="" name="status">
+    <div>
+        <label for="Dhatus">Dhatus:</label>
+        <button id="DhatusButton" disabled>Generate</button>
+    </div>
+    <select id="Dhatus" size=53 class="tileVertical"></select> 
+    <div id="dhatu" class="tileVertical">
+      <p>Tigantas:</p>
+    </div>
+    <div id="textBoxes" class="tileVertical"><p>तिगंतः</p></div>
+    <div id="purusha_vachana" class="tileVertical"><p></p></div>
+    <div id="tigantaTbl" class="tileVertical">
+      <table id="tbl">Purusha/Vachana
+        <tr><td>empty</td></tr>
+      </table>
+    </div>
+    <div class="tileVertical" id="popup" style="visibility: hidden;">    
+      <div><label for="DhatuVidha">धातुविदाः</label>
+      <select id="DhatuVidha" name="DhatuVidha" size="3"">
+        <option selected value="केवलतिगंतः">केवलतिगंतः</option>
+        <option value="णिजन्त">णिजन्तः</option>
+        <option value="सन्नन्तः">सन्नन्तः</option>
+      </div>
+      <div><label for="Prayoga1">प्रयोगः</label>
+          <select id="Prayoga1" name="Prayoga1" size="1" >
+            <!-- <option value="कर्तरि">कर्तरि</option>
+            <option value="कर्मणि">कर्मणि</option> -->
+      </div>
+      <div><label for="Prayoga">प्रयोगः</label>
+          <select id="Prayoga" name="Prayoga" size="2" value="कर्तरि">
+            <option selected value="कर्तरि">कर्तरि</option>
+            <option value="कर्मणि">कर्मणि</option>
+      </div>
+      <div><label for="lakara1">लकारः</label>
+            <select id="lakara1" name="lakara1" size="1" >
+      </div>
+      <div><label for="lakara">लकारः</label>
+            <select id="lakara" name="lakara" size="10">
+              <option selected value="लट्">लट्</option>
+              <option value="लट्">लट्</option>
+              <option value="लुट्">लट्</option>
+              <option value="लृट्">लट्</option>
+              <option value="लट्">लोट्</option>
+              <option value="लट्">लङ्</option>
+              <option value="लुट्">विधिलिङ्</option>
+              <option value="लृट्">अशीर्लिङ्</option>
+              <option value="लट्">लुङ्</option>
+              <option value="लट्">लृङ्</option>
+      </div>
+      <input type="button" name="ok1" value="ok"  onclick="alert('hello 1')" style="visibility: hidden;">
+      <input type="button" name="ok2" value="ok"  onclick="getDhatus()">
+      <input type="button" name="cancel" value="cancel"  onclick="alert('cancelled')">   </div>
+  </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script>
+        url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
+        document.getElementById("status").value="";
+      // Populate the listbox with options from the Dhatus endpoint
+      const DhatusSelect = document.getElementById("Dhatus");
+      fetch('http://' + url + ':' + port + prefix + 'KrdantaTigantaDhatus')
+        .then(response => response.json())
+        .then(json => {
+          dataArray = json['KrdantaTigantaDhatus'];
+          // console.log(dataArray);
+          dataArray.forEach((item, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.text = item;
+            DhatusSelect.appendChild(option);
+          });
+        });
+        // enable generate button only when there is a selection from the list box
+        const DhatusListBox = document.getElementById("Dhatus");
+        DhatusListBox.addEventListener("change", () => {
+        const word = $("#Dhatus option:selected").text();
+        if (word == "") document.getElementById("DhatusButton").disabled = true;
+        else document.getElementById("DhatusButton").disabled = false;
+        })
+      // Add an event listener to the "Get Dhatus" button
+      const DhatusButton = document.getElementById("DhatusButton");
+      DhatusButton.addEventListener("click", () => {
+        const selectedId = DhatusSelect.value;
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        // alert("popup-" + popup.style.visibility);
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("purusha_vachana").style.visibility = "hidden";
+        document.getElementById("tigantaTbl").style.visibility = "hidden";
+    });
+    </script>
+    <script>
+      function getDhatus() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("purusha_vachana").style.visibility = "visible";
+        document.getElementById("tigantaTbl").style.visibility = "visible";
+        const dhatuVidha =  $("#DhatuVidha option:selected").text();
+        const voice =  $("#Prayoga option:selected").text();
+        const lakara =  $("#lakara option:selected").text();
+        const word = $("#Dhatus option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha+"&voice=" + voice + "&lakara=" + lakara + "&word=" + word;
+        url = 'http://' + url + ':' + port + prefix + 'TigantaDhatuVoiceLakara' + parameters; 
+        console.log(url);
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            const dhatuDiv = document.getElementById("dhatu");
+            dhatuDiv.innerHTML = "<h5>Tiganta:</h5>";
+            dataArray = data['Tigantas'];
+            document.getElementById("DhatusButton").disabled = true;
+            const tigantasTblDiv = document.getElementById('tigantas');
+
+            Object.entries(dataArray).forEach(([key, value]) => {
+              if (key=="forms") {
+                let tabl = document.getElementById('tbl');
+                tabl.remove();
+                const table = document.createElement('table');
+                table.setAttribute("id", "tbl");
+                const headerRow = table.insertRow();
+                const rowLabel = document.createElement('th');
+                rowLabel.textContent = 'पुरुष/वचन';
+                headerRow.appendChild(rowLabel);              
+                const header1 = document.createElement('th');
+                header1.textContent = 'एकवचन';
+                headerRow.appendChild(header1);
+                const header2 = document.createElement('th');
+                header2.textContent = 'द्विवचन';
+                headerRow.appendChild(header2);
+                const header3 = document.createElement('th');
+                header3.textContent = 'बहुवचन';
+                headerRow.appendChild(header3);
+
+                formsDict = dataArray["forms"];
+                purushas = ["प्रथम", "मध्यमा", "उत्तम"];
+
+                for (const [key, value] of Object.entries(formsDict)) {
+                  const row = table.insertRow();
+                  const labelCell = row.insertCell();
+                  labelCell.textContent = purushas[key];
+                  for (const form of value) {
+                    const cell = row.insertCell();
+                    cell.textContent = form;
+                  }
+                }
+                const texboxes = document.getElementById("purusha_vachana");
+                texboxes.appendChild(table);
+              }
+              else if (key != "") {
+                let popup = document.getElementById("popup");
+                 popup.style.visibility = "hidden"; // popup.remove;
+                const texboxes = document.getElementById("textBoxes");
+                // textboxes.setAttribute("class") = "flex-container";
+                const label = document.createElement("label");
+                label.htmlFor = key;
+                label.textContent = key + ": ";
+                // label.style.font = "20px arial,serif";
+                dhatuDiv.appendChild(label);
+                const textBox = document.createElement("input");
+                textBox.type = "text";
+                textBox.id = key;
+                textBox.value = value;
+                textBoxes.appendChild(textBox);
+            }
+            dhatuDiv.appendChild(document.createElement("br"));
+            // document.body.appendChild(tigantasTblDiv);
+        });
+      })
+        .catch(error => {
+          console.error(error);
+          document.getElementById("status").value=error;
+        });
+    };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Subantas</title>
+    <style>
+      label {
+        display: inline-block;
+        width: 100px;
+      }
+  
+      input[type=text], select {
+        width: 70px;
+        padding: 1px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+      }
+  
+      button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+  
+      button:hover {
+        background-color: #45a049;
+      }
+      
+      .flex-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .flex-container > div {
+      margin: 10px;
+      padding: 10px;
+      border: 1px solid black;
+      flex-basis: 40%;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    table, th, td {
+      border: 1px solid black;
+      padding: 2px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+    .tileVertical {
+        display: inline-block;
+        vertical-align: top;
+        width: 7%;
+        padding: 2px;
+        box-sizing: border-box;
+      }
+
+  </style>
+  </head>
+  <body>
+    <div class="flex-container"><h1>Subantas</h1></div>
+    <div>
+        <label for="Dhatus">Dhatus:</label>
+        <button id="DhatusButton">Generate</button>
+    </div>
+    <select id="Dhatus" size=53 class="tileVertical"></select> 
+    <div id="dhatu" class="tileVertical">
+      <p>Subantas:</p>
+    </div>
+    <div class="tileVertical">
+    <div id="textBoxes"><p>अंत/लिंग</p></div>
+    <div id="subantas">
+      <table id="tbl">Vibhakti/Vachana
+        <tr><td>empty</td></tr>
+      </table>
+    </div></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script>
+        url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
+      // Populate the listbox with options from the Dhatus endpoint
+      const DhatusSelect = document.getElementById("Dhatus");
+      fetch('http://' + url + ':' + port + prefix + 'Subantas')
+        .then(response => response.json())
+        .then(json => {
+          dataArray = json['Subanta Dhatus'];
+          dataArray.forEach((item, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.text = item;
+            DhatusSelect.appendChild(option);
+          });
+        });
+
+      // Add an event listener to the "Get Dhatus" button
+      const DhatusButton = document.getElementById("DhatusButton");
+      DhatusButton.addEventListener("click", () => {
+        const selectedId = DhatusSelect.value;
+        url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
+        dhatuSel = $("#Dhatus option:selected").text();
+        url2 = 'http://' + url + ':' + port + prefix + 'Subanta/' + dhatuSel; 
+        // url1 = 'http://' + url + ':' + port + prefix + 'Dhatu/स्वर्';
+        
+        fetch(url2)
+          .then(response => response.json())
+          .then(data => {
+            const dhatuDiv = document.getElementById("dhatu");
+            dhatuDiv.innerHTML = "<h5>Subanta:</h5>";
+            dataArray = data['Subantas'];
+            const subantasTblDiv = document.getElementById('subantas');
+
+            Object.entries(dataArray).forEach(([key, value]) => {
+              if (key=="forms") {
+                let tabl = document.getElementById('tbl');
+                tabl.remove();
+                const table = document.createElement('table');
+                table.setAttribute("id", "tbl");
+                const headerRow = table.insertRow();
+                const rowLabel = document.createElement('th');
+                rowLabel.textContent = 'विभक्ति/वचन';
+                headerRow.appendChild(rowLabel);              
+                const header1 = document.createElement('th');
+                header1.textContent = 'एकवचन';
+                headerRow.appendChild(header1);
+                const header2 = document.createElement('th');
+                header2.textContent = 'द्विवचन';
+                headerRow.appendChild(header2);
+                const header3 = document.createElement('th');
+                header3.textContent = 'बहुवचन';
+                headerRow.appendChild(header3);
+
+                formsDict = dataArray["forms"];
+
+                for (const [key, value] of Object.entries(formsDict)) {
+                  const row = table.insertRow();
+                  const labelCell = row.insertCell();
+                  labelCell.textContent = key;
+                  for (const form of value) {
+                    const cell = row.insertCell();
+                    cell.textContent = form;
+                  }
+                }
+                // subantasTblDiv.removeChild(subantasTblDiv.lastChild());
+                subantasTblDiv.appendChild(table);
+              }
+              else {
+                const texboxes = document.getElementById("textBoxes");
+                const label = document.createElement("label");
+                label.htmlFor = key;
+                label.textContent = key + ": ";
+                dhatuDiv.appendChild(label);
+                const textBox = document.createElement("input");
+                textBox.type = "text";
+                textBox.id = key;
+                textBox.value = value;
+                textBoxes.appendChild(textBox);
+            }
+            subantasTblDiv.appendChild(document.createElement("br"));
+            // document.body.appendChild(subantasTblDiv);
+            });
+          });
+      });
+    </script>
+  </body>
+</html>

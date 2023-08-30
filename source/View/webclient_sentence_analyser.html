@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Analyze</title>
+    <style>
+      label {
+        display: inline-block;
+        width: 100px;
+        height: 28px;
+      }
+  
+      input[type=text], select {
+        width: 70px;
+        padding: 1px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+      }
+  
+      button {
+        /* background-color: #4CAF50; */
+        /* color: white; */
+        padding: 4px;
+        border: 1px solid #ccc;
+        /* border-radius: 4px; */
+        /* cursor: pointer; */
+      }  
+      /* button:hover {
+        background-color: #45a049;
+      } */
+ 
+      
+    .flex-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .flex-container > div {
+      margin: 3px;
+      padding: 2px;
+      border: 1px solid black;
+      flex-basis: 20%;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    table, th, td {
+      border: 1px solid black;
+      padding: 2px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+    .tileVertical {
+        display: inline-block;
+        vertical-align: top;
+        width: 7%;
+        padding: 2px;
+        box-sizing: border-box;
+      }
+
+    .center {
+      margin: auto;
+      width: 60%;
+      /* border: 3px solid #73AD21; */
+      padding: 10px;
+    }
+  
+  </style>
+  </head>
+  <body>
+    <div class="flex-container"><h1>Morphological Analysis</h1></div>
+    <div id="pageButtons" class="center"></div>
+    <div id="buttons">
+        <label for="Dhatus">Sentences:</label>
+        <button id="DhatusButton">Analyze</button>
+    </div>
+    <select id="Dhatus" size=0 class="tileVertical"></select> 
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script>
+      var numpages = 0;
+      var subantas_tigantas_krdantas = {'सुबंतः':0,  'तिगंतः':0, 'कृदंतः':0};
+      var subantas_tigantas_krdantas_forms = {'सुबंतः':0,  'तिगंतः':0, 'कृदंतः':0};
+      const pages = ['सुबंतः',  'तिगंतः', 'कृदंतः']; 
+        url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
+      // Populate the listbox with options from the Dhatus endpoint
+      const DhatusSelect = document.getElementById("Dhatus");
+      fetch('http://' + url + ':' + port + prefix + 'SentencesBandarkar')
+        .then(response => response.json())
+        .then(json => {
+          dataArray = json['Sentences'];
+          dataArray.forEach((item, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.text = item;
+            DhatusSelect.appendChild(option);
+          });
+        });
+        // enable generate button only when there is a selection from the list box
+        const DhatusListBox = document.getElementById("Dhatus");
+        DhatusListBox.addEventListener("change", () => {
+        const word = $("#Dhatus option:selected").text();
+        if (word == "") document.getElementById("DhatusButton").disabled = true;
+        else document.getElementById("DhatusButton").disabled = false;
+        })
+
+      // Add an event listener to the "Get Dhatus" button
+      const DhatusButton = document.getElementById("DhatusButton");
+      DhatusButton.addEventListener("click", () => {
+        const sentence = $("#Dhatus option:selected").text();
+        url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
+        dhatuSel = $("#Dhatus option:selected").text();
+        url = 'http://' + url + ':' + port + prefix + 'SentenceAnalysis1?sentence=' + sentence;
+        
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            let sentenceAnalysisDiv = document.getElementById("sentenceAnalysis");
+            if (sentenceAnalysisDiv!=null) sentenceAnalysisDiv.parentNode.removeChild(sentenceAnalysisDiv);
+            sentenceAnalysisDiv = document.createElement('div');
+            sentenceAnalysisDiv.setAttribute("id", "sentenceAnalysis");
+
+            pageNumber = 0;
+            
+            // Create and append pages to the document
+            for (const section of pages) {
+              const sectionData = data.morphologyAnalysis[section];
+              const sectionFormsData = data.morphologyAnalysis[section + 'Forms'];
+              subantas_tigantas_krdantas[section] = sectionData.length;
+              if (section == 'तिगंतः') len = 3; else len = 8;
+              subantas_tigantas_krdantas_forms[section] = sectionFormsData.length/len;
+              var rownames;
+              if (section == 'तिगंतः') rownames = ["प्रथमपुरुषः", "मध्यमपुरुषः", "उत्तमपुरुषः"];
+              else rownames = ['प्रथमा', 'द्वितीया', 'तृतीया', 'चतुर्थि', 'पंचमि', 'शष्टि', 'सप्तमि', 'सं प्रथम'];
+              const flexDiv = document.createElement('div');
+              flexDiv.setAttribute("class", "flex-container");
+              for (let i = 0; i < sectionData.length; i++) {
+                pageNumber += 1;
+                const pageAnchor = document.createElement('a');
+                pageAnchor.name = 'Page ' + pageNumber;
+                
+                const pageDiv = generatePageKeyValuePairs(data, section, i);
+                pageDiv.id = 'page-' + pageNumber;
+                pageDiv.style.visibility = "hidden";
+                flexDiv.appendChild(pageAnchor);
+  const labelSection = document.createElement("label");
+  labelSection.htmlFor = pageAnchor.name;
+  labelSection.textContent = pageAnchor.name;
+  pageDiv.appendChild(labelSection);
+                flexDiv.appendChild(pageDiv);
+                flexDiv.appendChild(document.createElement('br'));
+              }
+            
+                const tblDiv = generatePageTable(data, section, rownames, pageNumber);
+                // tblDiv.id = 'pagetbl-' + pageNumber;
+                tblDiv.style.visibility = "hidden";
+                flexDiv.appendChild(tblDiv);
+                sentenceAnalysisDiv.appendChild(flexDiv);
+            }
+
+            // remove any previously generated buttons and Create buttons to show each page
+            buttons = document.getElementById("pageButtons");
+            while (buttons.firstChild) {
+              buttons.removeChild(buttons.firstChild);
+            }
+            pagerange = 0;
+            for (const [key, value] of Object.entries(subantas_tigantas_krdantas)) {
+              pagerange += value;
+              subantas_tigantas_krdantas[key] = pagerange
+            }
+            console.log(subantas_tigantas_krdantas);
+
+            for (let i = 1; i <= pageNumber; i++) {
+              const button = document.createElement('button');
+              button.textContent = 'Page ' + i;
+              button.addEventListener('click', () => showPage(i));
+              buttons.appendChild(button);
+            }
+            document.body.appendChild(sentenceAnalysisDiv);
+            numpages = pageNumber;
+            showPage(1);
+          });
+      });
+
+// Function to generate label:text pairs for <key, value> pairs
+function generateKeyValuePairs(data, section) {
+  const div = document.createElement('div');
+  const labelSection = document.createElement("label");
+  labelSection.htmlFor = section;
+  labelSection.textContent = section;
+  div.appendChild(labelSection);
+  div.appendChild(document.createElement('br'));
+  for (const [key, value] of Object.entries(data)) {
+    const label = document.createElement('label');
+    label.textContent = key + ':';
+
+    const text = document.createElement('input');
+    text.type = 'text';
+    text.value = Array.isArray(value) ? value.join(', ') : value;
+
+    div.appendChild(label);
+    div.appendChild(text);
+    div.appendChild(document.createElement('br'));
+  }
+  return div;
+}
+// Function to generate a page with <key, value> pairs
+  function generatePageKeyValuePairs(data, section, index) {
+  const pageDiv = document.createElement('div');
+  pageDiv.setAttribute("class", "tileVertical");
+  const keyValueDiv = generateKeyValuePairs(data.morphologyAnalysis[section][index], section);
+  pageDiv.appendChild(keyValueDiv);
+  return pageDiv;
+}
+
+// Function to generate a table with a 3-column header
+function generateTable(data, rownames, hdr) {
+  const table = document.createElement('table');
+  const headerRow = table.insertRow();
+  vacanas = ['एकवचन', 'द्विवचन', 'बहुवचन'];
+  const header = document.createElement('th');
+  header.textContent = hdr;
+  headerRow.appendChild(header);
+  Object.entries(vacanas).forEach((k,v) => {
+    const header = document.createElement('th');
+    header.textContent = vacanas[v];
+    headerRow.appendChild(header);
+  });
+  for (const [key, value] of Object.entries(data)) {
+      const row = table.insertRow();
+      const labelCell = row.insertCell();
+      labelCell.textContent = rownames[key];
+      for (const form of value) {
+        const cell = row.insertCell();
+        cell.textContent = form;
+      }
+    }
+  return table;
+}
+
+// Function to generate a page with table
+  function generatePageTable(data, section, rownames, pageNumber) {
+  const pageDiv = document.createElement('div');
+  pageDiv.setAttribute("class", "tileVertical");
+  if (section == 'तिगंतः') {hdr =  'पुरुष/वचन'; inc = 3}
+  else {hdr = 'विभक्ति/वचन'; inc = 8}
+  formData = data.morphologyAnalysis[section + 'Forms'];
+  for (k = 0; k < formData.length; k += inc) {
+  const tableDiv = generateTable(formData.slice(k, k + inc), rownames, hdr);
+  tableDiv.id = section + "-" + k/inc;
+  const labelSection = document.createElement("label");
+  labelSection.htmlFor = tableDiv.id;
+  labelSection.textContent = tableDiv.id;
+  pageDiv.appendChild(labelSection);
+  pageDiv.appendChild(tableDiv);
+  }
+  return pageDiv;
+}
+
+// Function to handle button clicks and show/hide pages
+function showPage(pageNumber) {
+  const pageId = document.getElementById('page-' + pageNumber);
+  // console.log(subantas_tigantas_krdantas, "forms", subantas_tigantas_krdantas_forms);
+  for (let i = 0; i < numpages; i++) {
+    p = document.getElementById(('page-' + (i + 1))); 
+    p.style.visibility = "hidden"; 
+    p.parentNode.style.visibility = "hidden";
+  }
+  for (section in pages) { 
+    // console.log(pages[section]);
+    for (let i = 0; i < subantas_tigantas_krdantas_forms[pages[section]]; i++) 
+      {document.getElementById(pages[section] + "-" + i).style.visibility = "hidden"; 
+      // console.log(pages[section] + "-" + i);
+    }
+  }
+  if (pageNumber <= subantas_tigantas_krdantas['सुबंतः']) {
+    section = 'सुबंतः'; 
+    // pagesSofar = subantas_tigantas_krdantas['सुबंतः'];
+  }
+  else if (pageNumber <= subantas_tigantas_krdantas['तिगंतः']) {
+    section = 'तिगंतः';
+    // pagesSofar = subantas_tigantas_krdantas['सुबंतः'] + subantas_tigantas_krdantas['तिगंतः'];
+    }
+  else {
+    section = 'कृदंतः';
+    // pagesSofar = subantas_tigantas_krdantas['सुबंतः'] + subantas_tigantas_krdantas['तिगंतः'] + subantas_tigantas_krdantas['कृदंतः'];
+  }
+
+  tblId = section + "-" + Math.min((subantas_tigantas_krdantas[section] - pageNumber), 
+                                    subantas_tigantas_krdantas_forms[section] - 1);
+  console.log("tbl", tblId);
+  tbl = document.getElementById(tblId);
+
+  tbl.style.visibility = "visible";
+  parent = tbl.parentNode;
+  grandparent = parent.parentNode;
+  parent.removeChild(tbl);
+  grandparent.removeChild(parent)
+  parent.prepend(tbl);
+  grandparent.prepend(parent);
+
+  pageId.style.visibility = "visible";
+  parent = pageId.parentNode; 
+  grandparent=parent.parentNode;
+  parent.removeChild(pageId);
+  grandparent.removeChild(parent);
+  parent.prepend(pageId);
+  grandparent.prepend(parent);
+}
+
+    </script>
+  </body>
+</html>
