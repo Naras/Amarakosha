@@ -982,9 +982,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     row = index.row()
                     status, tigantaWord = self.modelDhatus.data[row]
                     tigantaWord = transliterate_lines(tigantaWord, IndianLanguages[0])
-                    self.gana = self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] // 100  # int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][0])
-                    self.padi = (self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 100) // 10  #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][1])
-                    self.it = self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 10  #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][2])
+                    self.gana = self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] // 100 - 1  # int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][0])
+                    self.padi = (self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 100) // 10 - 1 #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][1])
+                    self.it = self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 10 - 1 #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][2])
                 dialog = modalDialog_Tiganta(self, tigantaWord, requested_script=self.wanted_script+1)
                 # print('%s DhatuVidhas %s KrdantaVidha %s Krdanta Mode %s'%(dialog.ok, dialog.DhatuVidah, dialog.KrdantaVidah, dialog.KrdMode))
                 if dialog.okClicked:
@@ -1294,8 +1294,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                  self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara],
                 [transliterate_lines(txt, IndianLanguages[self.wanted_script]) for txt in [dialog.tigantaWord, dialog.arthas,
                                                                                            self.Sdhatudata[0][self.colsSdhatudata.index('Field3')], self.Sdhatudata[0][self.colsSdhatudata.index('Field4')],
-                                                                                           Kosha_Subanta_Krdanta_Tiganta.Tganas[self.gana], Kosha_Subanta_Krdanta_Tiganta.Tganas[self.padi], self.karmas[0],
-                                                                                           Kosha_Subanta_Krdanta_Tiganta.Tganas[self.it],
+                                                                                           Kosha_Subanta_Krdanta_Tiganta.Tganas[self.gana], Kosha_Subanta_Krdanta_Tiganta.Tpadis[self.padi], self.karmas[0],
+                                                                                           Kosha_Subanta_Krdanta_Tiganta.Tyits[self.it],
                                                                                            dialog.DhatuVidah, dialog.voice, dialog.lakara]]
             ))
             self.lblPratyaya_lakara.setText('लकारः')
@@ -1494,7 +1494,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 g.add_edge(interpretation['Verb'][0], interpretation[k][0])
                 edge_labels[(interpretation['Verb'][0], interpretation[k][0])] = k
         return g, edge_labels
-logging.basicConfig(level=logging.DEBUG, filename='../../Amarakosha.log', format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p')
+logging.basicConfig(level=logging.DEBUG, filename='AmarakoshaUI.log', format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p')
 app = QtWidgets.QApplication(sys.argv)
 window = MainWindow()
 window.show()

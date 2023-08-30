@@ -29,6 +29,7 @@ class RecordNotFound(Exception):
 
 class krdData:
     def __init__(self):
+        self.anta = None
         self.linga = None
         self.verb = None      # SDhatu.field2
         self.nijverb = None   # SDhatu.field3
@@ -55,7 +56,7 @@ class krdData:
         self.Dno = None        #int(KRUD.Field5)
         self.CombinedM = None  #KRUD.field10
     def get(self):
-        return {'linga': self.linga, 'verb': self.verb, 'nijverb': self.nijverb, 'sanverb': self.sanverb, 'GPICode': self.GPICode, 'gana': self.gana,
+        return {'anta': self.anta, 'linga': self.linga, 'verb': self.verb, 'nijverb': self.nijverb, 'sanverb': self.sanverb, 'GPICode': self.GPICode, 'gana': self.gana,
                 'padi': self.padi, 'it': self.it, 'dhatuVidhah': self.dhatuVidhah, 'krdantaVidhah': self.krdantaVidhah, 'combinedM': self.combinedM,
                 'wtype': self.wtype, 'pratyayaVidhah': self.pratyayaVidhah, 'karmaCode': self.karmaCode, 'karma': self.karma, 'meaning': self.meaning, 'vibvach': self.vibvach,
                 'vacana': self.vacana, 'vibhakti': self.vibhakti, 'sabda': self.sabda, 'erb': self.erb, 'det': self.det, 'ddet': self.ddet, 'Dno': self.Dno}
@@ -223,7 +224,9 @@ def krdanta_Generation(dhatuNo: str, DhatuVidah: str, KrdantaVidah: str, KrdMode
         # print('krdanta gen %s'%[Sandhi_Convt.Sandhi(krdDetail.erb + item) for item in subforms])
         forms += [subforms_with_sandhi[0:3], subforms_with_sandhi[3:6], subforms_with_sandhi[6:9],
                  subforms_with_sandhi[9:12], subforms_with_sandhi[12:15], subforms_with_sandhi[15:18],
-                 subforms_with_sandhi[18:21], subforms_with_sandhi[21:24]]
+                 subforms_with_sandhi[18:21],
+                 list(map(lambda word: transliterate_lines('हे', IndianLanguages[requested_script - 1]) + ' ' + word, subforms_with_sandhi[0:3]))]
+                  # subforms_with_sandhi[21:24]]
         krdDatas.append(getAnalysedinfo(krdDetail, dhatuNo, requested_script))
 
     # print('no. of items %i subforms with sandhi %s' % (len(forms), forms))
@@ -464,7 +467,7 @@ def tiganta_Analysis(word, requested_script=1):
     tigDatas = []
     qry = 'Select * from stinfin where Field1=?'
     cols_stinfin, data_stinfin = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, word, maxrows=0, script=requested_script)
-    if data_stinfin != []: ic(cols_stinfin, data_stinfin)
+    # if data_stinfin != []: ic(cols_stinfin, data_stinfin)
     for row in data_stinfin:
         dhatuNo = row[cols_stinfin.index('Field2')]
         pralak = row[cols_stinfin.index('Field3')]
