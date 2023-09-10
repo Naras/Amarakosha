@@ -1,0 +1,5 @@
+peewee~=3.14.9
+requests~=2.22.0
+networkx~=2.7
+Flask~=2.0.3
+Flask-Cors~=3.0.10

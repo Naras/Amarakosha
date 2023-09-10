@@ -20,16 +20,9 @@
       }
   
       button {
-        /* background-color: #4CAF50; */
-        /* color: white; */
         padding: 4px;
         border: 1px solid #ccc;
-        /* border-radius: 4px; */
-        /* cursor: pointer; */
-      }  
-      /* button:hover {
-        background-color: #45a049;
-      } */
+      }
  
       
     .flex-container {
@@ -57,6 +50,7 @@
     th {
       background-color: #f2f2f2;
     }
+    
     .tileVertical {
         display: inline-block;
         vertical-align: top;
@@ -68,20 +62,54 @@
     .center {
       margin: auto;
       width: 60%;
-      /* border: 3px solid #73AD21; */
       padding: 10px;
     }
   
+    .left {
+      position: relative;
+      float: left;
+      margin-top: 10px;
+      width: 6%;
+      height: 30px; /* 660px; */
+      /* background-color: #B9D7D9; */
+      margin-bottom: 10px;
+    }
+
+    ul{
+      list-style-type: none;
+      position: relative;
+      margin: -10px;
+    }
+          
+    li {
+      display: inline-block;
+      margin: 5px;
+      justify-content: center;
+      border: 1px solid #000000;
+      font-family: Futura, Tahoma, sans-serif;
+      color: #000000;
+    }
   </style>
   </head>
   <body>
+		<div id="header">
+			<div id="navbar" class="flex-container">
+				<ul>
+					<li><a href="webclient_Amara_Synonyms.html"> Amarakosha</a></li>
+					<li><a href="webclient_Subanta_Generate.html">Subanta</a></li>
+					<li><a href="webclient_Tiganta_Generate.html">Tiganta</a></li>
+					<li><a href="webclient_Krdanta_Generate.html">Krdanta</a></li>
+					<li><a href="webclient_sentence_analyser.html">Analysis</a></li>
+				</ul>
+			</div>
+    </div>
     <div class="flex-container"><h1>Morphological Analysis</h1></div>
     <div id="pageButtons" class="center"></div>
     <div id="buttons">
         <label for="Dhatus">Sentences:</label>
         <button id="DhatusButton">Analyze</button>
     </div>
-    <select id="Dhatus" size=0 class="tileVertical"></select> 
+    <select id="Dhatus" size=0 class="left"></select> 
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script>
@@ -117,7 +145,7 @@
         const sentence = $("#Dhatus option:selected").text();
         url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
         dhatuSel = $("#Dhatus option:selected").text();
-        url = 'http://' + url + ':' + port + prefix + 'SentenceAnalysis1?sentence=' + sentence;
+        url = 'http://' + url + ':' + port + prefix + 'SentenceAnalysis?sentence=' + sentence;
         
         fetch(url)
           .then(response => response.json())
@@ -150,10 +178,10 @@
                 pageDiv.id = 'page-' + pageNumber;
                 pageDiv.style.visibility = "hidden";
                 flexDiv.appendChild(pageAnchor);
-  const labelSection = document.createElement("label");
-  labelSection.htmlFor = pageAnchor.name;
-  labelSection.textContent = pageAnchor.name;
-  pageDiv.appendChild(labelSection);
+                /* const labelSection = document.createElement("label");
+                labelSection.htmlFor = pageAnchor.name;
+                labelSection.textContent = pageAnchor.name;
+                pageDiv.appendChild(labelSection); */
                 flexDiv.appendChild(pageDiv);
                 flexDiv.appendChild(document.createElement('br'));
               }
@@ -175,7 +203,7 @@
               pagerange += value;
               subantas_tigantas_krdantas[key] = pagerange
             }
-            console.log(subantas_tigantas_krdantas);
+            // console.log(subantas_tigantas_krdantas);
 
             for (let i = 1; i <= pageNumber; i++) {
               const button = document.createElement('button');
@@ -295,7 +323,7 @@ function showPage(pageNumber) {
 
   tblId = section + "-" + Math.min((subantas_tigantas_krdantas[section] - pageNumber), 
                                     subantas_tigantas_krdantas_forms[section] - 1);
-  console.log("tbl", tblId);
+  // console.log("tbl", tblId);
   tbl = document.getElementById(tblId);
 
   tbl.style.visibility = "visible";

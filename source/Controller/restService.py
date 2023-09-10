@@ -11,6 +11,9 @@ from networkx.readwrite import json_graph
 from datetime import datetime
 from flask_cors import CORS, cross_origin
 
+import sys
+# print('Include import path %s'%os.getcwd())
+sys.path.insert(1, os.getcwd())
 from source.Controller import Kosha_Subanta_Krdanta_Tiganta
 from source.Controller.Transliterate import transliterate_lines, IndianLanguages
 from source.Model import AmaraKosha_Database_Queries
@@ -467,4 +470,4 @@ def get_DhatuTigantaVoiceLakara():
     except KeyError as e:
         return abort(400, description=e)
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    app.run(debug=True, host="0.0.0.0", port=5002)

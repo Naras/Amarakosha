@@ -65,9 +65,40 @@
         box-sizing: border-box;
       }
 
+      ul{
+        list-style-type: none;
+        position: relative;
+        margin: -10px;
+    }
+          
+    li {
+        /*Add your CSS here!*/
+        display: inline-block;
+      /* padding-left: 1px;
+      padding-right: 1px; */
+      margin: 5px;
+      justify-content: center;
+        border: 1px solid #000000;
+        font-family: Futura, Tahoma, sans-serif;
+      /* font-size: 80%; */
+        color: #000000;
+        /* border-radius: 5px 5px; */
+        /* background-color: #cc0323 */
+    }
   </style>
   </head>
   <body>
+		<div id="header">
+			<div id="navbar" class="flex-container">
+				<ul>
+					<li><a href="webclient_Amara_Synonyms.html"> Amarakosha</a></li>
+					<li><a href="webclient_Subanta_Generate.html">Subanta</a></li>
+					<li><a href="webclient_Tiganta_Generate.html">Tiganta</a></li>
+					<li><a href="webclient_Krdanta_Generate.html">Krdanta</a></li>
+					<li><a href="webclient_sentence_analyser.html">Analysis</a></li>
+				</ul>
+			</div>
+    </div>
     <div class="flex-container"><h1>Tigantas</h1></div>
     <button id="refreshButton" onclick="location.reload()">Restart</button>
     <input id="status" type="text" value="" name="status">
