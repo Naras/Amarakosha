@@ -172,10 +172,12 @@ def krdanta_Results(qry: str, param: str, requested_script=1) -> (List[str], Lis
             arthas += [transliterate_lines(word[:-2], Transliterate.IndianLanguages[requested_script - 1]) for word in arthas_karmas]
             karmas = []
             for word in arthas_karmas:
-                if isinstance(word[len(word) - 1], int):
-                    karmaIndex = int(word[len(word)-1]) - 1
+                try:
+                    last = int(word[-1])
+                    karmaIndex = last - 1
                     karmas.append(transliterate_lines(Tkarmas[karmaIndex], Transliterate.IndianLanguages[requested_script - 1]))
-                else: karmas.append(transliterate_lines(Tkarmas[0], Transliterate.IndianLanguages[requested_script - 1]))
+                except:
+                    karmas.append(transliterate_lines(Tkarmas[0], Transliterate.IndianLanguages[requested_script - 1]))
             # ic.ic(karmas, arthas, karmaIndex, arthas_karmas)
         dhatuNo = dataDhatu[0][cols.index('Field1')]
     except Exception as e:

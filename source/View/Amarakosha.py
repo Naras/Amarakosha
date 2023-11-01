@@ -177,11 +177,9 @@ class modalDialog_Krdanta(QDialog):
             arthas, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(self.krdantaWord) #, requested_script=self.script)
             arthas = [transliterate_lines(item, IndianLanguages[self.script - 1]) for item in arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), arthas))
-            # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             if not self.addedListview:
                 self.mainLayout.addWidget(self.listView_meanings)
                 self.addedListview = True
-            # self.listView_meanings.clicked.connect(self.gridDisplay)
             self.removeAllGroups()
             self.grid = QGridLayout(self)
             self.gridDisplay()
@@ -266,11 +264,9 @@ class modalDialog_Krdanta(QDialog):
             self.listView_meanings.setModel(self.modelKrdanta_meanings)
             self.listView_meanings.setUniformItemSizes(True)
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
-            # self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = Kosha_Subanta_Krdanta_Tiganta.krdanta_Gana(self.gana)
             self.arthas = [transliterate_lines(item, IndianLanguages[self.script-1]) for item in self.arthas]
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
-            # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             if not self.addedListview:
                 self.mainLayout.addWidget(self.listView_meanings)
                 self.addedListview = True
@@ -425,7 +421,7 @@ class modalDialog_Tiganta(QDialog):
             self.mainLayout.removeItem(self.grid)
             self.groupBoxDhatuVidha, self.groupBoxKrdantaVidha, self.groupBoxKrdMode, self.groupBoxGanas, \
             self.groupBoxPadis, self.groupBoxKarmas, self.groupBoxIts = None, None, None, None, None, None, None
-            self.grid == None
+            self.grid = None
     '''def addDhatuTigantaGroups(self):
         DhatuVidha = ["केवलतिगंतः", "णिजन्तः", "सन्नन्तः"]
         self.groupBoxDhatuVidha = self.createOptionGroup(DhatuVidha, 'धातुविदाः', self.optionDhatuVidha)
@@ -457,7 +453,6 @@ class modalDialog_Tiganta(QDialog):
             self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             dhatus, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(self.tigantaWord, requested_script=self.script)
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), dhatus))
-            # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
             self.modelKrdanta_meanings.layoutChanged.emit()
             self.removeAllGroups()
@@ -542,10 +537,8 @@ class modalDialog_Tiganta(QDialog):
             self.listView_meanings.setModel(self.modelKrdanta_meanings)
             self.listView_meanings.setUniformItemSizes(True)
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
-            # self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = Kosha_Subanta_Krdanta_Tiganta.krdanta_Gana(self.gana)
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
-            # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
             self.modelKrdanta_meanings.layoutChanged.emit()
 
@@ -573,7 +566,6 @@ class modalDialog_Tiganta(QDialog):
             # self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = Kosha_Subanta_Krdanta_Tiganta.krdanta_Padi(self.padi)
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
-            # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
             self.modelKrdanta_meanings.layoutChanged.emit()
 
@@ -598,10 +590,8 @@ class modalDialog_Tiganta(QDialog):
             self.listView_meanings.setModel(self.modelKrdanta_meanings)
             self.listView_meanings.setUniformItemSizes(True)
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
-            # self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = Kosha_Subanta_Krdanta_Tiganta.krdanta_Karma(self.karma)
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
-            # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
             self.modelKrdanta_meanings.layoutChanged.emit()
 
@@ -626,10 +616,8 @@ class modalDialog_Tiganta(QDialog):
             self.listView_meanings.setModel(self.modelKrdanta_meanings)
             self.listView_meanings.setUniformItemSizes(True)
             self.listView_meanings.setMaximumWidth(self.listView_meanings.sizeHintForColumn(0) + 125)
-            # self.listView_meanings.setMaximumHeight(self.listView_meanings.sizeHintForRow(0) + 35)
             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = Kosha_Subanta_Krdanta_Tiganta.krdanta_It(self.it)
             self.modelKrdanta_meanings.data = list(map(lambda item: (False, item), self.arthas))
-            # self.modelKrdanta_meanings.dataIscii = list(map(lambda item: (False, item[3]), arthas))
             self.mainLayout.addWidget(self.listView_meanings)
             self.modelKrdanta_meanings.layoutChanged.emit()
 
@@ -939,7 +927,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     status, krdantaWord = self.modelDhatus.data[row]
                     krdantaWord = transliterate_lines(krdantaWord, IndianLanguages[0])
                 dialog = modalDialog_Krdanta(self, krdantaWord, self.wanted_script + 1)
-                # print('%s DhatuVidhas %s KrdantaVidha %s Krdanta Mode %s'%(dialog.ok, dialog.DhatuVidah, dialog.KrdantaVidah, dialog.KrdMode))
                 if dialog.okClicked:
                         if dialog.mainOption == 'Sorted List':
                             self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = \
@@ -986,7 +973,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.padi = (self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 100) // 10 - 1 #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][1])
                     self.it = self.Sdhatudata[row][self.colsSdhatudata.index('Field9')] % 10 - 1 #int(self.Sdhatudata[row][self.colsSdhatudata.index('Field9')][2])
                 dialog = modalDialog_Tiganta(self, tigantaWord, requested_script=self.wanted_script+1)
-                # print('%s DhatuVidhas %s KrdantaVidha %s Krdanta Mode %s'%(dialog.ok, dialog.DhatuVidah, dialog.KrdantaVidah, dialog.KrdMode))
                 if dialog.okClicked:
                     if dialog.mainOption == 'Sorted List(अकारादि)':
                         self.arthas, self.karmas, self.dhatuNo, self.dataDhatu, self.cols_dataDhatu = \
@@ -1280,7 +1266,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lblKrdantaVidah_prayoga.setText('कृदंतविधः')
             self.Categories.setText(transliterate_lines('कृदंतः', IndianLanguages[self.wanted_script]))
         else: # Tiganta
-            self.forms, self.tigData = Kosha_Subanta_Krdanta_Tiganta.tiganta_Generation(dhatuNo,
+            self.forms, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_Generation(dhatuNo,
                                                                                         dialog.DhatuVidah,
                                                                                         dialog.voice,
                                                                                         dialog.lakara,

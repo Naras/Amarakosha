@@ -101,11 +101,15 @@
 			</div>
     </div>
     <div class="flex-container"><h1>Krdantas</h1></div>
-    <button id="refreshButton" onclick="location.reload()">Restart</button>
+    <!-- <button id="refreshButton" onclick="location.reload()">Restart</button> -->
     <input id="status" type="text" value="" name="status">
     <div>
         <label for="Dhatus">Dhatus:</label>
-        <button id="DhatusButton" disabled>Generate</button>
+        <button id="DhatusButton" disabled>Sorted List(अकारादि)</button>
+        <button id="DhatusButtonOptionGana" disabled>Ganas(गण)</button>
+        <button id="DhatusButtonOptionPadi" disabled>Padis(पदि)</button>
+        <button id="DhatusButtonOptionKarma" disabled>Karmas(कर्म)</button>
+        <button id="DhatusButtonOptionIt" disabled>Its(इट्)</button>
     </div>
     <select id="Dhatus" size=53 class="tileVertical"></select> 
     <div id="dhatu" class="tileVertical">
@@ -113,7 +117,7 @@
     </div>
     <div id="textBoxes" class="tileVertical"><p>कृदंतः</p></div>
     <div id="vibhakti_vachana" class="tileVertical"><p></p></div>
-    <div id="tigantaTbl" class="tileVertical">
+    <div id="krdantaTbl" class="tileVertical">
       <table id="tbl">Vibhakti/Vachana
         <tr><td>empty</td></tr>
       </table>
@@ -125,10 +129,8 @@
         <option value="णिजन्त">णिजन्तः</option>
         <option value="सन्नन्तः">सन्नन्तः</option>
       </div>
-      <div><label for="Prayoga1">कृदंतविधाः</label>
-          <select id="Prayoga1" name="Prayoga1" size="1" >
-            <!-- <option value="कर्तरि">कर्तरि</option>
-            <option value="कर्मणि">कर्मणि</option> -->
+      <div><label for="Placeholder1">dummy</label>
+        <select id="Placeholder1" name="Placeholder1" size="1" >
       </div>
       <div><label for="Prayoga">कृदंतविधाः</label>
           <select id="Prayoga" name="Prayoga" size="5">
@@ -138,11 +140,11 @@
             <option value="भविष्यत्">भविष्यत्</option>
             <option value="कृदव्ययम्">कृदव्ययम्</option>
       </div>
-      <div><label for="lakara1">Krdanta Mode</label>
-            <select id="lakara1" name="lakara1" size="1" >
+      <div><label for="Placeholder2">dummy</label>
+        <select id="Placeholder2" name="Placeholder1" size="1" >
       </div>
-      <div><label for="lakara">Krdanta Mode</label>
-            <select id="lakara" name="lakara" size="11">
+      <div><label for="KrdMode">Krdanta Mode</label>
+            <select id="KrdMode" name="KrdMode" size="11">
               <option selected value="तव्य">तव्य</option>
               <option value="अनीयर्">अनीयर्</option>
               <option value="य">य</option>
@@ -155,14 +157,67 @@
               <option value="तुमुन्">तुमुन्</option>
               <option value="क्त्वा">क्त्वा</option>
       </div>
-      <input type="button" name="ok1" value="ok"  onclick="alert('hello 1')" style="visibility: hidden;">
-      <input type="button" name="ok2" value="ok"  onclick="getDhatus()">
+  
+      <div><label for="Placeholder6">dummy</label>
+        <select id="Placeholder6" name="Placeholder6" size="1" >
+    </div>
+      <input type="button" id="btnOk" name="sortedList" value="ok"  onclick="optionsClicked()" style="visibility: hidden;">
       <input type="button" name="cancel" value="cancel"  onclick="alert('cancelled')">   </div>
+      <div class="tileVertical" id="optionGana" style="visibility: hidden;">    
+      <div><label id="lblgana" for="gana">गण</label>
+            <select id="gana" name="gana" size="10">
+              <option selected value="भ्वादिगणः">भ्वादिगणः</option>
+              <option value="अदादिगणः">अदादिगणः</option>
+              <option value="जुहोत्यादिगणः">जुहोत्यादिगणः</option>
+              <option value="दिवादिगणः">दिवादिगणः</option>
+              <option value="स्वादिगणः">स्वादिगणः</option>
+              <option value="तुदादिगणः">तुदादिगणः</option>
+              <option value="रुधादिगणः">रुधादिगणः</option>
+              <option value="तनादिगणः">तनादिगणः</option>
+              <option value="क्रयादिगणः">क्रयादिगणः</option>
+              <option value="चुरादिगणः">चुरादिगणः</option>
+      </div>
+      <div><label for="Placeholder2">dummy</label>
+          <select id="Placeholder2" name="Placeholder2" size="1" >
+      </div>
+    </div>
+      <div class="tileVertical" id="optionPadi" style="visibility: hidden;">    
+      <div><label  id="lblpadi" for="padi">पदि</label>
+            <select id="padi" name="padi" size="3">
+              <option selected value="परस्मैपदी">परस्मैपदी</option>
+              <option value="आत्मनेपदी">आत्मनेपदी</option>
+              <option value="उभयपदी">उभयपदी</option>
+      </div>
+      <div><label for="Placeholder3">dummy</label>
+          <select id="Placeholder3" name="Placeholder3" size="1" >
+      </div>
+    </div>
+      <div class="tileVertical" id="optionKarma" style="visibility: hidden;">    
+      <div><label  id="lblkarma" for="karma">कर्म</label>
+            <select id="karma" name="karma" size="3">
+              <option selected value="सकर्मकः">सकर्मकः</option>
+              <option value="अकर्मकः">अकर्मकः</option>
+              <option value="द्विकर्मकः">द्विकर्मकः</option>
+      </div>
+      <div><label for="Placeholder4">dummy</label>
+          <select id="Placeholder4" name="Placeholder4" size="1" >
+      </div>
+    </div>
+      <div class="tileVertical" id="optionIt" style="visibility: hidden;">    
+      <div><label  id="lblit" for="it">इट्</label>
+            <select id="it" name="it" size="3">
+              <option selected value="सेट्">सेट्</option>
+              <option value="अनिट्">अनिट्</option>
+              <option value="वेट्">वेट्</option>
+      </div>
+      <div><label for="Placeholder5">dummy</label>
+          <select id="Placeholder5" name="Placeholder5" size="1" >
+      </div></div>
   </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script>
-        url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
-        document.getElementById("status").value="";
+      url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
+      document.getElementById("status").value="";
       // Populate the listbox with options from the Dhatus endpoint
       const DhatusSelect = document.getElementById("Dhatus");
       fetch('http://' + url + ':' + port + prefix + 'KrdantaTigantaDhatus')
@@ -177,37 +232,197 @@
             DhatusSelect.appendChild(option);
           });
         });
-        // enable generate button only when there is a selection from the list box
+        // enable generate buttons only when there is a selection from the list box
         const DhatusListBox = document.getElementById("Dhatus");
         DhatusListBox.addEventListener("change", () => {
-        const word = $("#Dhatus option:selected").text();
-        if (word == "") document.getElementById("DhatusButton").disabled = true;
-        else document.getElementById("DhatusButton").disabled = false;
+        const dhatu = $("#Dhatus option:selected").text();
+        if (dhatu == "") {
+            document.getElementById("DhatusButton").disabled = true;
+            document.getElementById("DhatusButtonOptionGana").disabled = true;
+            document.getElementById("DhatusButtonOptionPadi").disabled = true;
+            document.getElementById("DhatusButtonOptionKarma").disabled = true;
+            document.getElementById("DhatusButtonOptionIt").disabled = true;}
+        else {
+            document.getElementById("DhatusButton").disabled = false;
+            document.getElementById("DhatusButtonOptionGana").disabled = false;
+            document.getElementById("DhatusButtonOptionPadi").disabled = false;
+            document.getElementById("DhatusButtonOptionKarma").disabled = false;
+            document.getElementById("DhatusButtonOptionIt").disabled = false;}
         })
-      // Add an event listener to the "Get Dhatus" button
+      var optionClicked = "SortedList";
+      // Add event listeners to the "Get Dhatus" buttons
       const DhatusButton = document.getElementById("DhatusButton");
-      DhatusButton.addEventListener("click", () => {
+      const DhatusButtonGana = document.getElementById("DhatusButtonOptionGana");
+      const DhatusButtonPadi = document.getElementById("DhatusButtonOptionPadi");
+      const DhatusButtonKarma = document.getElementById("DhatusButtonOptionKarma");
+      const DhatusButtonIt = document.getElementById("DhatusButtonOptionIt");
+    DhatusButton.addEventListener("click", () => {
         const selectedId = DhatusSelect.value;
         const popup = document.getElementById("popup");
         popup.style.visibility = "visible";
-        // alert("popup-" + popup.style.visibility);
         document.getElementById("textBoxes").style.visibility = "hidden";
         document.getElementById("vibhakti_vachana").style.visibility = "hidden";
-        document.getElementById("tigantaTbl").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+
+        document.getElementById("btnOk").style.visibility = "visible";
     });
-    </script>
-    <script>
+      DhatusButtonGana.addEventListener("click", () => {
+        const selectedId = DhatusSelect.value;
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        const popupGana = document.getElementById("optionGana");
+        popupGana.style.visibility = "visible";
+        document.getElementById("optionPadi").style.visibility = "hidden";
+        document.getElementById("optionKarma").style.visibility = "hidden";
+        document.getElementById("optionIt").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("vibhakti_vachana").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+
+        document.getElementById("btnOk").style.visibility = "visible";
+        optionClicked = "Ganas";
+    });
+      DhatusButtonPadi.addEventListener("click", () => {
+        const selectedId = DhatusSelect.value;
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        const popupPadi = document.getElementById("optionPadi");
+        popupPadi.style.visibility = "visible";
+        document.getElementById("optionGana").style.visibility = "hidden";
+        document.getElementById("optionKarma").style.visibility = "hidden";
+        document.getElementById("optionIt").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("vibhakti_vachana").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+
+        document.getElementById("btnOk").style.visibility = "visible";
+        optionClicked = "Padis";
+    });
+      DhatusButtonKarma.addEventListener("click", () => {
+        const selectedId = DhatusSelect.value;
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        const popupKarma = document.getElementById("optionKarma");
+        popupKarma.style.visibility = "visible";
+        document.getElementById("optionGana").style.visibility = "hidden";
+        document.getElementById("optionPadi").style.visibility = "hidden";
+        document.getElementById("optionIt").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("vibhakti_vachana").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+
+        document.getElementById("btnOk").style.visibility = "visible";
+        optionClicked = "Karmas";
+    });
+      DhatusButtonIt.addEventListener("click", () => {
+        const selectedId = DhatusSelect.value;
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        const popupIt = document.getElementById("optionIt");
+        popupIt.style.visibility = "visible";
+        document.getElementById("optionGana").style.visibility = "hidden";
+        document.getElementById("optionKarma").style.visibility = "hidden";
+        document.getElementById("optionPadi").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("vibhakti_vachana").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+
+        document.getElementById("btnOk").style.visibility = "visible";
+        optionClicked = "Its";
+    });
+
+      function optionsClicked() {
+        if (optionClicked == "SortedList") getDhatus();
+        else if (optionClicked == "Ganas") getDhatusOptionGana();
+        else if (optionClicked == "Padis") getDhatusOptionPadi();
+        else if (optionClicked == "Karmas") getDhatusOptionKarma();
+        else if (optionClicked == "Its") getDhatusOptionIt();
+        optionClicked = "SortedList";
+        document.getElementById("DhatusButton").disabled = true;
+        document.getElementById("DhatusButtonOptionGana").disabled = true;
+        document.getElementById("DhatusButtonOptionPadi").disabled = true;
+        document.getElementById("DhatusButtonOptionKarma").disabled = true;
+        document.getElementById("DhatusButtonOptionIt").disabled = true; 
+        document.getElementById("btnOk").style.visibility = "hidden";
+      }
       function getDhatus() {
         document.getElementById("popup").style.visibility = "hidden";
         document.getElementById("textBoxes").style.visibility = "visible";
         document.getElementById("vibhakti_vachana").style.visibility = "visible";
-        document.getElementById("tigantaTbl").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
         const dhatuVidha =  $("#DhatuVidha option:selected").text();
-        const voice =  $("#Prayoga option:selected").text();
-        const lakara =  $("#lakara option:selected").text();
-        const word = $("#Dhatus option:selected").text();
-        parameters = "?DhatuVidha=" + dhatuVidha+"&KrdantaVidha=" + voice + "&KrdMode=" + lakara + "&word=" + word;
-        url = 'http://' + url + ':' + port + prefix + 'KrdantaDhatuKrdantaMode' + parameters; 
+        const KrdantaVidha =  $("#Prayoga option:selected").text();
+        const KrdMode =  $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha+"&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu;
+        url = 'http://' + url + ':' + port + prefix + 'KrdantaDhatuKrdantaMode' + parameters;
+        renderRestApiJson(url);
+    };
+    
+    function getDhatusOptionGana() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("vibhakti_vachana").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
+        const dhatuVidha =  $("#DhatuVidha option:selected").text();
+        const KrdantaVidha =  $("#Prayoga option:selected").text();
+        const KrdMode =  $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        const parameter = $("#gana option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha+"&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu + "&option=गण" + "&parameter=" + parameter;
+        url = 'http://' + url + ':' + port + prefix + 'KrdantaOptionGanaPadiKarmaIt' + parameters;
+        document.getElementById("optionGana").style.visibility = "hidden";
+        renderRestApiJson(url);
+      }
+      function getDhatusOptionPadi() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("vibhakti_vachana").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
+        const dhatuVidha =  $("#DhatuVidha option:selected").text();
+        const KrdantaVidha =  $("#Prayoga option:selected").text();
+        const KrdMode =  $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        const parameter = $("#padi option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha+"&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu + "&option=पदि" + "&parameter=" + parameter;
+        url = 'http://' + url + ':' + port + prefix + 'KrdantaOptionGanaPadiKarmaIt' + parameters;
+        document.getElementById("optionPadi").style.visibility = "hidden";
+        renderRestApiJson(url);
+      };
+
+      function getDhatusOptionKarma() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("vibhakti_vachana").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
+        const dhatuVidha =  $("#DhatuVidha option:selected").text();
+        const KrdantaVidha =  $("#Prayoga option:selected").text();
+        const KrdMode =  $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        const parameter = $("#karma option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha+"&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu + "&option=कर्म" + "&parameter=" + parameter;
+        url = 'http://' + url + ':' + port + prefix + 'KrdantaOptionGanaPadiKarmaIt' + parameters;
+        document.getElementById("optionKarma").style.visibility = "hidden";
+        renderRestApiJson(url);
+      };
+
+      function getDhatusOptionIt() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("vibhakti_vachana").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
+        const dhatuVidha =  $("#DhatuVidha option:selected").text();
+        const KrdantaVidha =  $("#Prayoga option:selected").text();
+        const KrdMode =  $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        const parameter = $("#it option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha+"&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu + "&option=इट्" + "&parameter=" + parameter;
+        url = 'http://' + url + ':' + port + prefix + 'KrdantaOptionGanaPadiKarmaIt' + parameters;
+        document.getElementById("optionIt").style.visibility = "hidden";
+        renderRestApiJson(url);
+      };
+
+    function renderRestApiJson(url) { 
         console.log(url);
         fetch(url)
           .then(response => response.json())
@@ -239,7 +454,6 @@
                 headerRow.appendChild(header3);
 
                 formsDict = dataArray["forms"];
-                console.log('formsDict', formsDict);
 
                 vibhaktis = ['प्रथमा', 'द्वितीया', 'तृतीया', 'चतुर्थि', 'पंचमि', 'शष्टि', 'सप्तमि', 'सं प्रथम'];
 

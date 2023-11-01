@@ -420,20 +420,53 @@ def get_Krdanta(dhatuNo):
     return jsonify({"forms": forms, "krdData": krdData, "emptyForms": emptyForms, "emptyKrd": emptyKrd, "dupFormKeys": dupFormKeys, "dupKrdKeys": dupKrdKeys})
 @app.route(endpoint_prefix + 'KrdantaDhatuKrdantaMode', methods=['GET'])
 @cross_origin()
-def get_DhatuKrdantaVidhaMode():
-    word, DhatuVidha, KrdantaVidha, KrdMode = request.args.get('word'), request.args.get('DhatuVidha'), request.args.get('KrdantaVidha'), request.args.get('KrdMode')
-    logging.debug('servicing Amarakosha Krdanta generation for word %s DhatuVidha %s KrdantaVidha %s KrdMode %s'%(word, DhatuVidha, KrdantaVidha, KrdMode))
+def get_DhatuKrdantaVidhaModeSortedList():
+    dhatu, DhatuVidha, KrdantaVidha, KrdMode = request.args.get('dhatu'), request.args.get('DhatuVidha'), request.args.get('KrdantaVidha'), request.args.get('KrdMode')
+    logging.debug('servicing Amarakosha Krdanta sorted list for dhatu %s DhatuVidha %s KrdantaVidha %s KrdMode %s'%(dhatu, DhatuVidha, KrdantaVidha, KrdMode))
     try:
-        arthas, karmas, dhatuNo, dataDhatu, cols = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(word)
+        arthas, karmas, dhatuNo, dataDhatu, cols = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(dhatu)
         forms, krd = Kosha_Subanta_Krdanta_Tiganta.krdanta_Generation(dhatuNo, DhatuVidha, KrdantaVidha, KrdMode)
         krd = [krdI.get() for krdI in krd]
-        # logging.debug("forms %s\nkrdData %s" % (forms, krd))
-        results = {"forms": forms[:8], "dhatvarya": arthas[0]}
+        results = {"forms": forms[:8], "dhatvarya": ','.join(arthas)}
         for k, v in krd[0].items():
             if k in ["anta", "sabda" "linga", "dhatuVidhah", "gana", "karma", "krdantaVidhah", "meaning", "nijverb", "pratyayaVidhah", "sanverb", "verb", "erb", "padi", "gana", "it"]: results[k] = v
         return jsonify({"Krdantas": results})
     except KeyError as e:
         return abort(400, description=e)
+@app.route(endpoint_prefix + 'KrdantaOptionGanaPadiKarmaIt', methods=['GET'])
+@cross_origin()
+def get_DhatuKrdantaOptionGanaPadiKarmaIt():
+    dhatu, option, parameter, DhatuVidha, KrdantaVidha, KrdMode = request.args.get('dhatu'),  request.args.get('option'), request.args.get('parameter'), \
+        request.args.get('DhatuVidha'), request.args.get('KrdantaVidha'), request.args.get('KrdMode')
+    logging.debug('servicing Amarakosha Krdanta options गण/पदि/कर्म/इट् for dhatu %s option %s parameter %s DhatuVidha %s KrdantaVidha %s KrdMode %s'%(dhatu, option, parameter, DhatuVidha, KrdantaVidha, KrdMode))
+    try:
+        options = ['गण', 'पदि', 'कर्म', 'इट्']
+        validParameters = [Kosha_Subanta_Krdanta_Tiganta.Tganas, Kosha_Subanta_Krdanta_Tiganta.Tpadis,
+                           Kosha_Subanta_Krdanta_Tiganta.Tkarmas, Kosha_Subanta_Krdanta_Tiganta.Tyits][options.index(option)]
+        if option not in options: raise SyntaxError("invalid option - has to be one of गण, पदि, कर्म, or इट्")
+        if parameter not in validParameters: raise SyntaxError('invalid parameter - must be one of ' + ' / '.join(validParameters))
+        func = [Kosha_Subanta_Krdanta_Tiganta.krdanta_Gana, Kosha_Subanta_Krdanta_Tiganta.krdanta_Padi,
+                Kosha_Subanta_Krdanta_Tiganta.krdanta_Karma, Kosha_Subanta_Krdanta_Tiganta.krdanta_It][options.index(option)]
+        arthas, karmas, dhatuNo, dataDhatu, cols = func(parameter)
+        forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Generation(dhatuNo, DhatuVidha, KrdantaVidha, KrdMode)
+        if option == 'गण': gana = parameter
+        else: gana = Kosha_Subanta_Krdanta_Tiganta.Tganas[dataDhatu[0][cols.index('Field9')] // 100 - 1]
+        if option == 'पदि': padi = parameter
+        else: padi = Kosha_Subanta_Krdanta_Tiganta.Tpadis[(dataDhatu[0][cols.index('Field9')] % 100) // 10 - 1]
+        if option == 'इट्': it = parameter
+        else: it = Kosha_Subanta_Krdanta_Tiganta.Tyits[dataDhatu[0][cols.index('Field9')] % 10 - 1]
+        karma = ','.join(karmas)
+        # if option == 'कर्म': karma = parameter
+        return jsonify({"Krdantas": {"forms": forms[:8], "Dhatvarya": ','.join(arthas), "Nijidhatu": krdData[0].nijverb,
+                        "Sanidhatu": krdData[0].sanverb, "karma": karma, "gana": gana, "padi": padi, "it": it,
+                        "dhatuVidha": krdData[0].dhatuVidhah, "KrdantaVidha": krdData[0].krdantaVidhah, "Pratyaya": krdData[0].pratyayaVidhah,
+                         "sabda": krdData[0].sabda, "anta": krdData[0].anta, "linga": krdData[0].linga, "rupa": forms[0][0]
+                        }})
+    except KeyError as e:
+        return abort(400, description=e)
+    except SyntaxError as e:
+        return abort(400, description=e)
+
 @app.route(endpoint_prefix + 'Tiganta/<string:dhatuNo>', methods=['GET'])
 @cross_origin()
 def get_Tiganta(dhatuNo):
@@ -452,19 +485,61 @@ def get_Tiganta(dhatuNo):
                 tigData[dhatuVidah][voice] = [tig.get() for tig in tiggen]
     # logging.debug("forms %s\ntigData %s\nemptyForms %s\nemptyTig %s\ndupFormsTig %s\ndupKeyTig %s"%(forms, tigData, emptyForms, emptyTig, dupFormKeys, dupTigKeys))
     return jsonify({"forms": forms, "tigData": tigData, "emptyForms": emptyForms, "emptyTig": emptyTig, "dupFormKeys": dupFormKeys, "dupTigKeys": dupTigKeys})
+@app.route(endpoint_prefix + 'TigantaArthasSortedList', methods=['GET'])
+@cross_origin()
+def get_DhatuTigantaArthasSortedList():
+    word = request.args.get('word')
+    logging.debug('servicing Amarakosha Tiganta arthas Sorted List(अकारादि) for word %s'%word)
+    try:
+        arthas, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(word)
+        return jsonify({"Tigantas": {"arthas": arthas}})
+    except KeyError as e:
+        return abort(400, description=e)
+@app.route(endpoint_prefix + 'TigantaOptionGanaPadiKarmaIt', methods=['GET'])
+@cross_origin()
+def get_DhatuTigantaArthasOptionGanaPadiKarmaIt():
+    dhatu, option, parameter, DhatuVidha, voice, lakara = request.args.get('dhatu'), request.args.get('option'), request.args.get('parameter'),\
+        request.args.get('DhatuVidha'), request.args.get('voice'), request.args.get('lakara')
+    logging.debug('servicing Amarakosha Tiganta arthas गण/पदि/कर्म/इट् for dhatu %s option %s parameter %s DhatuVidha %s voice %s lakara %s'%(dhatu, option, parameter, DhatuVidha, voice, lakara))
+    try:
+        options = ['गण', 'पदि', 'कर्म', 'इट्']
+        validParameters = [Kosha_Subanta_Krdanta_Tiganta.Tganas, Kosha_Subanta_Krdanta_Tiganta.Tpadis,
+                           Kosha_Subanta_Krdanta_Tiganta.Tkarmas, Kosha_Subanta_Krdanta_Tiganta.Tyits][options.index(option)]
+        if option not in options: raise SyntaxError("invalid option - has to be one of गण, पदि, कर्म, or इट्")
+        if parameter not in validParameters: raise SyntaxError('invalid parameter - must be one of ' + ' / '.join(validParameters))
+        func = [Kosha_Subanta_Krdanta_Tiganta.krdanta_Gana, Kosha_Subanta_Krdanta_Tiganta.krdanta_Padi,
+                Kosha_Subanta_Krdanta_Tiganta.krdanta_Karma, Kosha_Subanta_Krdanta_Tiganta.krdanta_It][options.index(option)]
+        arthas, karmas, dhatuNo, dataDhatu, cols = func(parameter)
+        forms, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_Generation(dhatuNo, DhatuVidha, voice, lakara)  # tigData always empty
+        if option == 'गण': gana = parameter
+        else: gana = Kosha_Subanta_Krdanta_Tiganta.Tganas[dataDhatu[0][cols.index('Field9')] // 100 - 1]
+        if option == 'पदि': padi = parameter
+        else: padi = Kosha_Subanta_Krdanta_Tiganta.Tpadis[(dataDhatu[0][cols.index('Field9')] % 100) // 10 - 1]
+        if option == 'इट्': it = parameter
+        else: it = Kosha_Subanta_Krdanta_Tiganta.Tyits[dataDhatu[0][cols.index('Field9')] % 10 - 1]
+        # if option == 'कर्म': karma = parameter
+        karma = ','.join(karmas)
+        return jsonify({"Tigantas": {"forms": forms, "Dhatvarya": ','.join(arthas), "Nijidhatu": dataDhatu[0][cols.index("Field3")],
+                        "Sanidhatu": dataDhatu[0][cols.index("Field4")], "karma": karma, "gana": gana, "padi": padi, "it": it,
+                        "dhatuVidha": DhatuVidha, "voice": voice, "lakara": lakara
+                        }})
+    except KeyError as e:
+        return abort(400, description=e)
+    except SyntaxError as e:
+        return abort(400, description=e)
 @app.route(endpoint_prefix + 'TigantaDhatuVoiceLakara', methods=['GET'])
 @cross_origin()
 def get_DhatuTigantaVoiceLakara():
-    word, DhatuVidha, voice, lakara = request.args.get('word'), request.args.get('DhatuVidha'), request.args.get('voice'), request.args.get('lakara')
-    logging.debug('servicing Amarakosha Tiganta generation for word %s DhatuVidha %s voice %s lakara %s'%(word, DhatuVidha, voice, lakara))
+    dhatu, DhatuVidha, voice, lakara = request.args.get('dhatu'), request.args.get('DhatuVidha'), request.args.get('voice'), request.args.get('lakara')
+    logging.debug('servicing Amarakosha Tiganta generation for word %s DhatuVidha %s voice %s lakara %s'%(dhatu, DhatuVidha, voice, lakara))
     try:
-        arthas, karmas, dhatuNo, dataDhatu, cols = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(word)
+        arthas, karmas, dhatuNo, dataDhatu, cols = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(dhatu)
         forms, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_Generation(dhatuNo, DhatuVidha, voice, lakara)  # tigData always empty
         gana = Kosha_Subanta_Krdanta_Tiganta.Tganas[dataDhatu[0][cols.index('Field9')] // 100 - 1]
         padi = Kosha_Subanta_Krdanta_Tiganta.Tpadis[(dataDhatu[0][cols.index('Field9')] % 100) // 10 - 1]
         it = Kosha_Subanta_Krdanta_Tiganta.Tyits[dataDhatu[0][cols.index('Field9')] % 10 - 1]
-        return jsonify({"Tigantas": {"forms": forms, "Dhatvarya": arthas[0], "Nijidhatu": dataDhatu[0][cols.index("Field3")],
-                        "Sanidhatu": dataDhatu[0][cols.index("Field4")], "karma": karmas[0], "gana": gana, "padi": padi, "it": it,
+        return jsonify({"Tigantas": {"forms": forms, "Dhatvarya": ','.join(arthas), "Nijidhatu": dataDhatu[0][cols.index("Field3")],
+                        "Sanidhatu": dataDhatu[0][cols.index("Field4")], "karma": ','.join(karmas), "gana": gana, "padi": padi, "it": it,
                         "dhatuVidha": DhatuVidha, "voice": voice, "lakara": lakara
                         }})
     except KeyError as e:
