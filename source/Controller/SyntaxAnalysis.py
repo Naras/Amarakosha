@@ -924,7 +924,7 @@ def syntacticCheck(adj: subanta_data, pro: subanta_data, krdav: krdav_data, inde
             tiganta, dhatu, purusha, vacana = tupl
             purusha, vacana = dsp.Person[purusha], dsp.Vacana[vacana]
             res += '%s ( %s / %s / %s )\n'%(tiganta, dhatu, purusha, vacana)
-        result.append('Verb(s) are : ' + res[:-1])
+        for rs in res[:-1].split('\n'): result.append('Verb(s) are : ' + rs)
         flagp = getPurushaofAllVerbs(verbs)
         flagv = getVacanaofAllVerbs(verbs)
         if avyayaFlag:

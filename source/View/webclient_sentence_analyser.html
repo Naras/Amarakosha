@@ -103,21 +103,26 @@
 				</ul>
 			</div>
     </div>
-    <div class="flex-container"><h1>Morphological Analysis</h1></div>
+    <div class="flex-container"><h1>Sentence Analysis</h1></div>
     <div id="pageButtons" class="center"></div>
     <div id="buttons">
         <label for="Dhatus">Sentences:</label>
-        <button id="DhatusButton">Analyze</button>
+        <button id="btnMorphologicalAnalysis">Morphological Analysis</button>
+        <button id="btnSyntacticAnalysis" style="visibility: visible" disabled>Syntax Analysis</button>
     </div>
     <select id="Dhatus" size=0 class="left"></select> 
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script>
+      var sectionInterpretation;
       var numpages = 0;
+      var numpagesInterpretation = 0;
       var subantas_tigantas_krdantas = {'सुबंतः':0,  'तिगंतः':0, 'कृदंतः':0};
       var subantas_tigantas_krdantas_forms = {'सुबंतः':0,  'तिगंतः':0, 'कृदंतः':0};
-      const pages = ['सुबंतः',  'तिगंतः', 'कृदंतः']; 
-        url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
+      const pages = ['सुबंतः',  'तिगंतः', 'कृदंतः'];
+
+      url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
+
       // Populate the listbox with options from the Dhatus endpoint
       const DhatusSelect = document.getElementById("Dhatus");
       fetch('http://' + url + ':' + port + prefix + 'SentencesBandarkar')
@@ -135,21 +140,26 @@
         const DhatusListBox = document.getElementById("Dhatus");
         DhatusListBox.addEventListener("change", () => {
         const word = $("#Dhatus option:selected").text();
-        if (word == "") document.getElementById("DhatusButton").disabled = true;
-        else document.getElementById("DhatusButton").disabled = false;
+        if (word == "") document.getElementById("btnMorphologicalAnalysis").disabled = true;
+        else document.getElementById("btnMorphologicalAnalysis").disabled = false;
         })
 
-      // Add an event listener to the "Get Dhatus" button
-      const DhatusButton = document.getElementById("DhatusButton");
-      DhatusButton.addEventListener("click", () => {
+      // Add an event listener to the "morphology analysis" button
+      const btnMorphologicalAnalysis = document.getElementById("btnMorphologicalAnalysis");
+      btnMorphologicalAnalysis.addEventListener("click", () => {
         const sentence = $("#Dhatus option:selected").text();
         url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
         dhatuSel = $("#Dhatus option:selected").text();
         url = 'http://' + url + ':' + port + prefix + 'SentenceAnalysis?sentence=' + sentence;
-        
+        document.getElementById("btnMorphologicalAnalysis").disabled = true;
+        document.getElementById("btnSyntacticAnalysis").disabled = false;
+
         fetch(url)
           .then(response => response.json())
           .then(data => {
+
+            sectionInterpretation = data.sentenceAnalysis.syntactic.interpretations;
+
             let sentenceAnalysisDiv = document.getElementById("sentenceAnalysis");
             if (sentenceAnalysisDiv!=null) sentenceAnalysisDiv.parentNode.removeChild(sentenceAnalysisDiv);
             sentenceAnalysisDiv = document.createElement('div');
@@ -159,8 +169,8 @@
             
             // Create and append pages to the document
             for (const section of pages) {
-              const sectionData = data.morphologyAnalysis[section];
-              const sectionFormsData = data.morphologyAnalysis[section + 'Forms'];
+              const sectionData = data.sentenceAnalysis.morphological[section];
+              const sectionFormsData = data.sentenceAnalysis.morphological[section + 'Forms'];
               subantas_tigantas_krdantas[section] = sectionData.length;
               if (section == 'तिगंतः') len = 3; else len = 8;
               subantas_tigantas_krdantas_forms[section] = sectionFormsData.length/len;
@@ -185,8 +195,9 @@
                 flexDiv.appendChild(pageDiv);
                 flexDiv.appendChild(document.createElement('br'));
               }
-            
-                const tblDiv = generatePageTable(data, section, rownames, pageNumber);
+
+                vacanas = ['एकवचन', 'द्विवचन', 'बहुवचन'];
+                const tblDiv = generatePageTable(data, section, rownames, vacanas, pageNumber);
                 // tblDiv.id = 'pagetbl-' + pageNumber;
                 tblDiv.style.visibility = "hidden";
                 flexDiv.appendChild(tblDiv);
@@ -217,6 +228,50 @@
           });
       });
 
+      // Add an event listener to the "syntax analysis" button
+      const btnSyntaxAnalysis = document.getElementById("btnSyntacticAnalysis");
+      btnSyntaxAnalysis.addEventListener("click", () => {
+        let sentenceAnalysisDiv = document.getElementById("sentenceAnalysis");
+        if (sentenceAnalysisDiv!=null) sentenceAnalysisDiv.parentNode.removeChild(sentenceAnalysisDiv);
+        sentenceAnalysisDiv = document.createElement('div');
+        sentenceAnalysisDiv.setAttribute("id", "sentenceAnalysis");
+        sentenceAnalysisDiv.setAttribute("name", "sentence Analysis");
+
+        pageNumber = 0; numpagesInterpretation = 0;
+        const flexDiv = document.createElement('div');
+        flexDiv.setAttribute("class", "flex-container");
+        flexDiv.setAttribute("id", "Interpretations");
+        // const sectionInterpretation = data.sentenceAnalysis.syntactic.interpretations;
+        for (let i = 0; i < sectionInterpretation.length; i++) {
+          pageNumber += 1;
+          const pageAnchor = document.createElement('a');
+          pageAnchor.name = 'Page ' + pageNumber;
+          // console.log(pageAnchor.name);
+          const tblDiv = generateInterpretationsTable(sectionInterpretation, pageNumber);
+          tblDiv.style.visibility = "hidden";
+          flexDiv.style.visibility = "visible";
+          flexDiv.appendChild(tblDiv);
+          sentenceAnalysisDiv.appendChild(flexDiv);
+        }
+        numpagesInterpretation = pageNumber;    
+        // remove any previously generated buttons and Create buttons to show each page
+        buttons = document.getElementById("pageButtons");
+        while (buttons.firstChild) {
+          buttons.removeChild(buttons.firstChild);
+        }
+        for (let i = 1; i <= pageNumber; i++) {
+          const button = document.createElement('button');
+          button.textContent = 'Page ' + i;
+          button.addEventListener('click', () => showPageInterpretation(i));
+          buttons.appendChild(button);
+        }
+        document.body.appendChild(sentenceAnalysisDiv);
+        numpages = pageNumber;
+        btnSyntaxAnalysis.style.disabled = true;
+        showPageInterpretation(1);
+
+      });
+
 // Function to generate label:text pairs for <key, value> pairs
 function generateKeyValuePairs(data, section) {
   const div = document.createElement('div');
@@ -243,22 +298,21 @@ function generateKeyValuePairs(data, section) {
   function generatePageKeyValuePairs(data, section, index) {
   const pageDiv = document.createElement('div');
   pageDiv.setAttribute("class", "tileVertical");
-  const keyValueDiv = generateKeyValuePairs(data.morphologyAnalysis[section][index], section);
+  const keyValueDiv = generateKeyValuePairs(data.sentenceAnalysis.morphological[section][index], section);
   pageDiv.appendChild(keyValueDiv);
   return pageDiv;
 }
 
 // Function to generate a table with a 3-column header
-function generateTable(data, rownames, hdr) {
+function generateTable(data, rownames, colnames, hdr) {
   const table = document.createElement('table');
   const headerRow = table.insertRow();
-  vacanas = ['एकवचन', 'द्विवचन', 'बहुवचन'];
   const header = document.createElement('th');
   header.textContent = hdr;
   headerRow.appendChild(header);
-  Object.entries(vacanas).forEach((k,v) => {
+  Object.entries(colnames).forEach((k,v) => {
     const header = document.createElement('th');
-    header.textContent = vacanas[v];
+    header.textContent = colnames[v];
     headerRow.appendChild(header);
   });
   for (const [key, value] of Object.entries(data)) {
@@ -274,14 +328,14 @@ function generateTable(data, rownames, hdr) {
 }
 
 // Function to generate a page with table
-  function generatePageTable(data, section, rownames, pageNumber) {
+  function generatePageTable(data, section, rownames, colnames, pageNumber) {
   const pageDiv = document.createElement('div');
   pageDiv.setAttribute("class", "tileVertical");
   if (section == 'तिगंतः') {hdr =  'पुरुष/वचन'; inc = 3}
   else {hdr = 'विभक्ति/वचन'; inc = 8}
-  formData = data.morphologyAnalysis[section + 'Forms'];
+  formData = data.sentenceAnalysis.morphological[section + 'Forms'];
   for (k = 0; k < formData.length; k += inc) {
-  const tableDiv = generateTable(formData.slice(k, k + inc), rownames, hdr);
+  const tableDiv = generateTable(formData.slice(k, k + inc), rownames, colnames, hdr);
   tableDiv.id = section + "-" + k/inc;
   const labelSection = document.createElement("label");
   labelSection.htmlFor = tableDiv.id;
@@ -343,6 +397,80 @@ function showPage(pageNumber) {
   grandparent.prepend(parent);
 }
 
-    </script>
+function generateInterpretationsTable(data, section) {
+    const pagesDiv = document.createElement('div');
+    for (k = 0; k < data.length; k++) {
+      const pageDiv = document.createElement('div');
+    // pageDiv.setAttribute("class", "tileVertical");
+      cellData = data[k].cells;
+      conclusions = data[k].conclusions;
+
+      rownames = ["", "", ""];
+      colnames = ["Roles", "Words", "linga/rupa", "vibhakti/purusha", "vacana"];
+      hdr = ""
+      const tableDiv = generateTable(cellData, rownames, colnames, hdr);
+      const labelSection = document.createElement("label");
+      labelSection.htmlFor = tableDiv.id;
+      labelSection.textContent = tableDiv.id;
+      pageDiv.appendChild(labelSection);
+      pageDiv.appendChild(tableDiv);
+
+      rownames = ["", "", ""];
+      colnames = ["Interpretation"];
+      hdr = "";
+      const tableDivC = generateTableInter(conclusions, rownames, colnames, hdr);
+      const labelSectionC = document.createElement("label");
+      labelSectionC.htmlFor = tableDivC.id;
+      labelSectionC.textContent = tableDivC.id;
+      pageDiv.appendChild(labelSectionC);
+      pageDiv.appendChild(tableDivC);
+      numpagesInterpretation++;
+      pageDiv.id = "page-" + numpagesInterpretation;
+      pagesDiv.appendChild(pageDiv);
+  }
+  // console.log("inter", numpagesInterpretation);
+  return pagesDiv;
+}
+  function showPageInterpretation(pageNumber) {
+    const pageId = document.getElementById('page-' + pageNumber);
+    const flexDiv = document.getElementById("Interpretations");
+
+    for (let i = 0; i < numpagesInterpretation; i++) {
+      p = document.getElementById(('page-' + (i + 1))); 
+      p.style.visibility = "hidden"; 
+      p.parentNode.style.visibility = "hidden";
+    }
+    
+    flexDiv.style.visibility = "visible";
+    pageId.style.visibility = "visible";
+    parent = pageId.parentNode; 
+    grandparent=parent.parentNode;
+    parent.removeChild(pageId);
+    grandparent.removeChild(parent);
+    parent.prepend(pageId);
+    grandparent.prepend(parent);
+}
+
+// Function to generate a table with a 3-column header
+function generateTableInter(data, rownames, colnames, hdr) {
+  const table = document.createElement('table');
+  const headerRow = table.insertRow();
+  const header = document.createElement('th');
+  header.textContent = hdr;
+  headerRow.appendChild(header);
+  Object.entries(colnames).forEach((k,v) => {
+    const header = document.createElement('th');
+    header.textContent = colnames[v];
+    headerRow.appendChild(header);
+  });
+  const row = table.insertRow();
+  const labelCell = row.insertCell();
+  labelCell.textContent = "";
+  const cell = row.insertCell();
+  cell.textContent = data;
+  return table;
+}
+
+</script>
   </body>
 </html>
