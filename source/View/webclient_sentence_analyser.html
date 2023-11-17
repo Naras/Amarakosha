@@ -92,6 +92,7 @@
   </style>
   </head>
   <body>
+    <script src="http://d3js.org/d3.v4.min.js"></script>
 		<div id="header">
 			<div id="navbar" class="flex-container">
 				<ul>
@@ -109,12 +110,15 @@
         <label for="Dhatus">Sentences:</label>
         <button id="btnMorphologicalAnalysis">Morphological Analysis</button>
         <button id="btnSyntacticAnalysis" style="visibility: visible" disabled>Syntax Analysis</button>
+        <button id="btnGraph" style="visibility: visible" disabled>Graphs</button>
     </div>
     <select id="Dhatus" size=0 class="left"></select> 
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script>
-      var sectionInterpretation;
+      var sentence = null;
+      var sectionInterpretation = null;
+      var sectionGraphs = null;
       var numpages = 0;
       var numpagesInterpretation = 0;
       var subantas_tigantas_krdantas = {'सुबंतः':0,  'तिगंतः':0, 'कृदंतः':0};
@@ -139,15 +143,15 @@
         // enable generate button only when there is a selection from the list box
         const DhatusListBox = document.getElementById("Dhatus");
         DhatusListBox.addEventListener("change", () => {
-        const word = $("#Dhatus option:selected").text();
-        if (word == "") document.getElementById("btnMorphologicalAnalysis").disabled = true;
+        sentence = $("#Dhatus option:selected").text();
+        if (sentence == "") document.getElementById("btnMorphologicalAnalysis").disabled = true;
         else document.getElementById("btnMorphologicalAnalysis").disabled = false;
         })
 
       // Add an event listener to the "morphology analysis" button
       const btnMorphologicalAnalysis = document.getElementById("btnMorphologicalAnalysis");
       btnMorphologicalAnalysis.addEventListener("click", () => {
-        const sentence = $("#Dhatus option:selected").text();
+         sentence = $("#Dhatus option:selected").text();
         url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
         dhatuSel = $("#Dhatus option:selected").text();
         url = 'http://' + url + ':' + port + prefix + 'SentenceAnalysis?sentence=' + sentence;
@@ -159,6 +163,7 @@
           .then(data => {
 
             sectionInterpretation = data.sentenceAnalysis.syntactic.interpretations;
+            sectionGraphs = data.sentenceAnalysis.syntactic.graphs;
 
             let sentenceAnalysisDiv = document.getElementById("sentenceAnalysis");
             if (sentenceAnalysisDiv!=null) sentenceAnalysisDiv.parentNode.removeChild(sentenceAnalysisDiv);
@@ -237,6 +242,8 @@
         sentenceAnalysisDiv.setAttribute("id", "sentenceAnalysis");
         sentenceAnalysisDiv.setAttribute("name", "sentence Analysis");
 
+        document.getElementById("btnGraph").disabled = false;
+
         pageNumber = 0; numpagesInterpretation = 0;
         const flexDiv = document.createElement('div');
         flexDiv.setAttribute("class", "flex-container");
@@ -271,7 +278,12 @@
         showPageInterpretation(1);
 
       });
-
+      // Add an event listener to the "graph" button
+      const btnGraph = document.getElementById("btnGraph");
+      btnGraph.addEventListener("click", () => {
+        drawGraphsNewWindow(sentence);
+        btnGraph.style.disabled = true;
+      });
 // Function to generate label:text pairs for <key, value> pairs
 function generateKeyValuePairs(data, section) {
   const div = document.createElement('div');
@@ -375,8 +387,7 @@ function showPage(pageNumber) {
     // pagesSofar = subantas_tigantas_krdantas['सुबंतः'] + subantas_tigantas_krdantas['तिगंतः'] + subantas_tigantas_krdantas['कृदंतः'];
   }
 
-  tblId = section + "-" + Math.min((subantas_tigantas_krdantas[section] - pageNumber), 
-                                    subantas_tigantas_krdantas_forms[section] - 1);
+  tblId = section + "-" + Math.min((subantas_tigantas_krdantas[section] - pageNumber), subantas_tigantas_krdantas_forms[section] - 1);
   // console.log("tbl", tblId);
   tbl = document.getElementById(tblId);
 
@@ -431,7 +442,8 @@ function generateInterpretationsTable(data, section) {
   // console.log("inter", numpagesInterpretation);
   return pagesDiv;
 }
-  function showPageInterpretation(pageNumber) {
+
+function showPageInterpretation(pageNumber) {
     const pageId = document.getElementById('page-' + pageNumber);
     const flexDiv = document.getElementById("Interpretations");
 
@@ -469,6 +481,34 @@ function generateTableInter(data, rownames, colnames, hdr) {
   const cell = row.insertCell();
   cell.textContent = data;
   return table;
+}
+
+// Function to draw graphs based on Jsonn graph data in d3 input format
+function drawGraphsNewWindow(sentence) {
+  graphjsPath = `\"http:\/\/3\.111\.155\.89\/Amarakosha\/webclient_graph\.js"`; stylesheetPath = `\"http:\/\/3\.111\.155\.89/\/Amarakosha\/graphStyleSheet\.css\""`;
+
+  graphjsPath = `\"file:\/\/\/Users\/narasimhanm\.g\.\/Desktop\/Amarakosha\/source\/View\/webclient_graph\.js\"`;
+  stylesheetPath = `\"file:\/\/\/Users\/narasimhanm\.g\.\/Desktop\/Amarakosha\/source\/View\/graphStyleSheet\.css\"`;
+
+  const prepend_html = `\<!DOCTYPE html\>
+  \<meta charset=\"utf-8\"\>
+  \<head\>\<link rel=\"stylesheet\" href=` + stylesheetPath + `\>\</head\>
+  \<body\>
+    \<header id=\"myHeader\" class=\"header\"\>\<h3 id=\"sentence\">`;
+
+  const append_html = `\</h3\>\</header\>
+  \<svg width=\"960\" height=\"600\"\>\</svg\>
+  \<script src=\"http:\/\/d3js\.org/d3\.v4\.min\.js\"\>\<\/script\>
+  \<script src=` + graphjsPath + `\>\<\/script\>
+  \<\/body\>\<\/html\>`;
+
+  insertHtml = prepend_html + sentence + append_html;
+
+  var url = URL.createObjectURL(
+    new Blob([insertHtml], { type: "text/html" })
+  );
+  // if (confirm(insertHtml))
+  graphWindow = window.open(url, "win", `width=800,height=400,screenX=700,screenY=200`);
 }
 
 </script>

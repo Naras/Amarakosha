@@ -1,0 +1,33 @@
+
+.links line {
+  stroke: #999;
+  stroke-opacity: 0.6;
+}
+
+.nodes circle {
+  stroke: #fff;
+  stroke-width: 1.5px;
+  fill: orange;
+}
+
+.nodelabel {
+  font-size: 14px;
+  color: purple;
+}
+
+.linklabel {
+  color: red;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 10px;
+  font-weight: bold;}
+
+  .header {
+  position: fixed;
+  left: 500px;
+  top: 0;
+  width: 30%;
+  height: 6%;
+  /* background-color: blue; */
+  color: black;
+  text-align: center;}
+
