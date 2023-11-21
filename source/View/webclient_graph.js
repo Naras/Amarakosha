@@ -1,18 +1,18 @@
-url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
-
 sentence = document.getElementById("sentence").innerHTML; // "रामः गच्छति";
 // sentence = "रामः अर्घ्येण ऋषिं पूजयति ।";
-
-d3.json("http://"+url + ":" + port + "/Amarakosha/api/v1.0/SentenceAnalysis?sentence=" + sentence, function(error, jsonOutput) {
-  if (error) console.log(error);
-  var graphs = jsonOutput.sentenceAnalysis.syntactic.graphs;
-  no = -1;
-  drawGraphs(graphs);
-  });  // d3json
+graphs_string = document.getElementById("graphs_string");
+graphs = graphs_string.innerHTML; graphs_parsed = JSON.parse(graphs);
+graphs_string.parentNode.removeChild(graphs_string);
+// console.log("JSON parsed", typeof graphs_parsed, graphs_parsed);
+no = -1;
+drawGraphs(graphs_parsed);
+  
 function drawGraphs(graphs) {
-    graphs.forEach(graph => {
+  graphs.forEach(graph => {
     no += 1; 
-    var svg = d3.select("svg"),
+    // graph = graphs[no]; //console.log(no, graph);
+
+  var svg = d3.select("svg"),
       width = +svg.attr("width") + no * 400,
       height = +svg.attr("height");
 
@@ -108,6 +108,5 @@ function dragended(d) {
   d.fx = null;
   d.fy = null;
 }
-  }); // forEach
-
-  }
+ }); // forEach
+}

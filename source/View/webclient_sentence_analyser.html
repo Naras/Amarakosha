@@ -281,7 +281,7 @@
       // Add an event listener to the "graph" button
       const btnGraph = document.getElementById("btnGraph");
       btnGraph.addEventListener("click", () => {
-        drawGraphsNewWindow(sentence);
+        drawGraphsNewWindow(sentence, sectionGraphs);
         btnGraph.style.disabled = true;
       });
 // Function to generate label:text pairs for <key, value> pairs
@@ -484,7 +484,7 @@ function generateTableInter(data, rownames, colnames, hdr) {
 }
 
 // Function to draw graphs based on Jsonn graph data in d3 input format
-function drawGraphsNewWindow(sentence) {
+function drawGraphsNewWindow(sentence, graphs) {
   graphjsPath = `\"http:\/\/3\.111\.155\.89\/Amarakosha\/webclient_graph\.js"`; stylesheetPath = `\"http:\/\/3\.111\.155\.89/\/Amarakosha\/graphStyleSheet\.css\""`;
 
   graphjsPath = `\"file:\/\/\/Users\/narasimhanm\.g\.\/Desktop\/Amarakosha\/source\/View\/webclient_graph\.js\"`;
@@ -496,19 +496,21 @@ function drawGraphsNewWindow(sentence) {
   \<body\>
     \<header id=\"myHeader\" class=\"header\"\>\<h3 id=\"sentence\">`;
 
-  const append_html = `\</h3\>\</header\>
-  \<svg width=\"960\" height=\"600\"\>\</svg\>
+  const append_html1 = `\</h3\>\</header\>\<p id="graphs_string" style="visibility: hidden;"\>`;
+
+  const append_html2 = `\</p\> \<svg width=\"960\" height=\"600\"\>\</svg\>
   \<script src=\"http:\/\/d3js\.org/d3\.v4\.min\.js\"\>\<\/script\>
   \<script src=` + graphjsPath + `\>\<\/script\>
   \<\/body\>\<\/html\>`;
 
-  insertHtml = prepend_html + sentence + append_html;
+  insertHtml = prepend_html + sentence + append_html1 + JSON.stringify(graphs) + append_html2;
+  console.log(insertHtml);
 
   var url = URL.createObjectURL(
     new Blob([insertHtml], { type: "text/html" })
   );
   // if (confirm(insertHtml))
-  graphWindow = window.open(url, "win", `width=800,height=400,screenX=700,screenY=200`);
+  graphWindow = window.open(url, "win", `width=1000,height=400,screenX=600,screenY=200`);
 }
 
 </script>
