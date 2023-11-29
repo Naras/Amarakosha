@@ -86,6 +86,7 @@
 					<li><a href="webclient_Tiganta_Generate.html">Tiganta</a></li>
 					<li><a href="webclient_Krdanta_Generate.html">Krdanta</a></li>
 					<li><a href="webclient_sentence_analyser.html">Analysis</a></li>
+					<li><a href="webclient_navigation_menu.html">Home</a></li>
 				</ul>
 			</div>
     </div>
@@ -107,10 +108,13 @@
     </div></div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
     <script>
-        url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
+      url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
       // Populate the listbox with options from the Dhatus endpoint
       const DhatusSelect = document.getElementById("Dhatus");
-      fetch('http://' + url + ':' + port + prefix + 'Subantas')
+          script = sessionStorage.getItem("script");
+          if (script == "") scriptParameter = ""; else scriptParameter = "?script=" + script;
+          // console.log("session variable script", scriptParameter);
+      fetch('http://' + url + ':' + port + prefix + 'Subantas' + scriptParameter)
         .then(response => response.json())
         .then(json => {
           dataArray = json['Subanta Dhatus'];
@@ -128,7 +132,12 @@
         const selectedId = DhatusSelect.value;
         url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
         dhatuSel = $("#Dhatus option:selected").text();
-        url2 = 'http://' + url + ':' + port + prefix + 'Subanta/' + dhatuSel; 
+
+        script = sessionStorage.getItem("script");
+          if (script == "") scriptParameter = ""; else scriptParameter = "?script=" + script;
+          // console.log("session variable script", scriptParameter);
+
+        url2 = 'http://' + url + ':' + port + prefix + 'Subanta/' + dhatuSel + scriptParameter; 
         // url1 = 'http://' + url + ':' + port + prefix + 'Dhatu/स्वर्';
         
         fetch(url2)

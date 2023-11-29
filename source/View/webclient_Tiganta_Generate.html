@@ -96,6 +96,7 @@
 					<li><a href="webclient_Tiganta_Generate.html">Tiganta</a></li>
 					<li><a href="webclient_Krdanta_Generate.html">Krdanta</a></li>
 					<li><a href="webclient_sentence_analyser.html">Analysis</a></li>
+					<li><a href="webclient_navigation_menu.html">Home</a></li>
 				</ul>
 			</div>
     </div>
@@ -217,7 +218,12 @@
       document.getElementById("status").value="";
       // Populate the listbox with options from the Dhatus endpoint
       const DhatusSelect = document.getElementById("Dhatus");
-      fetch('http://' + url + ':' + port + prefix + 'KrdantaTigantaDhatus')
+
+      script = sessionStorage.getItem("script");
+      if (script == "") scriptParameter = ""; else scriptParameter = "?script=" + script;
+      // console.log("session variable script", scriptParameter);
+
+      fetch('http://' + url + ':' + port + prefix + 'KrdantaTigantaDhatus' + scriptParameter)
         .then(response => response.json())
         .then(json => {
           dataArray = json['KrdantaTigantaDhatus'];
@@ -419,9 +425,12 @@
         renderRestApiJson(url);
       };
 
-        function renderRestApiJson(url) {
-        console.log(url);
-        fetch(url)
+        function renderRestApiJson(url) { 
+          script = sessionStorage.getItem("script");
+          if (script == "") scriptParameter = ""; else scriptParameter = "&script=" + script;
+          console.log("session variable script", scriptParameter);
+          // console.log(url+scriptParameter);
+        fetch(url+scriptParameter)
           .then(response => response.json())
           .then(data => {
             const dhatuDiv = document.getElementById("dhatu");

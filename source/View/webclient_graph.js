@@ -1,8 +1,11 @@
-sentence = document.getElementById("sentence").innerHTML; // "रामः गच्छति";
+sentence = sessionStorage.getItem("sentence"); // "रामः गच्छति";
 // sentence = "रामः अर्घ्येण ऋषिं पूजयति ।";
-graphs_string = document.getElementById("graphs_string");
-graphs = graphs_string.innerHTML; graphs_parsed = JSON.parse(graphs);
-graphs_string.parentNode.removeChild(graphs_string);
+document.getElementById("sentence").innerHTML = sentence;
+// graphs_string = document.getElementById("graphs_string");
+graphs = sessionStorage.getItem("graphs");
+// graphs = graphs_string.innerHTML; 
+graphs_parsed = JSON.parse(graphs);
+// graphs_string.parentNode.removeChild(graphs_string);
 // console.log("JSON parsed", typeof graphs_parsed, graphs_parsed);
 no = -1;
 drawGraphs(graphs_parsed);

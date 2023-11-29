@@ -44,7 +44,27 @@
         </ul>
     </div>
     <div class="flex-container"><h1>Amarakosha</h1></div>
+    <label for="scripts">Choose a script:</label>
+    <select id="scripts" size=0 onchange="saveSelectedScript()">
+      <option value="devanagari" selected="selected">devanagari</option>
+      <option value="bengali">bengali</option>
+      <option value="gurmukhi">gurmukhi</option>
+      <option value="gujarati">gujarati</option>
+      <option value="oriya">oriya</option>
+      <option value="tamizh">tamizh</option>
+      <option value="telugu">telugu</option>
+      <option value="kannada">kannada</option>
+      <option value="malayalam">malayalam</option>
+    </select>
+    <!-- <button id="readCookie" onclick="readCookie()">read previously selected script</button> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script>
+      sessionStorage.setItem("script", "devanagari");
+      function saveSelectedScript() {
+        sessionStorage.setItem("script", document.getElementById("scripts").value);
+        console.log("script selected", sessionStorage.getItem("script"))
+      }
+    </script>
    
   </body>
 </html>

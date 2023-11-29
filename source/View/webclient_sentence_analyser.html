@@ -101,6 +101,7 @@
 					<li><a href="webclient_Tiganta_Generate.html">Tiganta</a></li>
 					<li><a href="webclient_Krdanta_Generate.html">Krdanta</a></li>
 					<li><a href="webclient_sentence_analyser.html">Analysis</a></li>
+					<li><a href="webclient_navigation_menu.html">Home</a></li>
 				</ul>
 			</div>
     </div>
@@ -129,7 +130,12 @@
 
       // Populate the listbox with options from the Dhatus endpoint
       const DhatusSelect = document.getElementById("Dhatus");
-      fetch('http://' + url + ':' + port + prefix + 'SentencesBandarkar')
+
+      script = sessionStorage.getItem("script");
+      if (script == "") scriptParameter = ""; else scriptParameter = "?script=" + script;
+      // console.log("session variable script", scriptParameter);
+
+      fetch('http://' + url + ':' + port + prefix + 'SentencesBandarkar' + scriptParameter)
         .then(response => response.json())
         .then(json => {
           dataArray = json['Sentences'];
@@ -154,7 +160,12 @@
          sentence = $("#Dhatus option:selected").text();
         url = "127.0.0.1"; port="5002"; prefix = '/Amarakosha/api/v1.0/';
         dhatuSel = $("#Dhatus option:selected").text();
-        url = 'http://' + url + ':' + port + prefix + 'SentenceAnalysis?sentence=' + sentence;
+
+        script = sessionStorage.getItem("script");
+        if (script == "") scriptParameter = ""; else scriptParameter = "&script=" + script;
+        // console.log("session variable script", scriptParameter);
+
+        url = 'http://' + url + ':' + port + prefix + 'SentenceAnalysis?sentence=' + sentence + scriptParameter;
         document.getElementById("btnMorphologicalAnalysis").disabled = true;
         document.getElementById("btnSyntacticAnalysis").disabled = false;
 
@@ -490,21 +501,18 @@ function drawGraphsNewWindow(sentence, graphs) {
   graphjsPath = `\"file:\/\/\/Users\/narasimhanm\.g\.\/Desktop\/Amarakosha\/source\/View\/webclient_graph\.js\"`;
   stylesheetPath = `\"file:\/\/\/Users\/narasimhanm\.g\.\/Desktop\/Amarakosha\/source\/View\/graphStyleSheet\.css\"`;
 
-  const prepend_html = `\<!DOCTYPE html\>
+  const insertHtml = `\<!DOCTYPE html\>
   \<meta charset=\"utf-8\"\>
   \<head\>\<link rel=\"stylesheet\" href=` + stylesheetPath + `\>\</head\>
-  \<body\>
-    \<header id=\"myHeader\" class=\"header\"\>\<h3 id=\"sentence\">`;
-
-  const append_html1 = `\</h3\>\</header\>\<p id="graphs_string" style="visibility: hidden;"\>`;
-
-  const append_html2 = `\</p\> \<svg width=\"960\" height=\"600\"\>\</svg\>
+  \<body\>\<header id=\"myHeader\" class=\"header\"\>
+      \<h3 id=\"sentence\">placeholder\</h3\>\</header\>
+      \<svg width=\"960\" height=\"600\"\>\</svg\>
   \<script src=\"http:\/\/d3js\.org/d3\.v4\.min\.js\"\>\<\/script\>
   \<script src=` + graphjsPath + `\>\<\/script\>
   \<\/body\>\<\/html\>`;
-
-  insertHtml = prepend_html + sentence + append_html1 + JSON.stringify(graphs) + append_html2;
-  console.log(insertHtml);
+  // console.log(insertHtml);
+  sessionStorage.setItem("sentence", sentence);
+  sessionStorage.setItem("graphs", JSON.stringify(graphs));
 
   var url = URL.createObjectURL(
     new Blob([insertHtml], { type: "text/html" })

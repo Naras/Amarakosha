@@ -514,6 +514,11 @@ def tiganta_Analysis(word, requested_script=1):
                             tigResforms.append(tigResform)
     if tigResforms == []:
         raise Exception('Tiganta Forms for ' + wordUni + ' not found in Database')
+    # transliterate to requested script
+    for i, tigResformsInstance in enumerate(tigResforms):
+        for j, tigform in enumerate(tigResformsInstance.tigforms):
+            tigResformsInstance.tigforms[j] = transliterate_lines(tigform, IndianLanguages[requested_script - 1])
+        tigResforms[i] = tigResformsInstance
     for tigResformsInstance in tigResforms:
         forms += [tigResformsInstance.tigforms[:3], tigResformsInstance.tigforms[3:6], tigResformsInstance.tigforms[6:9]]
     return forms, tigDatas
@@ -677,6 +682,11 @@ def tiganta_Generation(dhatuNo: str, DhatuVidah: str, voice: str, lakara: str, p
         for word in words:  # only if padi=2 and dhatuVidhaIndex=2?
             tigResform = genTigforms(word, tigDataInstance, tiggenDataInstance, DhatuVidah, voice, lakara, requested_script)
             if not tigResform.tigforms == ['']*9: tigResforms.append(tigResform)
+    # transliterate to requested script
+    for i, tigResformsInstance in enumerate(tigResforms):
+        for j, tigform in enumerate(tigResformsInstance.tigforms):
+            tigResformsInstance.tigforms[j] = transliterate_lines(tigform, IndianLanguages[requested_script - 1])
+        tigResforms[i] = tigResformsInstance
     for tigResformsInstance in tigResforms: forms += [tigResformsInstance.tigforms[:3], tigResformsInstance.tigforms[3:6], tigResformsInstance.tigforms[6:9]]
     # print('tigData %s\n%s\ntiggenData %s\n%s\n tgResforms %s\n%s'%(colsUpacode, tigDatas, colsStinnew, tiggenData, colsStinfin, forms))
     # print('no. of items %i subforms with sandhi %s' % (len(forms), forms))
