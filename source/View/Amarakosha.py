@@ -17,6 +17,7 @@ from source.Controller.Transliterate import *
 from source.Model import AmaraKosha_Database_Queries, models
 import networkx as nx
 import matplotlib.pyplot as plt
+import qdarktheme
 
 qt_creator_file = os.path.join(os.getcwd(), "source/View", "amara_uiComposition.xml")
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qt_creator_file)
@@ -641,8 +642,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
+        self.theme = 'dark'; self.fontsize = 16; self.themes = {'dark':'orange', 'light':'blue'}
+        self.setStyleSheet('font-size: ' + str(self.fontsize) + 'px' + '; color: ' + self.themes[self.theme])
+        # self.setStyleSheet('font-size: ' + str(self.fontsize) + 'px')
+
         self.listView.setUniformItemSizes(True)
-        self.listView.setMaximumWidth(self.listView.sizeHintForColumn(0) + 125)
+        self.listView.setMaximumWidth(self.listView.sizeHintForColumn(0) + 175)
         self.modelDhatus = models.modelDhatus()
         self.menuItemChosen = None
         self.modelFinalResults = models.modelFinalResults_DataFrame()
@@ -665,7 +670,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                             self.page17Button, self.page18Button, self.page19Button, self.page20Button, self.page21Button, self.page22Button,
                             self.page23Button, self.page24Button]:
             pg.pressed.connect(self.generationPageDisplay)
-
         self.toolbar = self.addToolBar('Amara')
         self.amaraAction = QtWidgets.QAction('अमरकोश(Amarakosha)', self)
         self.amaraAction.setShortcut('Ctrl+A')
@@ -708,6 +712,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.toolbar.addAction(self.exitAction)
 
         self.statusBar().showMessage('Ready')
+
+        self.toggleThemeButton.setVisible(True)
+        self.toggleThemeButton.setEnabled(True)
+        self.toggleThemeButton.pressed.connect(self.toggleTheme)
+
+        self.fontsizeplusButton.setVisible(True)
+        self.fontsizeplusButton.setEnabled(True)
+        self.fontsizeplusButton.pressed.connect(self.fontsizeplus)
+
+        self.fontsizeminusButton.setVisible(True)
+        self.fontsizeminusButton.setEnabled(True)
+        self.fontsizeminusButton.pressed.connect(self.fontsizeminus)
     def resetToolbarItems(self):
         self.amaraAction.setChecked(False)
         self.subantaAction.setChecked(False)
@@ -733,17 +749,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lblNishpatthi.setVisible(False)
         self.txtNishpatthi.setVisible(False)
 
+        self.syntaxButton.setEnabled(False)
+        self.syntaxButton.setVisible(False)
+
         for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button, self.page6Button, self.page7Button, self.page8Button]:
             control.setEnabled(False)
             control.setVisible(False)
     def enableSynonymsButton(self):
         self.synonymsButton.setEnabled(True)
         self.syntaxButton.setEnabled(False)
+        self.syntaxButton.setVisible(False)
+        self.synonymsButton.setStyleSheet("QPushButton::enabled""{""background-color : yellow;""}")
         if self.menuItemChosen == 'Amara':
             self.nishpathiButton.setVisible(True)
             self.nishpathiButton.setEnabled(True)
+            self.nishpathiButton.setStyleSheet("QPushButton::enabled""{""background-color : cyan;""}")
             self.vyutpathiButton.setVisible(True)
             self.vyutpathiButton.setEnabled(True)
+            self.vyutpathiButton.setStyleSheet("QPushButton::enabled""{""background-color : lightgreen;""}")
             self.vyutpathiSelector.setVisible(True)
             self.vyutpathiSelector.setEnabled(True)
         else:
@@ -775,6 +798,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.listView.clicked.connect(self.enableSynonymsButton)
         self.synonymsButton.setText('Subanta Generation')
         self.synonymsButton.setEnabled(False)
+        self.syntaxButton.setEnabled(False)
+        self.syntaxButton.setVisible(False)
         for control in [self.page1Button, self.page2Button, self.page3Button, self.page4Button, self.page5Button,
                         self.page6Button, self.page7Button, self.page8Button]:
             control.setEnabled(False)
@@ -803,6 +828,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.listView.clicked.connect(self.enableSynonymsButton)
             self.synonymsButton.setText('Krdanta Generation')
             self.synonymsButton.setEnabled(False)
+            self.syntaxButton.setEnabled(False)
+            self.syntaxButton.setVisible(False)
         except Exception as e:
             print(e)
     def loadTiganta(self):
@@ -829,6 +856,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.listView.clicked.connect(self.enableSynonymsButton)
             self.synonymsButton.setText('Tiganta Generation')
             self.synonymsButton.setEnabled(False)
+            self.syntaxButton.setEnabled(False)
+            self.syntaxButton.setVisible(False)
         except Exception as e:
             print(e)
     def loadAnalysis(self):
@@ -850,8 +879,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.modelDhatus.dataIscii = list(map(lambda item: (False, item[:-1]), dataIscii))
         self.listView.setModel(self.modelDhatus)
         self.modelDhatus.layoutChanged.emit()
+    def toggleTheme(self):
+        self.theme = 'dark' if self.theme != 'dark' else 'light'
+        self.setStyleSheet('font-size: ' + str(self.fontsize) + 'px' + '; color: ' + self.themes[self.theme])
+        # self.setStyleSheet('font-size: ' + str(self.fontsize) + 'px')
+        qdarktheme.setup_theme(self.theme)
+    def fontsizeplus(self):
+        self.fontsize += 1
+        self.setStyleSheet('font-size: ' + str(self.fontsize) + 'px' + '; color: ' + self.themes[self.theme])
+        # self.setStyleSheet('font-size: ' + str(self.fontsize) + 'px')
+    def fontsizeminus(self):
+        self.fontsize -= 1
+        self.setStyleSheet('font-size: ' + str(self.fontsize) + 'px' + '; color: ' + self.themes[self.theme])
+        # self.setStyleSheet('font-size: ' + str(self.fontsize) + 'px')
     def synonyms_generate_or_analyse(self):
         self.statusBar().showMessage('Ready')
+        self.synonymsButton.setEnabled(False)
+        self.synonymsButton.setStyleSheet('QPushButton::enabled""{""background-color : ' + self.theme + ';""}')
         if self.menuItemChosen == 'Amara':
             self.formWidget_2.setVisible(False)
             self.formWidget_4.setVisible(False)
@@ -989,6 +1033,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.synonymView.setVisible(True)
             self.syntaxButton.setVisible(True)
             self.syntaxButton.setEnabled(True)
+            self.syntaxButton.setStyleSheet("QPushButton::enabled""{""background-color : yellow;""}")
             self.wanted_script = self.scriptSelector.currentIndex()
             indexes = self.listView.selectedIndexes()
             if indexes:
@@ -1158,6 +1203,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                             index=[' '] * len(self.conclusions[indx]['cells']))
                     for i, conclusion in enumerate(self.conclusions[indx]['conclusions']):
                         listofTxts[i].setText(conclusion)
+                        listofTxts[i].setMinimumWidth(1200)
                         listofTxts[i].setVisible(True)
                     for control in listofLbls: control.setVisible(False)
                     for control in listofTxts[i + 1:]: control.setVisible(False)
@@ -1256,7 +1302,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                  self.txtGana, self.txtPadi, self.txtKarma, self.txtIt, self.txtDhatuVidah,
                  self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara, self.txtSabda, self.txtAnta, self.txtLinga,
                  self.txtPratipadika],
-                [self.krdData[0].verb, transliterate_lines(dialog.arthas, IndianLanguages[self.wanted_script]), self.krdData[0].nijverb,
+                [transliterate_lines(self.krdData[0].verb, IndianLanguages[self.wanted_script]),
+                  transliterate_lines(dialog.arthas, IndianLanguages[self.wanted_script]), self.krdData[0].nijverb,
                  self.krdData[0].sanverb, self.krdData[0].gana, self.krdData[0].padi,
                  transliterate_lines(self.karmas[0], IndianLanguages[self.wanted_script]), self.krdData[0].it, self.krdData[0].dhatuVidhah,
                  self.krdData[0].krdantaVidhah, self.krdData[0].pratyayaVidhah,
@@ -1318,6 +1365,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 control.setEnabled(False)
                 control.setVisible(False)
     def Nishpatthi(self):
+        # self.nishpathiButton.setEnabled(False)
+        self.nishpathiButton.setStyleSheet('QPushButton::enabled""{""background-color : ' + self.theme + ';""}')
         indexes = self.listView.selectedIndexes()
         if indexes:
             index = indexes[0]
@@ -1335,6 +1384,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except Exception as e:
                  self.statusBar().showMessage('Nishpatthi:%s'%e)
     def Vyutpatthi(self):
+        # self.vyutpathiButton.setEnabled(False)
+        self.vyutpathiButton.setStyleSheet('QPushButton::enabled""{""background-color : ' + self.theme + ';""}')
         indexes = self.listView.selectedIndexes()
         if indexes:
             index = indexes[0]
@@ -1353,7 +1404,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             except Exception as e:
                  self.statusBar().showMessage('Vyutpatthi:%s'%e)
     def syntaxAnalysis(self):
-        self.synonymsButton.setEnabled(False)
+        self.syntaxButton.setEnabled(False)
+        self.syntaxButton.setStyleSheet('QPushButton::enabled""{""background-color : ' + self.theme + ';""}')
         typeList = ['Noun(s)', 'Pronoun(s)', 'Adjective(s)', 'Krdanta(s)', 'KrdAvyaya(s)', 'Avyaya(s)']
         subtypeList = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)', 'Vocative(s)', 'Verb(s)', 'Verb']
         edges, set_edge_labels = {}, []
@@ -1440,7 +1492,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             listofTxts = [self.txtDhatu, self.txtDhatvarya, self.txtNijiDhatu, self.txtSaniDhatu, self.txtGana, self.txtPadi, self.txtKarma,
                           self.txtIt, self.txtDhatuVidah, self.txtKrdantaVidah_prayoga, self.txtPratyaya_lakara, self.txtAnta, self.txtLinga,
                           self.txtPratipadika, self.txtSabda]
-            for i, conclusion in enumerate(self.conclusions[0]['conclusions']): listofTxts[i].setText(conclusion)
+            for i, conclusion in enumerate(self.conclusions[0]['conclusions']):
+                listofTxts[i].setText(conclusion)
+                listofTxts[i].setMinimumWidth(1200)
             for control in listofLbls: control.setVisible(False)
             for control in listofTxts[i + 1:]: control.setVisible(False)
             self.conclusions = [item for item in self.conclusions if not (item['cells'] == [] and item['conclusions'] == [])]
@@ -1471,17 +1525,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         g = nx.Graph()
         edge_labels = {}
         for k, v in interpretation.items():
-                if v[0] != '':
-                    g.add_node(v[0])
-                    if k != 'Verb': g.nodes[v[0]]['role'], g.nodes[v[0]]['linga'], g.nodes[v[0]]['vibhakti'], g.nodes[v[0]]['vacana'] = k, v[1], v[2], v[3]
-                    else:  g.nodes[v[0]]['role'], g.nodes[v[0]]['purusha'], g.nodes[v[0]]['vacana'] = k, v[2], v[3]
+            if v[0] != '':
+                g.add_node(v[0])
+                if k != 'Verb': g.nodes[v[0]]['role'], g.nodes[v[0]]['linga'], g.nodes[v[0]]['vibhakti'], g.nodes[v[0]]['vacana'] = k, v[2], v[3], v[-1]
+                else:  g.nodes[v[0]]['role'], g.nodes[v[0]]['purusha'], g.nodes[v[0]]['vacana'] = k, v[3], v[4]
         for k, v in interpretation.items():
             if k != 'Verb':
                 g.add_edge(interpretation['Verb'][0], interpretation[k][0])
+                g[interpretation['Verb'][0]][interpretation[k][0]]['key'] = k
                 edge_labels[(interpretation['Verb'][0], interpretation[k][0])] = k
         return g, edge_labels
 logging.basicConfig(level=logging.DEBUG, filename='AmarakoshaUI.log', format='%(asctime)s %(message)s', datefmt='%d/%m/%Y %I:%M:%S %p')
 app = QtWidgets.QApplication(sys.argv)
+# qdarktheme.setup_theme("auto")
 window = MainWindow()
 window.show()
 app.exec_()
