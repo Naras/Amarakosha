@@ -124,8 +124,12 @@ def subanta_Generation(base: str, requested_script=1) -> (List[str], str, str):
         cols_sufcode, dbSufcode = AmaraKosha_Database_Queries.sqlQueryUnicode(qry, code[:4], maxrows=0)
         for item in dbSufcode: suffixes += str(item[cols_sufcode.index('SufStr')]).split(" ")
         subforms = []
+        # print([[suf, Sandhi_Convt.Convt(suf), # ord(suf[0]), ord(suf[1]),
+        #         ord(suf[0])-48 if ord(suf[0]) in range(48,58) else ord(suf[0])-87,
+        #         ord(suf[1])-48 if ord(suf[1]) in range(48,58) else ord(suf[1])-87] for suf in suffixes])
         for sufcode in suffixes: subforms.append(Sandhi_Convt.Convt(sufcode))
         subforms_with_sandhi = [transliterate_lines(Sandhi_Convt.Sandhi(erb + item + ' '), IndianLanguages[requested_script - 1]) for item in subforms]
+        # print([transliterate_lines(item, IndianLanguages[requested_script - 1]) for item in subforms])
         if code[0] in Sandhi_Convt.antas:
             anta = Sandhi_Convt.antas[code[0]] + "ान्तः" if code[0] == 'A' else Sandhi_Convt.antas[code[0]] + "कारान्तः"
             anta = transliterate_lines(anta, IndianLanguages[requested_script - 1])
@@ -235,6 +239,7 @@ def krdanta_Generation(dhatuNo: str, DhatuVidah: str, KrdantaVidah: str, KrdMode
     # for item in krdDatas:
     #     attributes = inspect.getmembers(item, lambda a: not (inspect.isroutine(a)))
     #     print([a for a in attributes if not (a[0].startswith('__') and a[0].endswith('__'))])
+    krdDatas[0].erb = transliterate_lines(krdDatas[0].erb, IndianLanguages[requested_script - 1])
     return forms, krdDatas
 def getAnalysedinfo(krdDetail: krdData, dhatuNo: str, requested_script=1):
     # from VB GetAnalysedInfo routine
@@ -246,7 +251,7 @@ def getAnalysedinfo(krdDetail: krdData, dhatuNo: str, requested_script=1):
     # for item in dataAnalysed:
     arthas, karmas = [], []
     for item in dataAnalysed:  # there will be only one record!
-        krdDetail.verb = item[cols.index('Field2')]
+        krdDetail.verb = transliterate_lines(item[cols.index('Field2')], IndianLanguages[requested_script - 1])
         krdDetail.nijverb = transliterate_lines(item[cols.index('Field3')], IndianLanguages[requested_script - 1])
         krdDetail.sanverb = transliterate_lines(item[cols.index('Field4')], IndianLanguages[requested_script - 1])
         krdDetail.GPICode = item[cols.index('Field9')]
