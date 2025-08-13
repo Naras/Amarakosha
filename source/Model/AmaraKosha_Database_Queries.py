@@ -3,10 +3,13 @@
 __author__ = 'NarasMG'
 
 import peewee, os
+
+# from source.Controller.Transliterate import IndianLanguages
 from source.Controller.iscii2utf8 import *
-# print(os.path.join(os.getcwd(), 'Amarakosha.db'))
+# print(f"connection {os.path.join(os.getcwd(), 'Amarakosha.db')}")
 conn_unicode = peewee.SqliteDatabase(os.path.join(os.getcwd(), 'Amarakosha.db'), pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
 maxrows = 5
+IndianLanguages = ('devanagari','bengali','gurmukhi','gujarati','oriya','tamizh','telugu','kannada','malayalam')
 
 mypar = Parser()
 mypar.set_script(1)
@@ -28,15 +31,18 @@ def isascii(s):
         return True
     except UnicodeEncodeError:
         return False
-def iscii_unicode(iscii_string, script=1):
-    mypar.set_script(script)
+def iscii_unicode(iscii_string, script="devanagari"):
+    scriptIndex = IndianLanguages.index(script) + 1
+    # print(f"iscii_unicode script {script} index {scriptIndex}")
+    mypar.set_script(scriptIndex)
     flush = 0
     x_as_List = [ord(char) for char in iscii_string+' ']
     n = mypar.iscii2utf8(x_as_List, flush)
     # y = x[n:]
     return ''.join([ch for ch in mypar.write_output()])
-def unicode_iscii(unicode_string, script=1):
-    mypar.set_script(script)
+def unicode_iscii(unicode_string, script="devanagari"):
+    scriptIndex = IndianLanguages.index(script) + 1
+    mypar.set_script(scriptIndex)
     try:
         scripts_map_unicode = mypar.make_script_maps_unicode_to_iscii()
         result_as_list = []
@@ -55,7 +61,7 @@ def schemaParse():
     for row in cursor:
         tbls.append(row)
     return tbls
-def sqlQueryUnicode(sql, param=None, maxrows=5, duplicate=False, script=1):
+def sqlQueryUnicode(sql, param=None, maxrows=5, duplicate=False, script="devanagari"):
     # lstParam = [x for x in param] if isinstance(param,tuple) else param
     # print('sql=%s param=%s'%(sql, lstParam))
     current = 0
@@ -111,64 +117,10 @@ def tblSelectUnicode(table_name,maxrows=5,duplicate=False, script=1):
     if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
 
     return columns, tbl
+
 if __name__ == '__main__':
-    cols, lines = sqlQueryUnicode('Select * from Subanta where Base = ?', "अंशक") #×èÔÏè
-    print('Subanta: %s\n%s'%(cols, lines))
-    # cols, lines = sqlQueryUnicode('Select * from Subanta where Base = ?', 'अंशुमती') #×èÔÏè
-    # print('Subanta: %s\n%s'%(cols, lines))
+        tbls = schemaParse()
+        print('tables %s' % tbls)
 
-    # cols, lines = sqlQuery('Select * from SubFin where Finform = ?', 'ÏÚÌ£')
-    # print('SubFin: %s\n%s' % (cols, lines))
-    # cols, lines = sqlQueryUnicode('Select * from SubFin where Finform = ?', 'राम')
-    # print('SubFin: %s\n%s' % (cols, lines))
-    #
-    # cols, lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?', (383, "1A"))
-    # print('stinfin: %s\n%s' % (cols, lines))
-    # cols, lines = sqlQueryUnicode('select * from stinfin where field2 = ? and field3 = ?', (383, "1A"))
-    # print('stinfin: %s\n%s' % (cols, lines))
-    #
-    # cols, lines = sqlQuery('select * from Sdhatu where field2 = ? ', unicode_iscii('अंश्'))
-    # print('Sdhatu: %s\n%s' % (cols, lines))
-    #
-    # cols, lines = sqlQueryUnicode('select * from Sdhatu where field2 = ? ', 'अंश्')
-    # print('Sdhatu: %s\n%s' % (cols, lines))
-    #
-    # cols, data = tblSelect('sdhatu')
-    # print('sdhatu: %s\n%s' % (cols, data))
-    # cols, data = tblSelectUnicode('sdhatu')
-    # print('sdhatu: %s\n%s' % (cols, data))
-    #
-    # cols, lines = sqlQuery('select * from krud where field4=? and field5=?', ('a1', 383))
-    # print('krud: %s\n%s' % (cols,lines))
-    # cols, lines = sqlQueryUnicode('select * from krud where field4=? and field5=?', ('a1', 383))
-    # print('krud: %s\n%s' % (cols,lines))
-    #
-    # # cols, lines = sqlQuery('Select * from Amara_Words where Word = ?', "×èÔÏè")
-    # # print('Amara_words: %s\n%s'%(cols, lines))
-    # # cols, lines = sqlQueryUnicode('Select * from Amara_Words where Word = ?', 'स्वर्') #×èÔÏè
-    # # print('Amara_words: %s\n%s'%(cols, lines))
-    #
-    # for i in range(5):
-    #     gana = str(i) if i > 0 else ''
-    #     cols, lines = sqlQueryUnicode('select * from Sdhatu where cast(field9 as text) like ?', gana + '__')
-    #     print('%d Sdhatu: gana %s' % (i, cols))
-    #     for line in lines: print(line)
-    # for i in range(4):
-    #     cols, lines = sqlQueryUnicode('select * from Sdhatu where cast(field9 as text) like ?', '_' + str(i) + '_')
-    #     print('%d Sdhatu: padi %s' % (i, cols))
-    #     for line in lines: print(line)
-    # for i in range(3):
-    #     cols, lines = sqlQueryUnicode('select * from Sdhatu where cast(field9 as text) like ?', '__' + str(i))
-    #     print('%d Sdhatu: it %s' % (i, cols))
-    #     for line in lines: print(line)
-    #
-    # tbls = schemaParse()
-    # print('tables %s' % tbls)
-
-    cols, lines = sqlQueryUnicode('Select su.base, su.erb, su.code, sf.sufstr from Subanta su, sufcode sf where Base = ? and sf.code = substr(su.code,1, 4)', 'अंशुमती')
-    print('Subanta/Sufcode: %s\n%s'%(cols, lines))
-
-
-
-
-
+        cols, lines = sqlQueryUnicode('Select su.base, su.erb, su.code, sf.sufstr from Subanta su, sufcode sf where Base = ? and sf.code = substr(su.code,1, 4)', 'अंशुमती')
+        print('Subanta/Sufcode: %s\n%s'%(cols, lines))

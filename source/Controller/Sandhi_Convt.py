@@ -1,6 +1,7 @@
 __author__ = 'NarasMG'
 
 from source.Controller import blast
+# from source.Controller.Transliterate import transliterate_lines
 from source.Model import AmaraKosha_Database_Queries
 
 global lingas, antas, vibstr, vachstr, Tganas, Tkarmas, Tpadis, Tyit, purstr, mesg, Voices
@@ -768,41 +769,46 @@ def Convt(sufcode):   # copied from old VB code and changed to get the suffix, r
     if res in range(len(Suffix)): return Suffix[res]
     else: return ''
 def Sandhi(inword):
+    # print(f'Sandhi inword {inword}')
     # print('iscii %s devanagari %s'%(inword, Amarakosha_Database_Queries.iscii_unicode(inword)))
     halanth = chr(232)
     # inword = inword.split()
     outword = ''
     if inword == '': return ''
-    inword = AmaraKosha_Database_Queries.unicode_iscii(inword)
-    i = 0
-    while i < len(inword):
-        ch = inword[i]
-        if ch != halanth:
-            outword += ch
-            if (i < len(inword) - 1) and ch != '/':
-                ch = inword[i + 1]
-                if ord(ch) in range(164, 178):
-                    i += 1
-                    ch1 = inword[i]
-                    if i > 1:
-                        if inword[i-2] != " ":
-                            if ord(ch1) == 164: pass
-                            elif ord(ch1) in range(165, 178):
-                                outword += chr(218 - 165 + ord(ch1))
-                            else: outword += ch + ch1
+    try:
+        inword = AmaraKosha_Database_Queries.unicode_iscii(inword)
+        # print(f'inword {inword}')
+        i = 0
+        while i < len(inword):
+            ch = inword[i]
+            if ch != halanth:
+                outword += ch
+                if (i < len(inword) - 1) and ch != '/':
+                    ch = inword[i + 1]
+                    if ord(ch) in range(164, 178):
+                        i += 1
+                        ch1 = inword[i]
+                        if i > 1:
+                            if inword[i-2] != " ":
+                                if ord(ch1) == 164: pass
+                                elif ord(ch1) in range(165, 178):
+                                    outword += chr(218 - 165 + ord(ch1))
+                                else: outword += ch + ch1
+                            else: outword += ch1
                         else: outword += ch1
-                    else: outword += ch1
-        else:  # halanth
-          i += 1
-          if i <= len(inword) - 1:
-              ch1 = inword[i]
-              if ord(ch1) == 164: pass
-              elif ord(ch1) in range(165, 178):
-                  outword += chr(218 - 165 + ord(ch1))
-              else: outword += ch + ch1
-          else: outword += ch
-        i += 1
-    # print('%s after %s %s %s'%(inword, outword, cli_browse.iscii_unicode(inword), cli_browse.iscii_unicode(outword)))
+            else:  # halanth
+              i += 1
+              if i <= len(inword) - 1:
+                  ch1 = inword[i]
+                  if ord(ch1) == 164: pass
+                  elif ord(ch1) in range(165, 178):
+                      outword += chr(218 - 165 + ord(ch1))
+                  else: outword += ch + ch1
+              else: outword += ch
+            i += 1
+    except Exception as e:
+        print(f"Sandhi_Convt.Sandhi Exception {e}")
+    # print(f'Sandhi_Convt.Sandhi inword {inword}, outword {outword}') #, cli_browse.iscii_unicode(inword), cli_browse.iscii_unicode(outword)))
     return AmaraKosha_Database_Queries.iscii_unicode(outword)
 def doSandhi1(tigantaForm: str, upasarga: str) -> str:
     aDict1 = {"अ":"आ", "आ":"आ", "इ":"ए", "ई":"ए", "उ":"ओ", "ऊ":"ओ", "ऋ":"आर्", "ए":"ऐ", "ऐ":"ऐ", "ओ":"औ", "औ":"औ"}
@@ -887,3 +893,7 @@ def decode(code: int) -> str:
 
 if __name__ == '__main__':
      print(Suffix[0:5], Suffix[234:245])
+     # for j in range(36,len(Suffix),36):
+     #    s=''
+     #    for i in range(j): s += format(' / %d %s'%(i, transliterate_lines(Suffix[i], 'kannada')))
+     #    print('%d %s'%(j-36, s))
