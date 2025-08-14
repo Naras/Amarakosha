@@ -92,7 +92,7 @@ def sqlQueryUnicode(sql, param=None, maxrows=5, duplicate=False, script="devanag
     columns = [column[0] for column in rowcursor.description]
     if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
     return columns, result
-def tblSelectUnicode(table_name,maxrows=5,duplicate=False, script=1):
+def tblSelectUnicode(table_name,maxrows=5,duplicate=False, script="devanagari"):
     current = 0
     rowcursor = conn_unicode.execute_sql('select * from ' + table_name)
     try:
@@ -122,5 +122,5 @@ if __name__ == '__main__':
         tbls = schemaParse()
         print('tables %s' % tbls)
 
-        cols, lines = sqlQueryUnicode('Select su.base, su.erb, su.code, sf.sufstr from Subanta su, sufcode sf where Base = ? and sf.code = substr(su.code,1, 4)', 'अंशुमती')
-        print('Subanta/Sufcode: %s\n%s'%(cols, lines))
+        # cols, lines = sqlQueryUnicode('Select su.base, su.erb, su.code, sf.sufstr from Subanta su, sufcode sf where Base = ? and sf.code = substr(su.code,1, 4)', 'अंशुमती')
+        # print('Subanta/Sufcode: %s\n%s'%(cols, lines))
