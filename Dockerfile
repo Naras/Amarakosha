@@ -1,5 +1,5 @@
 # Select a minimal base image with Python 3.11 (adjust if needed)
-FROM python:3.11-slim-buster
+FROM python:3.12-slim
 MAINTAINER Narasimhan M.G. github.com/Naras 
 COPY ./Amarakosha.db /usr/local/Amarakosha/Amarakosha.db
 COPY ./Bandarkar.txt /usr/local/Amarakosha/Bandarkar.txt
@@ -12,9 +12,9 @@ WORKDIR /usr/local/Amarakosha/
 # Install Python dependencies from requirements.txt
 RUN pip3 install -r requirements.txt
 
-RUN rm -rf .git .idea venv requirements.txt  # Remove unwanted files
+# RUN rm -rf .git .idea venv requirements.txt  # Remove unwanted files
 # Expose the REST API port (adjust if different)
-EXPOSE 5002
+EXPOSE 5000
 # Set the entrypoint and command for running the app
 # ENTRYPOINT ["python", "app.py"]  # Replace "app.py" with your main script
 CMD python3 source/Controller/restService.py

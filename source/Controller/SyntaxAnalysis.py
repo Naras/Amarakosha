@@ -74,18 +74,17 @@ def splitTheWord(word: str) -> split:
     splitWord.noOfSplits = j
     return splitWord
 
-# Syntax.h
 karthari, karmani, fullstop = 0, 1, 'è'
 class subanta_data:
-    def __init__(self):
-        self.vibhakti = [None] * 20  # type: list[int]
-        self.vacana = [None] * 20  # type: list[int]
-        self.linga = [None] * 20  # type: list[int]
-        self.purusha = [None] * 20  # type: list[int]
-        self.subanta = [None] * 20  # type: list[str]
-        self.pratipadika = [None] * 20  # type: list[str]
-        self.erb = [None] * 20  # type: list[str]
-        self.wordNum = [None] * 20  # type: list[int]
+    def __init__(self, size=1000):
+        self.vibhakti = [None] * size  # type: list[int]
+        self.vacana = [None] * size  # type: list[int]
+        self.linga = [None] * size  # type: list[int]
+        self.purusha = [None] * size  # type: list[int]
+        self.subanta = [None] * size  # type: list[str]
+        self.pratipadika = [None] * size  # type: list[str]
+        self.erb = [None] * size  # type: list[str]
+        self.wordNum = [None] * size  # type: list[int]
         self.numofNouns = 0  # type: int
     def get(self):
         return {'vibhakti':self.vibhakti[:self.numofNouns], 'vacana':self.vacana[:self.numofNouns], 'linga':self.linga[:self.numofNouns],
@@ -94,23 +93,23 @@ class subanta_data:
     def __str__(self):
         return json.dumps(self.get())
 class tiganta_data:
-    def __init__(self):
-        self.dhatuVidha = [None] * 10  # type: list[int]
-        self.prayoga = [None] * 10  # type: list[int]
-        self.lakara = [None] * 10  # type: list[int]
-        self.purusha = [None] * 10  # type: list[int]
-        self.vacana = [None] * 10  # type: list[int]
-        self.gana = [None] * 10  # type: list[int]
-        self.padi = [None] * 10  # type: list[int]
-        self.it = [None] * 10  # type: list[int]
-        self.karma = [None] * 10  # type: list[int]
-        self.tiganta = [None] * 10  # type: list[str]
-        self.dhatu = [None] * 10  # type: list[str]
-        self.nijdhatu = [None] * 10  # type: list[str]
-        self.sandhatu = [None] * 10  # type: list[str]
-        self.artha = [None] * 10  # type: list[str]
-        self.err = [None] * 10  # type: list[str]
-        self.wordNum = [None] * 10  # type: list[int]
+    def __init__(self, size=1000):
+        self.dhatuVidha = [None] * size  # type: list[int]
+        self.prayoga = [None] * size  # type: list[int]
+        self.lakara = [None] * size  # type: list[int]
+        self.purusha = [None] * size  # type: list[int]
+        self.vacana = [None] * size  # type: list[int]
+        self.gana = [None] * size  # type: list[int]
+        self.padi = [None] * size  # type: list[int]
+        self.it = [None] * size  # type: list[int]
+        self.karma = [None] * size  # type: list[int]
+        self.tiganta = [None] * size  # type: list[str]
+        self.dhatu = [None] * size  # type: list[str]
+        self.nijdhatu = [None] * size  # type: list[str]
+        self.sandhatu = [None] * size  # type: list[str]
+        self.artha = [None] * size  # type: list[str]
+        self.err = [None] * size  # type: list[str]
+        self.wordNum = [None] * size  # type: list[int]
         self.numofVerbs = 0  # type: int
     def instance(self,i):
         v = VERB()
@@ -125,26 +124,26 @@ class tiganta_data:
     def __str__(self):
         return json.dumps(self.get())
 class krdanta_data:
-    def __init__(self):
-        self.vibhakti = [None] * 20  # type: list[int]
-        self.vacana = [None] * 20  # type: list[int]
-        self.linga = [None] * 20  # type: list[int]
-        self.prayoga = [None] * 20  # type: list[int]
-        self.dhatuVidha = [None] * 20  # type: list[int]
-        self.krdType = [None] * 20  # type: list[int]
-        self.purusha = [None] * 20  # type: list[int]
-        self.gana = [None] * 20  # type: list[int]
-        self.padi = [None] * 20  # type: list[int]
-        self.karma = [None] * 20  # type: list[int]
-        self.it = [None] * 20  # type: list[int]
-        self.krdanta = [None] * 20  # type: list[str]
-        self.pratipadika = [None] * 20  # type: list[str]
-        self.dhatu = [None] * 20  # type: list[str]
-        self.nijdhatu = [None] * 20  # type: list[str]
-        self.sandhatu = [None] * 20  # type: list[str]
-        self.artha = [None] * 20  # type: list[str]
-        self.erb = [None] * 20  # type: list[str]
-        self.wordNum = [None] * 20  # type: list[int]
+    def __init__(self, size=1000):
+        self.vibhakti = [None] * size  # type: list[int]
+        self.vacana = [None] * size  # type: list[int]
+        self.linga = [None] * size  # type: list[int]
+        self.prayoga = [None] * size  # type: list[int]
+        self.dhatuVidha = [None] * size  # type: list[int]
+        self.krdType = [None] * size  # type: list[int]
+        self.purusha = [None] * size  # type: list[int]
+        self.gana = [None] * size  # type: list[int]
+        self.padi = [None] * size  # type: list[int]
+        self.karma = [None] * size  # type: list[int]
+        self.it = [None] * size  # type: list[int]
+        self.krdanta = [None] * size  # type: list[str]
+        self.pratipadika = [None] * size  # type: list[str]
+        self.dhatu = [None] * size  # type: list[str]
+        self.nijdhatu = [None] * size  # type: list[str]
+        self.sandhatu = [None] * size  # type: list[str]
+        self.artha = [None] * size  # type: list[str]
+        self.erb = [None] * size  # type: list[str]
+        self.wordNum = [None] * size  # type: list[int]
         self.numofKrdantas = 0  # type: int
     def instance(self,i):
         k = PARTICIPLE()
@@ -155,49 +154,49 @@ class krdanta_data:
         'purusha':self.purusha[:self.numofKrdantas], 'prayoga':self.prayoga[:self.numofKrdantas], 'dhatuVidha':self.dhatuVidha[:self.numofKrdantas],
         'gana':self.gana[:self.numofKrdantas], 'padi':self.padi[:self.numofKrdantas], 'it':self.it[:self.numofKrdantas],
         'krdanta':self.krdanta[:self.numofKrdantas], 'pratipadika':self.pratipadika[:self.numofKrdantas], 'dhatu':self.dhatu[:self.numofKrdantas],
-        'nijdhatu': self.nijdhatu[:self.numofKrdantas], 'sandhatu':self.sandhatu[:self.numofKrdantas], 'artha':self.artha[self.numofKrdantas],
+        'nijdhatu': self.nijdhatu[:self.numofKrdantas], 'sandhatu':self.sandhatu[:self.numofKrdantas], 'artha':self.artha[:self.numofKrdantas],
         'erb':self.erb[:self.numofKrdantas], 'wordNum':self.wordNum[:self.numofKrdantas], 'numofKrdantas':self.numofKrdantas}
     def __str__(self):
         return json.dumps(self.get())
 class avyaya_data:
-    def __init__(self):
-        self.avyava = [None] * 30  # type: list[str]
-        self.wordNum = [None] * 30 # type: list[int]
+    def __init__(self, size=1000):
+        self.avyava = [None] * size  # type: list[str]
+        self.wordNum = [None] * size # type: list[int]
         self.numofAvyayas = 0 # type: int
     def get(self):
-        return {'avyaya':self.avyava[:self.numofAvyayas], 'wordNum':self.wordNum[:self.numofAvyayas], 'numofAvyayas':self.numofAvyayasnum}
+        return {'avyaya':self.avyava[:self.numofAvyayas], 'wordNum':self.wordNum[:self.numofAvyayas], 'numofAvyayas':self.numofAvyayas}
     def __str__(self):
         return json.dumps(self.get())
 class krdav_data:
-    def __init__(self):
-        self.dhatuVidha = [None] * 20  # type: list[int]
-        self.krdavType = [None] * 20  # type: list[int]
-        self.purusha = [None] * 20  # type: list[int]
-        self.gana = [None] * 20  # type: list[int]
-        self.padi = [None] * 20  # type: list[int]
-        self.karma = [None] * 20  # type: list[int]
-        self.it = [None] * 20  # type: list[int]
-        self.krdavyaya = [None] * 20  # type: list[str]
-        self.dhatu = [None] * 20  # type: list[str]
-        self.nijdhatu = [None] * 20  # type: list[str]
-        self.sandhatu = [None] * 20  # type: list[str]
-        self.artha = [None] * 20  # type: list[str]
-        self.wordNum = [None] * 20  # type: list[int]
+    def __init__(self, size=1000):
+        self.dhatuVidha = [None] * size  # type: list[int]
+        self.krdavType = [None] * size  # type: list[int]
+        self.purusha = [None] * size  # type: list[int]
+        self.gana = [None] * size  # type: list[int]
+        self.padi = [None] * size  # type: list[int]
+        self.karma = [None] * size  # type: list[int]
+        self.it = [None] * size  # type: list[int]
+        self.krdavyaya = [None] * size  # type: list[str]
+        self.dhatu = [None] * size  # type: list[str]
+        self.nijdhatu = [None] * size  # type: list[str]
+        self.sandhatu = [None] * size  # type: list[str]
+        self.artha = [None] * size  # type: list[str]
+        self.wordNum = [None] * size  # type: list[int]
         self.numofKrdavyayas = 0  # type: int
     def get(self):
         return {'dhatuVidha': self.dhatuVidha[:self.numofKrdavyayas], 'gana':self.gana[:self.numofKrdavyayas], 'padi': self.padi[:self.numofKrdavyayas], 'it': self.it[:self.numofKrdavyayas],
                 'dhatu': self.dhatu[:self.numofKrdavyayas], 'nijdhatu': self.nijdhatu[:self.numofKrdavyayas], 'sandhatu': self.sandhatu[:self.numofKrdavyayas],
-                'artha': self.artha[self.numofKrdavyayas], 'krdavyaya': self.krdavyaya[:self.numofKrdavyayas], 'wordNum': self.wordNum[:self.numofKrdavyayas], 'numofKrdavyayas': self.numofKrdavyayas}
+                'artha': self.artha[:self.numofKrdavyayas], 'krdavyaya': self.krdavyaya[:self.numofKrdavyayas], 'wordNum': self.wordNum[:self.numofKrdavyayas], 'numofKrdavyayas': self.numofKrdavyayas}
     def __str__(self):
         return json.dumps(self.get())
 class VIBHAKTI:
-    def __init__(self):
-        self.word = [None] * 20  # type: list[str]
-        self.vibhakti = [None] * 20  # type: list[int]
-        self.vacana = [None] * 20 # type: list[int]
-        self.purusha = [None] * 20 # type: list[int]
-        self.linga = [None] * 20 # type: list[int]
-        self.wordPos = [None] * 20 # type: list[int]
+    def __init__(self, size=1000):
+        self.word = [None] * size  # type: list[str]
+        self.vibhakti = [None] * size  # type: list[int]
+        self.vacana = [None] * size # type: list[int]
+        self.purusha = [None] * size # type: list[int]
+        self.linga = [None] * size # type: list[int]
+        self.wordPos = [None] * size # type: list[int]
         self.numofWords = 0 # type: int
     def get(self):
         return {'word': self.word[:self.numofWords], 'vibhakti':self.vibhakti[:self.numofWords], 'vacana': self.vacana[:self.numofWords], 'purusha': self.purusha[:self.numofWords],
@@ -345,9 +344,10 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
                 karmaflag = False;
                 break;
         participle.karma[participle.numofKrdantas] = karma[0] if karmaflag else 0
-        participle.gana[participle.numofKrdantas] = ord(splitSen[14][0]) - 48
-        participle.padi[participle.numofKrdantas] = ord(splitSen[14][1]) - 48
-        participle.it[participle.numofKrdantas] = ord(splitSen[14][2]) - 48
+        gpi = splitSen[14].zfill(3) if len(splitSen[14]) < 3 else splitSen[14]
+        participle.gana[participle.numofKrdantas] = ord(gpi[0]) - 48
+        participle.padi[participle.numofKrdantas] = ord(gpi[1]) - 48
+        participle.it[participle.numofKrdantas] = ord(gpi[2]) - 48
         participle.vibhakti[participle.numofKrdantas] = (int(splitSen[7]) - 1) // 3
         participle.vacana[participle.numofKrdantas] = (int(splitSen[7]) - 1) % 3
         participle.linga[participle.numofKrdantas] = ord(splitSen[6][1]) - 48
@@ -377,9 +377,10 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
             krdav.karma[krdav.numofKrdavyayas] = int(temp[:-1]) - 48
         krdav.dhatuVidha[krdav.numofKrdavyayas] = int(splitSen[3][1]) - 48
         krdav.krdavType[krdav.numofKrdavyayas] = int(splitSen[3][0]) - 96
-        krdav.gana[krdav.numofKrdavyayas] = int(splitSen[9][0]) - 48
-        krdav.padi[krdav.numofKrdavyayas] = int(splitSen[9][1]) - 48
-        krdav.it[krdav.numofKrdavyayas] = int(splitSen[9][2]) - 48
+        gpi = splitSen[9].zfill(3) if len(splitSen[9]) < 3 else splitSen[9]
+        krdav.gana[krdav.numofKrdavyayas] = int(gpi[0]) - 48
+        krdav.padi[krdav.numofKrdavyayas] = int(gpi[1]) - 48
+        krdav.it[krdav.numofKrdavyayas] = int(gpi[2]) - 48
         krdav.wordNum[krdav.numofKrdavyayas] = m
         word.word[m] = 'krdav'
         return krdav
@@ -403,9 +404,10 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
         verb.lakara[verb.numofVerbs] = (ord(splitSen[11][1]) - 65) // 2
         verb.purusha[verb.numofVerbs] = (int(splitSen[12]) - 1) // 3
         verb.vacana[verb.numofVerbs] = int(splitSen[12]) % 3
-        verb.gana[verb.numofVerbs] = ord(splitSen[10][0]) - 48
-        verb.padi[verb.numofVerbs] = ord(splitSen[10][1]) - 48
-        verb.it[verb.numofVerbs] = ord(splitSen[10][2]) - 48
+        gpi = splitSen[10].zfill(3) if len(splitSen[10]) < 3 else splitSen[10]
+        verb.gana[verb.numofVerbs] = ord(gpi[0]) - 48
+        verb.padi[verb.numofVerbs] = ord(gpi[1]) - 48
+        verb.it[verb.numofVerbs] = ord(gpi[2]) - 48
         word.word[m] = 'tiganta'
         verb.wordNum[verb.numofVerbs] = m
         verb.numofVerbs += 1
@@ -1520,7 +1522,7 @@ def checkAdjProVibhaktiCompatibility(adj: subanta_data, subject: VIBHAKTI, objec
         for y in range(clas.numofWords):
             for x in range(adj.numofNouns):
                 flag = 0
-                if subject.wordPos[y] == adj.wordNum[x] and clas.vibhakti[y] == adj.vibhakti[x] and clas.vacana[y] == adj.vacana[x] and clas.linga[y] == adj.linga[x]:
+                if clas.vibhakti[y] == adj.vibhakti[x] and clas.vacana[y] == adj.vacana[x] and clas.linga[y] == adj.linga[x]:
                     flag = 1
                     break
     return flag
@@ -1855,8 +1857,8 @@ def checkAdjorProandVibhaktiCompatibility(adj: subanta_data, subject: VIBHAKTI, 
     if tflag and subject.numofWords > 0: flag = 2
     for clas in [subject, object, instrument, dative, ablative, locative, genitive, vocative]:
         for y in range(clas.numofWords):
-            for x in range(adj.numofnouns):
-                if clas.wordPos[x] == adj.wordNum[x] and clas.vibhakti[y] == adj.vibhakti[x] and clas.vacana[y] == adj.vacana[x] and clas.linga[y] == adj.linga[x]: flag = 1
+            for x in range(adj.numofNouns):
+                if clas.vibhakti[y] == adj.vibhakti[x] and clas.vacana[y] == adj.vacana[x] and clas.linga[y] == adj.linga[x]: flag = 1
     return flag
 def dispMesg6(prayoga: bool, purusha: int, vacana: int, str: str) -> List[str]:
     # result = []
@@ -1922,12 +1924,12 @@ def checkPronounKrdantaCompatibility(subject: VIBHAKTI, object: VIBHAKTI, instru
     flag = False
     if subject.numofWords == 0:
         for ii in range(pro.numofNouns):
-            if pro.vibhakti == krdanta.vibhakti and pro.vacana == krdanta.vacana:
-                if pro.linga == krdanta.linga:
+            if pro.vibhakti[ii] == krdanta.vibhakti and pro.vacana[ii] == krdanta.vacana:
+                if pro.linga[ii] == krdanta.linga:
                     flag = True;
                     break
                 else:
-                    flag = krdanta.linga in [[0,1], [0,2], [1,2], [0,1,2]][pro.linga - 3]
+                    flag = krdanta.linga in [[0,1], [0,2], [1,2], [0,1,2]][pro.linga[ii] - 3]
     else: flag = checkAdjorProandVibhaktiCompatibility(pro, subject, object, instrument, dative, ablative, locative, vocative, genitive, False)
     return flag
 def checkPosofAvyayaBetweenKrdantas(indeclinable: avyaya_data, participle :krdanta_data, avyayaflag :int) -> int:

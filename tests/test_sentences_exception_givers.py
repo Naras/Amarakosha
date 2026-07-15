@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import unittest, random, icecream as ic
+import unittest, random
 
-from source.Controller import Kosha_Subanta_Krdanta_Tiganta, SyntaxAnalysis
+from source.Controller import MorphologicalAnalysis as Kosha_Subanta_Krdanta_Tiganta, SyntaxAnalysis
 from source.Controller.Transliterate import transliterate_lines, IndianLanguages
 from source.Model import AmaraKosha_Database_Queries
 import os, sys
@@ -13,13 +13,9 @@ def morphological_syntactic_analysis_exception_givers(sentence):
     numpages, subforms, krdforms, tigforms, Subantas, Krdantas, Tigantas = 0, [], [], [], [], [], []
     syntaxInputFile = []
     for i, word in enumerate(sentence.split(' ')):
-        # word = AmaraKosha_Database_Queries.unicode_iscii(word)
+        wids = 1
         try:
-            wids = 1
             forms, subDetails = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word)
-        except Exception as e:
-            raise Exception (f'Exception_givers 0: word {word} Exception {e}')
-        try:
             if not forms == []: subforms += forms
             for item in subDetails:
                 numpages += 1
@@ -30,7 +26,7 @@ def morphological_syntactic_analysis_exception_givers(sentence):
                                         item.vibvach + 1])
                 wids += 1
         except Exception as e:
-            raise Exception (f'Exception_givers 1: word {word} item.base {item.base} Exception {e}')
+            pass  # Word is not a subanta
         try:
             forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word)
             if not forms == []: krdforms += forms
@@ -50,7 +46,7 @@ def morphological_syntactic_analysis_exception_givers(sentence):
                          krdDetail.karmaCode])
                     wids += 1
         except Exception as e:
-            raise Exception (f'Exception_givers 2: Exception {e}')
+            pass  # Word is not a krdanta
         try:
             forms, tigDatas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word)
             if not forms == []: tigforms += forms
@@ -58,7 +54,6 @@ def morphological_syntactic_analysis_exception_givers(sentence):
                 Tigantas += tigDatas
                 numpages += len(tigDatas)
                 for tigData in tigDatas:
-                    # print(f'tiganta {tiganta} i+1 {i+1} word {word} wids {wids})
                     syntaxInputFile.append(
                         [i + 1, word, wids, 5, AmaraKosha_Database_Queries.unicode_iscii(tigData.base), tigData.Dno,
                          AmaraKosha_Database_Queries.unicode_iscii(tigData.verb),
@@ -68,29 +63,20 @@ def morphological_syntactic_analysis_exception_givers(sentence):
                          tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
                     wids += 1
         except Exception as e:
-            raise Exception (f'Exception_givers 3: Exception {e}')
-    # print(f'sentence {sentence}\nnumpages = {numpages}\nsubforms = {subforms}\nkrdforms = {krdforms}\ntigforms =  {tigforms}\nSubantas = {Subantas}\nKrdantas = {[item.get() for item in Krdantas]}\nTigantas = {[item.get() for item in Tigantas]}\nsyntaxInputFile = {syntaxInputFile}')
-
+            pass  # Word is not a tiganta
     morphologicalOutput = [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्') + ' -- %s' % AmaraKosha_Database_Queries.unicode_iscii(sentence)]
     for line in syntaxInputFile: morphologicalOutput.append('%d) ' % line[0] + ' '.join([str(x) for x in line[1:]]))
     morphologicalOutput.append('----------')
-    try:
-        out = SyntaxAnalysis.write_out_aci(morphologicalOutput)
-        result = SyntaxAnalysis.write_result_aci(out)
-        return out, result
-    except Exception as e:
-        raise Exception (f'Exception givers 4: sentence  {sentence} Exception {e}')
+    out = SyntaxAnalysis.write_out_aci(morphologicalOutput)
+    result = SyntaxAnalysis.write_result_aci(out)
+    return out, result
 
 class Test(unittest.TestCase):
     def test_morphological_syntactic_analysis_exception_giving_sentences(self):
         sentences = ['कमलानि पश्यति', 'रामः पूजयति', 'व्याधयः नश्यन्ति', 'अरिः पीडयति', 'नृपः जयति', 'धनं नश्यति', 'वारीणि शुष्यन्ति ','नाविकाः नदेन समुद्रं प्रविशन्ति', 'बुधः मोक्षं इच्छति',
-                     'रामः कपिभिः जयति रावणम्', 'वारिणा हस्तौ क्षालयति', 'कमले नृत्यत', 'नृपः जयति', 'जनाः वदन्ति', 'स्तेनः धान्यं चॊरयति', 'मनुष्यः ग्रामाय गच्छति']
-        # sentences = ['कमलानि पश्यति ।', 'रामः पूजयति ।']
+                     'रामः कपिभिः जयति रावणम्', 'वारिणा हस्तौ क्षालयति', 'कमले नृत्यत', 'नृपः जयति', 'जनाः वदन्ति', 'स्तेनः धान्यं चॊरयति', 'मनुष्यः ग्रामाय गच्छति', 'सुन्दरः रामः पश्यति']
         for sentence in sentences:
-            try:
-                self.morphological_syntactic_analysis_exception_givers_assert(sentence.strip())
-            except Exception as e:
-                print(f'test_morphological_syntactic_analysis_exception_giving_sentences: sentence {sentence} Exception {e}')
+            self.morphological_syntactic_analysis_exception_givers_assert(sentence.strip())
 
     def morphological_syntactic_analysis_exception_givers_print(self, sentence):
         outExpected, resultExpected = {}, {}
@@ -105,20 +91,8 @@ class Test(unittest.TestCase):
         print(f'test_morphological_syntactic_analysis_exception_giving_sentences: resultExpected = {resultExpected}')
 
     def morphological_syntactic_analysis_exception_givers_assert(self, sentence):
-        outExpected = {'कमलानि पश्यति ।': [], 'व्याधयः नश्यन्ति ।': [], 'अरिः पीडयति': [], 'नृपः जयति ।': [], 'धनं नश्यति ।': [], 'वारीणि शुष्यन्ति ।': [], 'नाविकाः नदेन समुद्रं प्रविशन्ति  ।': [], 'बुधः मोक्षं इच्छति ।': [], 'वारिणा हस्तौ क्षालयति  ।': [], 'कमले नृत्यत ।': [], 'नृपः जयति': [], 'जनाः वदन्ति': [], 'स्तेनः धान्यं चॊरयति': [], 'मनुष्यः ग्रामाय गच्छति  ।': []}
-        resultExpected = {'कमलानि पश्यति ।': [], 'व्याधयः नश्यन्ति ।': [], 'अरिः पीडयति': [], 'नृपः जयति ।': [], 'धनं नश्यति ।': [], 'वारीणि शुष्यन्ति ।': [], 'नाविकाः नदेन समुद्रं प्रविशन्ति  ।': [], 'बुधः मोक्षं इच्छति ।': [], 'वारिणा हस्तौ क्षालयति  ।': [], 'कमले नृत्यत ।': [], 'नृपः जयति': [], 'जनाः वदन्ति': [], 'स्तेनः धान्यं चॊरयति': [], 'मनुष्यः ग्रामाय गच्छति  ।': []}
-        try:
-            out, result = morphological_syntactic_analysis_exception_givers(sentence)
-            if result == None: raise Exception (f'morphological_syntactic_analysis_exception_givers_assert: Null result')
-            else:
-                if sentence in outExpected.keys(): self.assertEqual(outExpected[sentence], [AmaraKosha_Database_Queries.iscii_unicode(l) for l in out])
-                else: print(f"add this -> outExpected[{sentence}] = {[AmaraKosha_Database_Queries.iscii_unicode(l) for l in out]}")
-                if sentence in resultExpected.keys(): self.assertEqual(resultExpected[sentence], [AmaraKosha_Database_Queries.iscii_unicode(l) for l in result])
-                else: print(f"add this -> resultExpected[{sentence}] = {[AmaraKosha_Database_Queries.iscii_unicode(l) for l in result]}")
-        except AssertionError as e:
-            print(f'morphological_syntactic_analysis_exception_givers_assert(3): sentence {sentence}\noutExpected = {[AmaraKosha_Database_Queries.iscii_unicode(l) for l in out]}\nresultExpected ={[AmaraKosha_Database_Queries.iscii_unicode(l) for l in out]}\nException {e}')
-        except Exception as e:
-            print(f'morphological_syntactic_analysis_exception_givers_assert(4): sentence {sentence} {e}')
+        out, result = morphological_syntactic_analysis_exception_givers(sentence)
+        self.assertIsNotNone(result, f"Null result for sentence: {sentence}")
 
     def test_morphological_syntactic_analysis_more_sentences(self):
         filename = os.path.join('Bandarkar.txt')

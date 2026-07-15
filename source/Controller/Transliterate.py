@@ -2,7 +2,7 @@ __author__ = 'NarasMG'
 
 import os
 
-from source.Controller import Kosha_Subanta_Krdanta_Tiganta
+from source.Controller import MorphologicalAnalysis as Kosha_Subanta_Krdanta_Tiganta
 from source.Model import AmaraKosha_Database_Queries
 
 IndianLanguages = ('devanagari','bengali','gurmukhi','gujarati','oriya','tamizh','telugu','kannada','malayalam')
@@ -25,6 +25,8 @@ def transliterate(ch,targetScript):
     else:
         return IndianUnicodeValue[targetScript][ord(ch) - ord(IndianUnicodeValue[detectLang(ch)][1])+1]
 def transliterate_lines(source,scriptTarget='devanagari'):
+    if scriptTarget not in IndianLanguages:
+        scriptTarget = 'devanagari'
     for i,e in enumerate(IndianLanguages):
         if scriptTarget == e:
             trg = i

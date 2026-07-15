@@ -4,15 +4,7 @@ sourceAll.txt
 /Semantic
 /__pycache__
 /.idea
-/Senanal
-/KarakaSemanticLabelling.pdf
-/Amarakosha-Morphological-Syntactic-Analysis-Old-VisualBasic.zip
-/U0900.pdf
-/WordsData-TrialDataFields.db
-/Amarakosha.log
-/WordsData
-/iscii-db.txt
-/unicode-db.txt
+/WordsData*
 /*.c
 /*.Aci
 /source.txt
@@ -21,4 +13,6 @@ sourceAll.txt
 /OSout.Aci
 /TODO.txt
 /databaseModel.py
-/tests/test_exception_giver_sentences_working.py
+/*db
+/*pyc
+**pycache**

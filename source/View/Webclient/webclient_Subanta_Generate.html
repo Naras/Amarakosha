@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Amarakosha - Subanta Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #0f172a;
+        --panel-bg: rgba(30, 41, 59, 0.7);
+        --accent-color: #38bdf8;
+        --accent-hover: #0ea5e9;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --card-bg: rgba(15, 23, 42, 0.6);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        font-family: 'Noto Sans', sans-serif;
+        color: var(--text-main);
+        min-height: 100vh;
+        background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
+                          radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 40%);
+      }
+
+      /* Navbar */
+      #navbar {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-color);
+        padding: 10px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      #navbar ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      #navbar li {
+        display: inline-block;
+        border: none;
+        margin: 0;
+      }
+
+      #navbar li a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        font-size: 1rem;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      #navbar li a:hover, #navbar li.active a {
+        color: var(--text-main);
+        background: rgba(56, 189, 248, 0.15);
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
+      }
+
+      /* Container */
+      .app-container {
+        max-width: 1400px;
+        margin: 30px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 30px;
+      }
+
+      /* Header info */
+      .header-section {
+        grid-column: 1 / -1;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .header-section h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.5rem;
+        margin: 0;
+        background: linear-gradient(135deg, #f8fafc 30%, #38bdf8 90%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .header-section p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin-top: 5px;
+      }
+
+      /* Sidebar & Details panel */
+      .sidebar {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 20px;
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        position: sticky;
+        top: 90px;
+        box-sizing: border-box;
+      }
+
+      .sidebar label {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 1.1rem;
+      }
+
+      select#Dhatus {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-main);
+        padding: 10px;
+        font-size: 1rem;
+        height: 250px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+      }
+
+      select#Dhatus:focus {
+        border-color: var(--accent-color);
+      }
+
+      button#DhatusButton {
+        background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+        color: var(--bg-color);
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      button#DhatusButton:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+      }
+
+      /* Details view */
+      .details-panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 30px;
+        backdrop-filter: blur(8px);
+        min-height: 400px;
+      }
+
+      .details-panel h5 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.5rem;
+        margin: 0 0 20px 0;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 10px;
+        color: var(--accent-color);
+      }
+
+      /* Base attributes */
+      .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .meta-box {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px;
+      }
+
+      .meta-box span.label {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+
+      .meta-box span.value {
+        font-size: 1.15rem;
+        font-weight: 500;
+      }
+
+      /* Declension Table */
+      table#tbl {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+      }
+
+      table#tbl th, table#tbl td {
+        padding: 14px;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      table#tbl th {
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent-color);
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+      }
+
+      table#tbl tr:last-child td {
+        border-bottom: none;
+      }
+
+      table#tbl tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navbar">
+      <ul>
+        <li><a href="webclient_Amara_Synonyms.html">Amarakosha</a></li>
+        <li class="active"><a href="webclient_Subanta_Generate.html">Subanta</a></li>
+        <li><a href="webclient_Tiganta_Generate.html">Tiganta</a></li>
+        <li><a href="webclient_Krdanta_Generate.html">Krdanta</a></li>
+        <li><a href="webclient_sentence_analyser.html">Analysis</a></li>
+        <li><a href="index.html">Home</a></li>
+      </ul>
+    </div>
+
+    <div class="app-container">
+      <div class="header-section">
+        <h2>Subanta Generator</h2>
+        <p>Explore Nominal Declensions (Vibhakti & Vacana paradigms)</p>
+      </div>
+
+      <div class="sidebar">
+        <label for="Dhatus">Select Nominal Base</label>
+        <select id="Dhatus" size="20"></select>
+        <button id="DhatusButton">Generate</button>
+      </div>
+
+      <div id="dhatu" class="details-panel">
+        <h5>Nominal Paradigms</h5>
+        
+        <!-- Base Attributes metadata -->
+        <div class="meta-grid" id="textBoxes">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Output table -->
+        <div id="subantas">
+          <table id="tbl">
+            <tr><td style="color: var(--text-muted); text-align: center; padding: 40px;">Select a base and click "Generate" to declense.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+      const DhatusSelect = document.getElementById("Dhatus");
+
+      // Populate nominal bases
+      fetch(getApiUrl('Subantas'))
+        .then(response => response.json())
+        .then(json => {
+          dataArray = json['Subanta Dhatus'];
+          dataArray.forEach((item, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.text = item;
+            DhatusSelect.appendChild(option);
+          });
+        });
+
+      // Generate Declensions
+      const DhatusButton = document.getElementById("DhatusButton");
+      DhatusButton.addEventListener("click", () => {
+        dhatuSel = $("#Dhatus option:selected").text();
+        if (!dhatuSel) return;
+        const url2 = getApiUrl('Subanta/' + encodeURIComponent(dhatuSel));
+        
+        fetch(url2)
+          .then(response => response.json())
+          .then(data => {
+            const detailsHeader = document.querySelector(".details-panel h5");
+            detailsHeader.innerHTML = "Subanta Paradigms: " + dhatuSel;
+
+            const metaContainer = document.getElementById("textBoxes");
+            metaContainer.innerHTML = ""; // Clear metadata
+
+            dataArray = data['Subantas'];
+            const subantasTblDiv = document.getElementById('subantas');
+
+            Object.entries(dataArray).forEach(([key, value]) => {
+              if (key === "forms") {
+                let tbl = document.getElementById('tbl');
+                if (tbl) tbl.remove();
+
+                const table = document.createElement('table');
+                table.setAttribute("id", "tbl");
+                
+                const headerRow = table.insertRow();
+                const rowLabel = document.createElement('th');
+                rowLabel.textContent = 'विभक्ति/वचन';
+                headerRow.appendChild(rowLabel);              
+                
+                const header1 = document.createElement('th');
+                header1.textContent = 'एकवचन';
+                headerRow.appendChild(header1);
+                
+                const header2 = document.createElement('th');
+                header2.textContent = 'द्विवचन';
+                headerRow.appendChild(header2);
+                
+                const header3 = document.createElement('th');
+                header3.textContent = 'बहुवचन';
+                headerRow.appendChild(header3);
+
+                formsDict = dataArray["forms"];
+
+                for (const [rowKey, rowValue] of Object.entries(formsDict)) {
+                  const row = table.insertRow();
+                  const labelCell = row.insertCell();
+                  labelCell.textContent = rowKey;
+                  for (const form of rowValue) {
+                    const cell = row.insertCell();
+                    cell.textContent = form;
+                  }
+                }
+                subantasTblDiv.appendChild(table);
+              } else {
+                // Populate metadata cleanly
+                const metaBox = document.createElement("div");
+                metaBox.className = "meta-box";
+
+                const labelSpan = document.createElement("span");
+                labelSpan.className = "label";
+                labelSpan.textContent = key;
+                metaBox.appendChild(labelSpan);
+
+                const valueSpan = document.createElement("span");
+                valueSpan.className = "value";
+                valueSpan.textContent = value;
+                metaBox.appendChild(valueSpan);
+
+                metaContainer.appendChild(metaBox);
+              }
+            });
+          });
+      });
+    </script>
+  </body>
+</html>

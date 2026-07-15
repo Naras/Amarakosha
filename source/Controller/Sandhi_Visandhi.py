@@ -4,64 +4,20 @@ from source.Controller import blast
 # from source.Controller.Transliterate import transliterate_lines
 from source.Model import AmaraKosha_Database_Queries
 
+from source.Controller import constants
+
 global lingas, antas, vibstr, vachstr, Tganas, Tkarmas, Tpadis, Tyit, purstr, mesg, Voices
-lingas = ["स्त्रीलिङ्गः", "पुल्लिङ्गः", "नपुंसकलिङ्गः", "स्त्री.पुं", "स्त्री.नपुं", "पुं.नपुं", "स्त्री.पुं.नपुं", "अलिङ्ग"]
-antas = {"a": "अ", "b": "आ", "c": "इ", "d": "ई", "e": "उ", "f": "ऊ", "g": "ऋ", "h": "ॠ", "i": "ङ", "j": "इ़", "k": "ए", "l": "ऎ", "m": "ओ", "n": "औ", "p": "च",
-         "r":"ण", "s":"त", "t":"थ", "u":"द", "v":"ध", "w":"न", "x":"प", "y":"भ", "z":"म", "A":"रेफ", "B":"व", "C":"श", "D":"ष", "E":"स", "F":"ह"}
-
-vibstr = ["प्रथमा", "द्वितीया", "तृतीया", "चतुर्थी", "पंचमी", "षष्ठी", "सप्तमी", "सं प्रथमा"]
-
-vachstr = ["एकवचन", "द्विवचन", "बहुवचन"]
-
-Tganas = ["भ्वादिगणः", "अदादिगणः", "जुहोत्यादिगणः", "दिवादिगणः", "स्वादिगणः", "तुदादिगणः", "रुधादिगणः", "तनादिगणः", "क्रयादिगणः", "चुरादिगणः"]
-
-Tkarmas = ["सकर्मकः", "अकर्मकः", "द्विकर्मकः"]
-
-Tpadis = ["परस्मैपदी", "आत्मनेपदी", "उभयपदी"]
-
-Tyit = ["सेट्","अनिट्", "वेट्"]
-
-purstr = ["प्रथमपुरुषः", "मध्यमपुरुषः", "उत्तमपुरुषः"]
-
-mesg = ["The sentence is syntactically compatible"
-        "The sentence is syntactically not compatible",
-        "ÒeLeceefJeYeef„",
-        "le=leer³eefJeYeef„",
-        "lJec/®e/Jee/³egJeec/³et³ec/Denc/DeeJeec/Je³eced",
-        "³egJeec",
-        "³et³ec",
-        "Denc",
-        "DeeJeec",
-        "Je³eced",
-        "Deefmce/YeJeeefce",
-        "mJeë/YeJeeJeë",
-        "mceë/YeJeeceë",
-        "Deefme/YeJeefme",
-        "mLeë/YeJeLeë",
-        "mLe/YeJeLe",
-        "Deefmle/YeJeefle",
-        "mleë/YeJeleë",
-        "meefvle/YeJeefvle",
-        "Any subanta other than ³eg<ceod and Demceod Meyo",
-        "Yet³eles",
-        "Noun(s)",
-        "Pronoun(s)",
-        "Adjective(s)",
-        "Krdanta(s)",
-        "KrdAvyaya(s)",
-        "Avyaya(s)",
-        "Verb(s)",
-        "Verb",
-        "Subject(s)",
-        "Object(s)",
-        "Instrument(s)",
-        "Dative(s)",
-        "Ablative(s)",
-        "Genitive(s)",
-        "Locative(s)",
-        "Vocative(s)"]
-
-Voices = ["कर्तरि", "कर्मणि"]
+lingas = constants.LINGAS
+antas = constants.ANTAS
+vibstr = constants.VIBHAKTIS
+vachstr = constants.VACANAS
+Tganas = constants.TGANAS
+Tkarmas = constants.TKARMAS
+Tpadis = constants.TPADIS
+Tyit = constants.TYITS
+purstr = constants.PURUSHAS
+mesg = constants.SYNTAX_MESG
+Voices = constants.VOICES
 
 Suffix = ["अ"
     , "अः"
@@ -757,7 +713,19 @@ Suffix = ["अ"
     , "हे"
     , "होः"]
 
-def Convt(sufcode):   # copied from old VB code and changed to get the suffix, rather than index to the suffix in
+def base36_to_suffix(sufcode):
+    """
+    Converts a base-36 formatted suffix code (using characters '0-9' and 'a-z') 
+    into its integer index and returns the corresponding suffix from the global Suffix list.
+    
+    Suggested Name: base36_to_suffix(sufcode)
+    
+    Parameters:
+        sufcode (str): Base-36 encoded index string.
+        
+    Returns:
+        str: The resolved Sanskrit suffix string, or an empty string if out of bounds.
+    """
     No = []
     for ch in sufcode:
         nr = ord(ch)
@@ -768,49 +736,60 @@ def Convt(sufcode):   # copied from old VB code and changed to get the suffix, r
     res = 36 * No[0] + No[1] if No != [] else -1
     if res in range(len(Suffix)): return Suffix[res]
     else: return ''
-def Sandhi(inword):
-    # print(f'Sandhi inword {inword}')
-    # print('iscii %s devanagari %s'%(inword, Amarakosha_Database_Queries.iscii_unicode(inword)))
-    halanth = chr(232)
-    # inword = inword.split()
-    outword = ''
-    if inword == '': return ''
-    try:
-        inword = AmaraKosha_Database_Queries.unicode_iscii(inword)
-        # print(f'inword {inword}')
-        i = 0
-        while i < len(inword):
-            ch = inword[i]
-            if ch != halanth:
-                outword += ch
-                if (i < len(inword) - 1) and ch != '/':
-                    ch = inword[i + 1]
-                    if ord(ch) in range(164, 178):
-                        i += 1
-                        ch1 = inword[i]
-                        if i > 1:
-                            if inword[i-2] != " ":
-                                if ord(ch1) == 164: pass
-                                elif ord(ch1) in range(165, 178):
-                                    outword += chr(218 - 165 + ord(ch1))
-                                else: outword += ch + ch1
-                            else: outword += ch1
-                        else: outword += ch1
-            else:  # halanth
-              i += 1
-              if i <= len(inword) - 1:
-                  ch1 = inword[i]
-                  if ord(ch1) == 164: pass
-                  elif ord(ch1) in range(165, 178):
-                      outword += chr(218 - 165 + ord(ch1))
-                  else: outword += ch + ch1
-              else: outword += ch
-            i += 1
-    except Exception as e:
-        print(f"Sandhi_Convt.Sandhi Exception {e}")
-    # print(f'Sandhi_Convt.Sandhi inword {inword}, outword {outword}') #, cli_browse.iscii_unicode(inword), cli_browse.iscii_unicode(outword)))
-    return AmaraKosha_Database_Queries.iscii_unicode(outword)
-def doSandhi1(tigantaForm: str, upasarga: str) -> str:
+def apply_basic_sandhi(inword: str) -> str:
+    """
+    Applies basic vowel sandhi rules to combine independent vowels with preceding consonants 
+    or viramas (halantas) into matra forms (e.g. क् + आ -> का).
+    
+    Suggested Name: apply_basic_sandhi(inword)
+    
+    Parameters:
+        inword (str): The uncombined phoneme string.
+        
+    Returns:
+        str: The combined Sanskrit string with matras applied.
+    """
+    if not inword:
+        return ""
+    halanth = chr(0x094d)
+    vowels_indep = {'अ':'', 'आ':'ा', 'इ':'ि', 'ई':'ी', 'उ':'ु', 'ऊ':'ू', 'ऋ':'ृ', 'ॠ':'ॄ', 'ए':'े', 'ऐ':'ै', 'ओ':'ो', 'औ':'ौ', '\u0960': '\u0962', '\u0961': '\u0963'}
+    outword = []
+    i = 0
+    while i < len(inword):
+        ch = inword[i]
+        if ch == halanth and i < len(inword) - 1:
+            next_ch = inword[i + 1]
+            if next_ch in vowels_indep:
+                matra = vowels_indep[next_ch]
+                if matra: outword.append(matra)
+                i += 2
+                continue
+        elif 0x0915 <= ord(ch) <= 0x0939: # Consonants
+            if i < len(inword) - 1:
+                next_ch = inword[i + 1]
+                if next_ch in vowels_indep:
+                    matra = vowels_indep[next_ch]
+                    outword.append(ch)
+                    if matra: outword.append(matra)
+                    i += 2
+                    continue
+        outword.append(ch)
+        i += 1
+    return "".join(outword)
+def apply_vowel_prefix_sandhi(tigantaForm: str, upasarga: str) -> str:
+    """
+    Combines an upasarga (prefix) ending in a vowel with a verb form starting with a vowel 
+    using Ac-sandhi rules (savarṇa-dīrgha, yaṇ, guṇa, vṛddhi).
+    
+    Suggested Name: apply_vowel_prefix_sandhi(tigantaForm, upasarga)
+    
+    Parameters:
+        tigantaForm (str): The conjugated verb form.
+        upasarga (str): The prefix to apply.
+        
+    Returns:
+        str: The phonetically joined prefix and verb form.
+    """
     aDict1 = {"अ":"आ", "आ":"आ", "इ":"ए", "ई":"ए", "उ":"ओ", "ऊ":"ओ", "ऋ":"आर्", "ए":"ऐ", "ऐ":"ऐ", "ओ":"औ", "औ":"औ"}
     bDict = {"अ": aDict1, "आ": aDict1,
              "इ":{"इ":"ई", "ई":"ई",
@@ -827,7 +806,20 @@ def doSandhi1(tigantaForm: str, upasarga: str) -> str:
         else: sandhiForm += tigantaForm[1:]
     else: sandhiForm = upasarga + tigantaForm
     return sandhiForm
-def doSandhi2(tigantaForm: str, upasarga: str) -> str:
+def apply_consonant_prefix_sandhi(tigantaForm: str, upasarga: str) -> str:
+    """
+    Combines an upasarga (prefix) ending in a consonant (सम्, निर्, दुर्, उत्) 
+    with a verb form using Hal-sandhi (consonant sandhi) rules.
+    
+    Suggested Name: apply_consonant_prefix_sandhi(tigantaForm, upasarga)
+    
+    Parameters:
+        tigantaForm (str): The conjugated verb form.
+        upasarga (str): The consonant-ending prefix.
+        
+    Returns:
+        str: The phonetically joined prefix and verb form.
+    """
     sandhiForm = upasarga
     upasargaDict = {"सम्":{"क":"ङ", "ख":"ङ", "ग":"ङ", "घ":"ङ", "ङ":"ङ"},
                     "निर्":{"क":"ष", "ख":"ष", "ट":"ष", "ठ":"ष", "प":"ष", "फ":"ष", "ष":"ष",
@@ -852,35 +844,73 @@ def doSandhi2(tigantaForm: str, upasarga: str) -> str:
     if flag == 1: sandhiForm += "छ"
     elif flag == 2: sandhiForm += tigantaForm[:-1]
     else: sandhiForm += tigantaForm
-def doSandhiofUpasargaAndTigantaForm(tigantaForm: str, upasarga: str) -> str:
-    if upasarga in ["सम्", "निर्", "दुर्", "उत्"]: sandhiForm = doSandhi2(tigantaForm, upasarga)
-    else: sandhiForm = doSandhi1(blast.performBlast(tigantaForm), blast.performBlast(upasarga) )
+def join_prefix_and_form(tigantaForm: str, upasarga: str) -> str:
+    """
+    Dispatcher function to apply sandhi between a verbal prefix (upasarga) and a conjugated verb form.
+    Selects consonant sandhi or vowel sandhi rules based on the prefix.
+    
+    Suggested Name: join_prefix_and_form(tigantaForm, upasarga)
+    
+    Parameters:
+        tigantaForm (str): The conjugated verb form.
+        upasarga (str): The verbal prefix.
+        
+    Returns:
+        str: The fully joined, phonetically correct word.
+    """
+    if upasarga in ["सम्", "निर्", "दुर्", "उत्"]: sandhiForm = apply_consonant_prefix_sandhi(tigantaForm, upasarga)
+    else: sandhiForm = apply_vowel_prefix_sandhi(blast.performBlast(tigantaForm), blast.performBlast(upasarga))
     return blast.phoneticallyJoin(sandhiForm)
-def visandhi(inword: str) -> str:
-    # print('iscii %s devanagari %s'%(inword, cli_browse.iscii_unicode(inword)))
-    halanth = chr(232)
-    # inword = inword.split()
-    outword = ''
+def split_matras_to_vowels(inword: str) -> str:
+    """
+    Performs visandhi (matra splitting) to expand combined consonant-matra sequences 
+    back into individual consonants + independent vowel forms (e.g. का -> क् + आ).
+    
+    Suggested Name: split_matras_to_vowels(inword)
+    
+    Parameters:
+        inword (str): The combined Devanagari string.
+        
+    Returns:
+        str: The expanded string with independent phonemes.
+    """
+    if not inword:
+        return ""
+    halanth = chr(0x094d)
+    matra_to_indep = {'ा':'आ', 'ि':'इ', 'ी':'ई', 'ु':'उ', 'ू':'ऊ', 'ृ':'ऋ', 'ॄ':'ॠ', 'े':'ए', 'ै':'ऐ', 'ो':'ओ', 'ौ':'औ', '\u0962':'\u0960', '\u0963':'\u0961'}
+    outword = []
     i = 0
-    inword = AmaraKosha_Database_Queries.unicode_iscii(inword)
     while i < len(inword):
         ch = inword[i]
-        if ord(ch) in range(164,178): outword+= ch
-        elif ord(ch) in range(179,217):
-            if (i < len(inword) - 1):
-                ch1 = inword[i + 1]
-                outword += ch + halanth
-                if ord(ch1) == halanth: i += 1
-                else:
-                    if ord(ch1) in range(218,231):
-                        i += 1
-                        outword += chr(ord(ch1) - (218 - 165))
-                    else: outword += chr(164)
-            else: i += 1
-        else: outword+= ch
+        if 0x0915 <= ord(ch) <= 0x0939: # Consonants
+            outword.append(ch)
+            if i < len(inword) - 1:
+                next_ch = inword[i + 1]
+                if next_ch not in matra_to_indep and next_ch != halanth:
+                    outword.append(halanth)
+                    outword.append('अ')
+            else:
+                outword.append(halanth)
+                outword.append('अ')
+        elif ch in matra_to_indep:
+            outword.append(halanth)
+            outword.append(matra_to_indep[ch])
+        else:
+            outword.append(ch)
         i += 1
-    return AmaraKosha_Database_Queries.iscii_unicode(outword)
-def decode(code: int) -> str:
+    return "".join(outword)
+def encode_index_base36(code: int) -> str:
+    """
+    Encodes an integer index into its base-36 two-character string representation.
+    
+    Suggested Name: encode_index_base36(code)
+    
+    Parameters:
+        code (int): The integer index.
+        
+    Returns:
+        str: The base-36 encoded 2-character string.
+    """
     if code in range(10): return '0' + str(code)
     elif code in range(10,36): return '0' + chr(code + 87)
     else:

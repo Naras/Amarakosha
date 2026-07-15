@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans:wght@300;400;500;600&display=swap');
+
+body {
+  background-color: #0f172a;
+  color: #f8fafc;
+  font-family: 'Noto Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.links line {
+  stroke: #475569;
+  stroke-opacity: 0.8;
+}
+
+.nodes circle {
+  stroke: #38bdf8;
+  stroke-width: 2px;
+  fill: #1e293b;
+  cursor: pointer;
+}
+
+.nodes circle:hover {
+  fill: #38bdf8;
+}
+
+.nodelabel {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  fill: #f8fafc;
+  font-weight: 500;
+}
+
+.linklabel {
+  fill: #38bdf8;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.header {
+  position: fixed;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  text-align: center;
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(8px);
+  padding: 8px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.header h3 {
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  color: #f8fafc;
+}

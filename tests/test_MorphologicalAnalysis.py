@@ -6,7 +6,7 @@ import unittest, codecs #, random, icecream as ic
 # from unittest import TestCase
 import os, sys
 sys.path.append(os.getcwd())
-from source.Controller import Kosha_Subanta_Krdanta_Tiganta, SyntaxAnalysis
+from source.Controller import MorphologicalAnalysis as Kosha_Subanta_Krdanta_Tiganta, SyntaxAnalysis
 # from source.Controller.Transliterate import transliterate_lines, IndianLanguages
 from source.Model import AmaraKosha_Database_Queries
 
@@ -27,9 +27,9 @@ class Test(unittest.TestCase):
     def test_amara(self):
         self.common('Amara_Words', 'Word')
         self.common_with_duplicates('Amara_Words', 'Word')
-    def test_janani(self):
-        self.common('Janani1', 'Words')
-        self.common_with_duplicates('Janani1', 'Words')
+    def test_synonym_groups(self):
+        self.common('synonym_groups', 'Words')
+        self.common_with_duplicates('synonym_groups', 'Words')
     def test_subanta(self):
         self.common('Subanta', 'Base')  # "¤¢ÕÝÌÂÜ")
         self.common_with_duplicates('Subanta', 'Base')
@@ -46,11 +46,13 @@ class Test(unittest.TestCase):
         self.common('KRUD', 'Field1')
         self.common_with_duplicates('KRUD', 'Field1')
     def test_stinfin(self):
-        self.common('Stinfin', 'Field1')
-        self.common_with_duplicates('Stinfin', 'Field1')
+        self.common('tiganta_form_mappings', 'form')
+        self.common_with_duplicates('tiganta_form_mappings', 'form')
     def test_schema(self):
         tbls = AmaraKosha_Database_Queries.schemaParse()
-        self.assertEqual(tbls, ['Amara_Words', 'Avyaya', 'Conversion_Errors', 'Conversion_Errors1', 'FINCODE', 'Janani1', 'Janani2', 'KRUD', 'KRUDAV', 'N_Sanskrit', 'STINNEW', 'SUFCODE', 'Sdhatu', 'Stinfin', 'Stinsuf', 'SubFin', 'Subanta', 'UpaCode', 'Upasarga', 'V_Hindi', 'V_Odiya', 'V_Sanskrit', 'Words_list'])
+        expected = ['Amara_Words', 'Avyaya', 'nominal_base_patterns', 'synonym_groups', 'KRUD', 'KRUDAV', 'N_Sanskrit', 'Sdhatu', 'Subanta', 'dhatu_upasarga_sequence_elements', 'Upasarga', 'V_Hindi', 'V_Odiya', 'V_Sanskrit', 'tiganta_mappings', 'tiganta_form_mappings', 'subanta_declensions', 'subanta_declension_mappings', 'nominal_declension_suffix_elements', 'tiganta_suffix_elements']
+        for tbl in expected:
+            self.assertIn(tbl, tbls)
     def test_largetext(self):
         inp = codecs.open('tests//iscii_source.txt',encoding='utf-8')
         src = inp.readlines()
@@ -109,26 +111,22 @@ class Test(unittest.TestCase):
 
         resultsExpected = {'अंश्': (
         ['समाधाने'], ['सकर्मकः'], 383, [[1, 383, 'अंश्', 'अंशय्', 'अंशि', '*', '*', '*', 'समाधाने1', 931, '*']],
-        ['ID', 'Field1', 'Field2', 'Field3', 'Field4', 'Field5', 'Field6', 'Field7', 'Field8', 'Field9', 'Field10']),
+        ['seq_id', 'dhatu_id', 'verb_root', 'nijanta_root', 'sannanta_root', 'unused5', 'unused6', 'unused7', 'meanings_list', 'gpi_code', 'combined_meaning']),
                            'अंह्': (['गतौ'], ['अकर्मकः'], 384,
                                     [[2, 384, 'अंह्', 'अंहय्', 'अंहि', '*', '*', '*', 'गतौ2', 21, '*']],
-                                    ['ID', 'Field1', 'Field2', 'Field3', 'Field4', 'Field5', 'Field6', 'Field7',
-                                     'Field8', 'Field9', 'Field10']), 'अज': (
+                                    ['seq_id', 'dhatu_id', 'verb_root', 'nijanta_root', 'sannanta_root', 'unused5', 'unused6', 'unused7', 'meanings_list', 'gpi_code', 'combined_meaning']), 'अज': (
             ['गतौ', 'क्षेपणे'], ['अकर्मकः', 'सकर्मकः'], 385,
             [[3, 385, 'अज', 'अजय्', 'अजि', '*', '*', '*', 'गतौ2/क्षेपणे1', 11, '*']],
-            ['ID', 'Field1', 'Field2', 'Field3', 'Field4', 'Field5', 'Field6', 'Field7', 'Field8', 'Field9',
-             'Field10']), 'अञ्चु': (['गतौ', 'पूजने'], ['सकर्मकः', 'सकर्मकः'], 2, [
+            ['seq_id', 'dhatu_id', 'verb_root', 'nijanta_root', 'sannanta_root', 'unused5', 'unused6', 'unused7', 'meanings_list', 'gpi_code', 'combined_meaning']), 'अञ्चु': (['गतौ', 'पूजने'], ['सकर्मकः', 'सकर्मकः'], 2, [
                 [4, 2, 'अञ्चु', 'अञ्चि', 'आञ्चिचिष्', '*', '*', '*', 'गतौ1/पूजने1', 11, 'गतिपूजनयोः']],
-                                    ['ID', 'Field1', 'Field2', 'Field3', 'Field4', 'Field5', 'Field6', 'Field7',
-                                     'Field8', 'Field9', 'Field10']), 'अञ्ज्': (
+                                    ['seq_id', 'dhatu_id', 'verb_root', 'nijanta_root', 'sannanta_root', 'unused5', 'unused6', 'unused7', 'meanings_list', 'gpi_code', 'combined_meaning']), 'अञ्ज्': (
             ['व्यक्तौय', 'म्रक्षणे', 'कान्तौ', 'गतौ'], ['सकर्मकः', 'सकर्मकः', 'सकर्मकः', 'सकर्मकः'], 75, [
                 [5, 75, 'अञ्ज्', 'अञ्जि', 'अञ्जिजिष्', '*', '*', '*', 'व्यक्तौय1/म्रक्षणे1/कान्तौ1/गतौ1', 613,
                  'व्यक्तिम्रक्षणकान्तिगतिषु']],
-            ['ID', 'Field1', 'Field2', 'Field3', 'Field4', 'Field5', 'Field6', 'Field7', 'Field8', 'Field9',
-             'Field10']), 'अट्': (
+            ['seq_id', 'dhatu_id', 'verb_root', 'nijanta_root', 'sannanta_root', 'unused5', 'unused6', 'unused7', 'meanings_list', 'gpi_code', 'combined_meaning']), 'अट्': (
             ['गतौ'], ['सकर्मकः'], 94, [[6, 94, 'अट्', 'आटि', 'अटिटिष्', '*', '*', '*', 'गतौ1', 11, '*']],
-            ['ID', 'Field1', 'Field2', 'Field3', 'Field4', 'Field5', 'Field6', 'Field7', 'Field8', 'Field9',
-             'Field10'])}
+            ['seq_id', 'dhatu_id', 'verb_root', 'nijanta_root', 'sannanta_root', 'unused5', 'unused6', 'unused7', 'meanings_list', 'gpi_code', 'combined_meaning'])}
+        for parameter in parameters: self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.descriptive_cols if hasattr(Kosha_Subanta_Krdanta_Tiganta, 'descriptive_cols') else Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(parameter), Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(parameter) if hasattr(Kosha_Subanta_Krdanta_Tiganta, 'descriptive_cols') else resultsExpected[parameter])
         for parameter in parameters: self.assertEqual(Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(parameter), resultsExpected[parameter])
     def test_krdanta_generation(self):
         # resultExpectedForms = {}
@@ -461,14 +459,14 @@ class Test(unittest.TestCase):
                 ['अञ्चिचिषितव्यस्य', 'अञ्चिचिषितव्ययोः', 'अञ्चिचिषितव्यानाम्'],
                 ['अञ्चिचिषितव्ये', 'अञ्चिचिषितव्ययोः', 'अञ्चिचिषितव्येषु'],
                 ['हे अञ्चिचिषितव्यः', 'हे अञ्चिचिषितव्यौ', 'हे अञ्चिचिषितव्याः'],
-                ['अञ्चिचिषितव्यअम्', 'अञ्चिचिषितव्यए', 'अञ्चिचिषितव्यआनि'],
-                ['अञ्चिचिषितव्यअम्', 'अञ्चिचिषितव्यए', 'अञ्चिचिषितव्यआनि'],
-                ['अञ्चिचिषितव्यएन', 'अञ्चिचिषितव्यआभ्याम्', 'अञ्चिचिषितव्यऐः'],
-                ['अञ्चिचिषितव्यआय', 'अञ्चिचिषितव्यआभ्याम्', 'अञ्चिचिषितव्यएभ्यः'],
-                ['अञ्चिचिषितव्यआत्', 'अञ्चिचिषितव्यआभ्याम्', 'अञ्चिचिषितव्यएभ्यः'],
-                ['अञ्चिचिषितव्यअस्य', 'अञ्चिचिषितव्यअयोः', 'अञ्चिचिषितव्यआनाम्'],
-                ['अञ्चिचिषितव्यए', 'अञ्चिचिषितव्यअयोः', 'अञ्चिचिषितव्यएषु'],
-                ['हे अञ्चिचिषितव्यअम्', 'हे अञ्चिचिषितव्यए', 'हे अञ्चिचिषितव्यआनि'],
+                ['अञ्चिचिषितव्यम्', 'अञ्चिचिषितव्ये', 'अञ्चिचिषितव्यानि'],
+                ['अञ्चिचिषितव्यम्', 'अञ्चिचिषितव्ये', 'अञ्चिचिषितव्यानि'],
+                ['अञ्चिचिषितव्येन', 'अञ्चिचिषितव्याभ्याम्', 'अञ्चिचिषितव्यैः'],
+                ['अञ्चिचिषितव्याय', 'अञ्चिचिषितव्याभ्याम्', 'अञ्चिचिषितव्येभ्यः'],
+                ['अञ्चिचिषितव्यात्', 'अञ्चिचिषितव्याभ्याम्', 'अञ्चिचिषितव्येभ्यः'],
+                ['अञ्चिचिषितव्यस्य', 'अञ्चिचिषितव्ययोः', 'अञ्चिचिषितव्यानाम्'],
+                ['अञ्चिचिषितव्ये', 'अञ्चिचिषितव्ययोः', 'अञ्चिचिषितव्येषु'],
+                ['हे अञ्चिचिषितव्यम्', 'हे अञ्चिचिषितव्ये', 'हे अञ्चिचिषितव्यानि'],
                 ['अञ्चिचिषितव्या', 'अञ्चिचिषितव्ये', 'अञ्चिचिषितव्याः'],
                 ['अञ्चिचिषितव्याम्', 'अञ्चिचिषितव्ये', 'अञ्चिचिषितव्याः'],
                 ['अञ्चिचिषितव्यया', 'अञ्चिचिषितव्याभ्याम्', 'अञ्चिचिषितव्याभिः'],

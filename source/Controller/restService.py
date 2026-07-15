@@ -9,68 +9,32 @@ from flask_cors import CORS, cross_origin
 
 import sys
 sys.path.insert(1, os.getcwd())
-from source.Controller import Kosha_Subanta_Krdanta_Tiganta, SyntaxAnalysis
+from source.Controller import MorphologicalAnalysis, SyntaxAnalysis
 from source.Controller.Transliterate import transliterate_lines, IndianLanguages
 from source.Model import AmaraKosha_Database_Queries
 
 logging.basicConfig(filename='AmarakoshaRestService.log', format='%(asctime)s %(message)s', level=logging.DEBUG)
 
 
-def krdantaGeneration(dhatuNo):
-    f, k = {}, {}
-    allForms, emptyForms, dupFormKeys = [], [], []
-    allKrds, emptyKrd, dupKrdKeys = [], [], []
-    for dhatuVidah in ['केवलकृदन्तः', 'णिजन्तः', 'सन्नन्तः']:
-        f[dhatuVidah], k[dhatuVidah] = {}, {}
-        for krdantaVidah in ['विध्यर्थः', 'भूतः', 'वर्तमानः', 'भविष्यत्', 'कृदव्ययम्']:
-            f[dhatuVidah][krdantaVidah], k[dhatuVidah][krdantaVidah] = {}, {}
-            for krdMode in ['तव्य', 'अनीयर्', 'य', 'क्त', 'क्तवतु', 'शतृ', 'शानच्', 'स्यशतृ', 'स्यशानच्', 'क्त्वा']:
-                forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Generation(dhatuNo, dhatuVidah, krdantaVidah, krdMode)
-                if forms != []:
-                    if forms not in allForms:
-                        f[dhatuVidah][krdantaVidah][krdMode] = forms
-                        allForms.append(forms)
-                    else: dupFormKeys.append([dhatuVidah, krdantaVidah, krdMode])
-                else: emptyForms.append([dhatuVidah, krdantaVidah, krdMode])
-                if krdData not in [None, []]:
-                    if krdData not in allKrds:
-                        k[dhatuVidah][krdantaVidah][krdMode] = krdData
-                        allKrds.append(krdData)
-                    else: dupKrdKeys.append([dhatuVidah, krdantaVidah, krdMode])
-                else: emptyKrd.append([dhatuVidah, krdantaVidah, krdMode])
-    return f, k, emptyForms, emptyKrd, dupFormKeys, dupKrdKeys
-def tigantaGeneration(dhatuNo):
-        f, k = {}, {}
-        allForms, emptyForms, dupFormKeys = [], [], []
-        allTigs, emptyTig, dupTigKeys = [], [], []
-        for dhatuVidah in ['केवलतिगंतः', 'णिजन्तः', 'सन्नन्तः']:
-            f[dhatuVidah], k[dhatuVidah] = {}, {}
-            for voice in ["कर्तरि", "कर्मणि"]:
-                f[dhatuVidah][voice], k[dhatuVidah][voice] = {}, {}
-                for lakara in ["लट्", "लिट्", "लुट्", "लृट्", "लोट्", "लङ्", "विधिलिङ्", "अशीर्लिङ्", "लुङ्", "लृङ्"]:
-                    forms, tigData = Kosha_Subanta_Krdanta_Tiganta.tiganta_Generation(dhatuNo, dhatuVidah, voice, lakara)
-                    if forms != []:
-                        if forms not in allForms:
-                            f[dhatuVidah][voice][lakara] = forms
-                            allForms.append(forms)
-                        else:
-                            dupFormKeys.append([dhatuVidah, voice, lakara])
-                    else:
-                        emptyForms.append([dhatuVidah, voice, lakara])
-                    if tigData not in [None, []]:
-                        if tigData not in allTigs:
-                            k[dhatuVidah][voice][lakara] = tigData
-                            allTigs.append(tigData)
-                        else:
-                            dupTigKeys.append([dhatuVidah, voice, lakara])
-                    else:
-                        emptyTig.append([dhatuVidah, voice, lakara])
-        return f, k, emptyForms, emptyTig, dupFormKeys, dupTigKeys
+def decode_param(param):
+    if isinstance(param, str):
+        try:
+            return param.encode('latin-1').decode('utf-8')
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            return param
+    return param
+
+
+def get_requested_script():
+    script = request.args.get('script', 'devanagari')
+    if script not in IndianLanguages:
+        return 'devanagari'
+    return script
 def loadBandarkar(script='devanagari'):
     filename = os.path.join('Bandarkar.txt')
     with open(filename, "r", encoding="iso-8859-1") as f:
         dataIscii = [line[:-1] for line in f]
-    data = [Kosha_Subanta_Krdanta_Tiganta.transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item), script) for item in dataIscii]
+    data = [MorphologicalAnalysis.transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(item), script) for item in dataIscii]
     return data
 def analysis(base, script):
     try:
@@ -82,7 +46,7 @@ def analysis(base, script):
             if word.strip() == '': continue
             wids = 1
             try:
-                forms, subDetails = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word, script)
+                forms, subDetails = MorphologicalAnalysis.subanta_Analysis(word, script)
                 if not forms == []: subforms += forms
                 for item in subDetails:
                     numpages += 1
@@ -93,7 +57,7 @@ def analysis(base, script):
             except Exception as e:
                 logging.debug(e)
             try:
-                forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Analysis(word, script)
+                forms, krdData = MorphologicalAnalysis.krdanta_Analysis(word, script)
                 if not forms == []: krdforms += forms
                 if not krdData == []:
                     Krdantas += krdData
@@ -114,7 +78,7 @@ def analysis(base, script):
             except Exception as e:
                 logging.debug(e)
             try:
-                forms, tigDatas = Kosha_Subanta_Krdanta_Tiganta.tiganta_Analysis(word, script)
+                forms, tigDatas = MorphologicalAnalysis.tiganta_Analysis(word, script)
                 if not forms == []: tigforms += forms
                 if not tigDatas == []:
                     Tigantas += tigDatas
@@ -166,7 +130,7 @@ def syntaxAnalysis(SyntaxInputFile):
     out = SyntaxAnalysis.write_out_aci(SyntaxInputFile)
     result = SyntaxAnalysis.write_result_aci(out)
     return result
-def interpret(result, script='davanagari'):
+def interpret(result, script='devanagari'):
     typeList = ['Noun(s)', 'Pronoun(s)', 'Adjective(s)', 'Krdanta(s)', 'KrdAvyaya(s)', 'Avyaya(s)']
     subtypeList = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)',
                    'Vocative(s)', 'Verb(s)', 'Verb']
@@ -251,14 +215,20 @@ def karakaGraph(interpretation):
 
 app = Flask(__name__)
 endpoint_prefix = '/Amarakosha/api/v1.0/'
-@app.route(endpoint_prefix + 'hello')
-def hello_world():
-  return 'Hello from Amarakosha Rest Service!'
+
+
+@app.route('/healthz', methods=['GET'])
+@app.route(endpoint_prefix + 'healthz', methods=['GET'])
+@cross_origin()
+def health_check():
+    return jsonify({'status': 'healthy'})
+
+
 @app.route(endpoint_prefix + 'Dhatus', methods=['GET'])
 @cross_origin()
 def get_Amara():
     logging.debug('servicing Amarakosha Synonyms')
-    script = request.args.get('script', 'devanagari')
+    script = get_requested_script()
     cols, data = AmaraKosha_Database_Queries.tblSelectUnicode('Amara_Words', maxrows=0)
     data = [transliterate_lines(item[1], script) for item in data]
     return jsonify({'Amarakosha Dhatus': data})
@@ -266,14 +236,14 @@ def get_Amara():
 @cross_origin()
 def get_Subantas():
     logging.debug('servicing Amarakosha Subanta')
-    script = request.args.get('script', 'devanagari')
+    script = get_requested_script()
     cols, data = AmaraKosha_Database_Queries.tblSelectUnicode('Subanta', maxrows=0)
     data = [transliterate_lines(item[cols.index('Erb')], script) for item in data]
     return jsonify({'Subanta Dhatus': data})
 @app.route(endpoint_prefix + 'KrdantaTigantaDhatus', methods=['GET'])
 def get_KrdantasTigantas():
     logging.debug('servicing Amarakosha Krdanta Tiganta dhatus')
-    script = request.args.get('script', 'devanagari')
+    script = get_requested_script()
     scriptIndex = IndianLanguages.index(script) + 1
     cols, data = AmaraKosha_Database_Queries.tblSelectUnicode('Sdhatu', maxrows=0)
     data = [transliterate_lines(item[cols.index('Field2')], script) for item in data]
@@ -282,79 +252,87 @@ def get_KrdantasTigantas():
 @cross_origin()
 def get_SentencesBandarkar():
     logging.debug('servicing get Sentences from Bandarkar')
-    script = request.args.get('script', 'devanagari')
+    script = get_requested_script()
     return jsonify({'Sentences': loadBandarkar(script)})
 @app.route(endpoint_prefix + 'SentenceAnalysis', methods=['GET'])
 @cross_origin()
 def get_SentenceAnalysis():
     logging.debug('servicing analyse Sentence ' + request.args.get('sentence'))
-    sentence, script = request.args.get('sentence'), request.args.get('script', 'devanagari')
+    sentence, script = request.args.get('sentence'), get_requested_script()
     return jsonify({'sentenceAnalysis': analysis(sentence, script)})
 
 @app.route(endpoint_prefix + 'Dhatu/<string:dhatu>', methods=['GET'])
 @cross_origin()
 def get_Synonym(dhatu):
     logging.debug('servicing Amarakosha Synonyms for %s'%dhatu)
-    script = request.args.get('script', 'devanagari')
-    Amarasynonyms, KanWord, EngWord, HinWord = Kosha_Subanta_Krdanta_Tiganta.Amarakosha(transliterate_lines(dhatu, 'devanagari'), requested_script=script)
-    return jsonify({'Amarakosha Dhatus': {'Synonyms':Amarasynonyms, 'Kannada': KanWord, 'English': EngWord, 'Hindi': HinWord}})  # , 'Kannada': KanWord
+    dhatu = decode_param(dhatu)
+    script = get_requested_script()
+    Amarasynonyms, KanWord, EngWord, HinWord = MorphologicalAnalysis.Amarakosha(transliterate_lines(dhatu, 'devanagari'), requested_script=script)
+    
+    dhatu_dev = transliterate_lines(dhatu, 'devanagari').strip()
+    from source.Controller.NishpatthiVyutpatthiAvyaya import nishpatthi, vyutpatthi
+    
+    # Fetch Nishpatthi
+    try:
+        nis_raw = nishpatthi(dhatu_dev)
+        nis_list = [transliterate_lines(row[0], script) for row in nis_raw if row[0]]
+    except Exception as e:
+        logging.debug(f"Nishpatthi error: {e}")
+        nis_list = []
+
+    # Fetch Vyutpatthi
+    vyt_dict = {}
+    for lang in ['Sanskrit', 'Hindi', 'Odiya']:
+        try:
+            vyt_raw = vyutpatthi(dhatu_dev, lang)
+            vyt_dict[lang] = [transliterate_lines(row[0], script) for row in vyt_raw if row[0]]
+        except Exception as e:
+            logging.debug(f"Vyutpatthi error for {lang}: {e}")
+            vyt_dict[lang] = []
+
+    return jsonify({
+        'Amarakosha Dhatus': {
+            'Synonyms': Amarasynonyms,
+            'Kannada': KanWord,
+            'English': EngWord,
+            'Hindi': HinWord,
+            'Nishpatthi': nis_list,
+            'Vyutpatthi (Sanskrit)': vyt_dict.get('Sanskrit', []),
+            'Vyutpatthi (Hindi)': vyt_dict.get('Hindi', []),
+            'Vyutpatthi (Odiya)': vyt_dict.get('Odiya', [])
+        }
+    })
 @app.route(endpoint_prefix + 'Subanta/<string:dhatu>', methods=['GET'])
 @cross_origin()
 def get_Subanta_forms(dhatu):
     logging.debug('servicing Amarakosha Subanta for %s' % dhatu)
     try:
+        dhatu = decode_param(dhatu)
         dhatu = transliterate_lines(dhatu, IndianLanguages[0])
-        script = request.args.get('script', 'devanagari')
-        forms, anta, linga = Kosha_Subanta_Krdanta_Tiganta.subanta_Generation(dhatu, script)
+        script = get_requested_script()
+        forms, anta, linga = MorphologicalAnalysis.subanta_Generation(dhatu, script)
         displayForms = {}
         vbhaktis = []
-        for i, vibhakti in enumerate(Kosha_Subanta_Krdanta_Tiganta.vibhaktis):
+        for i, vibhakti in enumerate(MorphologicalAnalysis.vibhaktis):
             vbhaktis.append(format('%d.%s'%(i + 1, transliterate_lines(vibhakti, script))))
         for triplet, vibhakti in zip(forms, vbhaktis):
             displayForms[vibhakti] = triplet
         return jsonify({'Subantas': {'forms': displayForms, transliterate_lines("अंत", script): anta, transliterate_lines("लिंग", script): linga}})
     except Exception as e:
         return jsonify({'Subantas': {'Error': str(e)[1:-1]}})
-@app.route(endpoint_prefix + 'KrdantaTigantaDhatu/<string:dhatu>', methods=['GET'])
-@cross_origin()
-def get_Krdanta_Tiganta_forms(dhatu):
-    logging.debug('servicing Amarakosha Krdanta/Tiganta forms for %s' % dhatu)
-    try:
-        dhatu = transliterate_lines(dhatu, IndianLanguages[0])
-        script = request.args.get('script', 'devanagari')
-        arthas, karmas, dhatuNo, data, cols = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(dhatu, script)
-        return jsonify({'Arthas Karmas': {'arthas': arthas, 'karmas': karmas, 'dhatu no': dhatuNo, 'dhatus': data}})
-    except Exception as e:
-        return jsonify({'Krdantas_Tigantas': {'Error': str(e)[1:-1]}})
-@app.route(endpoint_prefix + 'Krdanta/<string:dhatuNo>', methods=['GET'])
-@cross_origin()
-def get_Krdanta(dhatuNo):
-    logging.debug('servicing Amarakosha Krdanta generation for %s'%dhatuNo)
-    forms, krd, emptyForms, emptyKrd, dupFormKeys, dupKrdKeys = krdantaGeneration(dhatuNo)
-    krdData = {}
-    # for dhatuVidah in forms.keys():
-    #     for krdantaVidah in f[dhatuVidah].keys():
-    #         for krdMode, form in forms[dhatuVidah][krdantaVidah].items():
-    #             form = forms[dhatuVidah][krdantaVidah][krdMode]
-    for dhatuVidah in krd.keys():
-        krdData[dhatuVidah] = {}
-        for krdantaVidah in krd[dhatuVidah].keys():
-            for krdMode, krdgen in krd[dhatuVidah][krdantaVidah].items():
-                krdData[dhatuVidah][krdantaVidah] = [krd.get() for krd in krdgen]
-    # logging.debug("forms %s\nkrdData %s\nemptyForms %s\nemptyKrd %s\ndupFormsKrd %s\ndupKeyKrd %s"%(forms, krdData, emptyForms, emptyKrd, dupFormKeys, dupKrdKeys))
-    return jsonify({"forms": forms, "krdData": krdData, "emptyForms": emptyForms, "emptyKrd": emptyKrd, "dupFormKeys": dupFormKeys, "dupKrdKeys": dupKrdKeys})
+
 @app.route(endpoint_prefix + 'KrdantaDhatuKrdantaMode', methods=['GET'])
 @cross_origin()
 def get_DhatuKrdantaVidhaModeSortedList():
-    dhatu, DhatuVidha, KrdantaVidha, KrdMode, script = request.args.get('dhatu'), request.args.get('DhatuVidha'),\
-        request.args.get('KrdantaVidha'), request.args.get('KrdMode'), request.args.get('script', 'devanagari')
+    dhatu, DhatuVidha, KrdantaVidha, KrdMode = request.args.get('dhatu'), request.args.get('DhatuVidha'),\
+        request.args.get('KrdantaVidha'), request.args.get('KrdMode')
+    script = get_requested_script()
     logging.debug('servicing Amarakosha Krdanta sorted list for dhatu %s DhatuVidha %s KrdantaVidha %s KrdMode %s'%(dhatu, DhatuVidha, KrdantaVidha, KrdMode))
     try:
         dhatu = transliterate_lines(dhatu, 'devanagari')
         scriptIndex = IndianLanguages.index(script)
         dhatu, DhatuVidha, KrdantaVidha, KrdMode = transliterate_lines(dhatu, 'devanagari'), transliterate_lines(DhatuVidha, 'devanagari'), transliterate_lines(KrdantaVidha, 'devanagari'), transliterate_lines(KrdMode, 'devanagari'),
-        arthas, karmas, dhatuNo, dataDhatu, cols = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(dhatu, requested_script=script)
-        forms, krd = Kosha_Subanta_Krdanta_Tiganta.krdanta_Generation(dhatuNo, DhatuVidha, KrdantaVidha, KrdMode, requested_script=script)
+        forms, krd, arthas, karmas, dataDhatu, cols = MorphologicalAnalysis.generate_krdanta_by_dhatu(dhatu, DhatuVidha, KrdantaVidha, KrdMode, requested_script=script)
         krd = [krdI.get() for krdI in krd]
         results = {"forms": forms[:8], transliterate_lines("धात्वार्य", script): ','.join(arthas)}
         labels = {"anta":"अंत", "sabda":"शब्द", "linga":"लिंग", "dhatuVidhah":"धातुविदा", "karma":"कर्म", "krdantaVidhah":"कृदंतविधा", "meaning":"अर्थ",
@@ -369,27 +347,25 @@ def get_DhatuKrdantaVidhaModeSortedList():
 @app.route(endpoint_prefix + 'KrdantaOptionGanaPadiKarmaIt', methods=['GET'])
 @cross_origin()
 def get_DhatuKrdantaOptionGanaPadiKarmaIt():
-    dhatu, option, parameter, DhatuVidha, KrdantaVidha, KrdMode, script = request.args.get('dhatu'),  request.args.get('option'), request.args.get('parameter'), \
-        request.args.get('DhatuVidha'), request.args.get('KrdantaVidha'), request.args.get('KrdMode'), request.args.get('script', 'devanagari')
+    dhatu, option, parameter, DhatuVidha, KrdantaVidha, KrdMode = request.args.get('dhatu'),  request.args.get('option'), request.args.get('parameter'), \
+        request.args.get('DhatuVidha'), request.args.get('KrdantaVidha'), request.args.get('KrdMode')
+    script = get_requested_script()
     logging.debug('servicing Amarakosha Krdanta options गण/पदि/कर्म/इट् for dhatu %s option %s parameter %s DhatuVidha %s KrdantaVidha %s KrdMode %s'%(dhatu, option, parameter, DhatuVidha, KrdantaVidha, KrdMode))
     try:
         scriptIndex = IndianLanguages.index(script)
         options = ['गण', 'पदि', 'कर्म', 'इट्']
         dhatu, option, parameter, DhatuVidha, KrdantaVidha, KrdMode = transliterate_lines(dhatu, 'devanagari'), transliterate_lines(option, 'devanagari'), transliterate_lines(parameter, 'devanagari'), transliterate_lines(DhatuVidha, 'devanagari'), transliterate_lines(KrdantaVidha, 'devanagari'), transliterate_lines(KrdMode, 'devanagari'),
-        validParameters = [Kosha_Subanta_Krdanta_Tiganta.Tganas, Kosha_Subanta_Krdanta_Tiganta.Tpadis,
-                           Kosha_Subanta_Krdanta_Tiganta.Tkarmas, Kosha_Subanta_Krdanta_Tiganta.Tyits][options.index(option)]
+        validParameters = [MorphologicalAnalysis.Tganas, MorphologicalAnalysis.Tpadis,
+                           MorphologicalAnalysis.Tkarmas, MorphologicalAnalysis.Tyits][options.index(option)]
         if option not in options: raise SyntaxError("invalid option - has to be one of गण, पदि, कर्म, or इट्")
         if parameter not in validParameters: raise SyntaxError('invalid parameter - must be one of ' + ' / '.join(validParameters))
-        func = [Kosha_Subanta_Krdanta_Tiganta.krdanta_Gana, Kosha_Subanta_Krdanta_Tiganta.krdanta_Padi,
-                Kosha_Subanta_Krdanta_Tiganta.krdanta_Karma, Kosha_Subanta_Krdanta_Tiganta.krdanta_It][options.index(option)]
-        arthas, karmas, dhatuNo, dataDhatu, cols = func(parameter, requested_script=script)
-        forms, krdData = Kosha_Subanta_Krdanta_Tiganta.krdanta_Generation(dhatuNo, DhatuVidha, KrdantaVidha, KrdMode, requested_script=script)
+        forms, krdData, arthas, karmas, dataDhatu, cols = MorphologicalAnalysis.generate_krdanta_by_option(option, parameter, DhatuVidha, KrdantaVidha, KrdMode, requested_script=script)
         if option == 'गण': gana = transliterate_lines(parameter, script)
-        else: gana = transliterate_lines(Kosha_Subanta_Krdanta_Tiganta.Tganas[dataDhatu[0][cols.index('Field9')] // 100 - 1], script)
+        else: gana = transliterate_lines(MorphologicalAnalysis.Tganas[dataDhatu[0][cols.index('gpi_code')] // 100 - 1], script)
         if option == 'पदि': padi = transliterate_lines(parameter, script)
-        else: padi = transliterate_lines(Kosha_Subanta_Krdanta_Tiganta.Tpadis[(dataDhatu[0][cols.index('Field9')] % 100) // 10 - 1], script)
+        else: padi = transliterate_lines(MorphologicalAnalysis.Tpadis[(dataDhatu[0][cols.index('gpi_code')] % 100) // 10 - 1], script)
         if option == 'इट्': it = transliterate_lines(parameter, script)
-        else: it = transliterate_lines(Kosha_Subanta_Krdanta_Tiganta.Tyits[dataDhatu[0][cols.index('Field9')] % 10 - 1], script)
+        else: it = transliterate_lines(MorphologicalAnalysis.Tyits[dataDhatu[0][cols.index('gpi_code')] % 10 - 1], script)
         karma = ','.join(karmas)
         # if option == 'कर्म': karma = parameter
         return jsonify({"Krdantas": {"forms": forms[:8], transliterate_lines("धात्वर्य", script): ','.join(arthas),
@@ -406,62 +382,38 @@ def get_DhatuKrdantaOptionGanaPadiKarmaIt():
     except SyntaxError as e:
         return abort(400, description=e)
 
-@app.route(endpoint_prefix + 'Tiganta/<string:dhatuNo>', methods=['GET'])
-@cross_origin()
-def get_Tiganta(dhatuNo):
-    logging.debug('servicing Amarakosha Tiganta generation for %s'%dhatuNo)
-    forms, tig, emptyForms, emptyTig, dupFormKeys, dupTigKeys = tigantaGeneration(dhatuNo)
-    tigData = {}
-    # for dhatuVidah in forms.keys():
-    #     tigData[dhatuVidah] = {}
-    #     for voice in forms[dhatuVidah].keys():
-    #         for lakara, form in forms[dhatuVidah][voice].items():
-    #             tigData[dhatuVidah][voice] = form
-    for dhatuVidah in tig.keys():
-        tigData[dhatuVidah] = {}
-        for voice in tig[dhatuVidah].keys():
-            for lakara, tiggen in tig[dhatuVidah][voice].items():
-                tigData[dhatuVidah][voice] = [tig.get() for tig in tiggen]
-    # logging.debug("forms %s\ntigData %s\nemptyForms %s\nemptyTig %s\ndupFormsTig %s\ndupKeyTig %s"%(forms, tigData, emptyForms, emptyTig, dupFormKeys, dupTigKeys))
-    return jsonify({"forms": forms, "tigData": tigData, "emptyForms": emptyForms, "emptyTig": emptyTig, "dupFormKeys": dupFormKeys, "dupTigKeys": dupTigKeys})
-@app.route(endpoint_prefix + 'TigantaArthasSortedList', methods=['GET'])
-@cross_origin()
-def get_DhatuTigantaArthasSortedList():
-    word, script = request.args.get('word'), request.args.get('script', 'devanagari')
     logging.debug('servicing Amarakosha Tiganta arthas Sorted List(अकारादि) for word %s'%word)
     try:
-        arthas, _, _, _, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(transliterate_lines(word, 'devanagari'), requested_script=script)
+        arthas, _, _, _, _ = MorphologicalAnalysis.tiganta_krdanta_arthas_karmas(transliterate_lines(word, 'devanagari'), requested_script=script)
         return jsonify({"Tigantas": {"arthas": arthas}})
     except KeyError as e:
         return abort(400, description=e)
 @app.route(endpoint_prefix + 'TigantaOptionGanaPadiKarmaIt', methods=['GET'])
 @cross_origin()
 def get_DhatuTigantaArthasOptionGanaPadiKarmaIt():
-    dhatu, option, parameter, DhatuVidha, voice, lakara, script = request.args.get('dhatu'), request.args.get('option'), request.args.get('parameter'),\
-        request.args.get('DhatuVidha'), request.args.get('voice'), request.args.get('lakara'), request.args.get('script', 'devanagari')
+    dhatu, option, parameter, DhatuVidha, voice, lakara = request.args.get('dhatu'), request.args.get('option'), request.args.get('parameter'),\
+        request.args.get('DhatuVidha'), request.args.get('voice'), request.args.get('lakara')
+    script = get_requested_script()
     logging.debug('servicing Amarakosha Tiganta arthas गण/पदि/कर्म/इट् for dhatu %s option %s parameter %s DhatuVidha %s voice %s lakara %s'%(dhatu, option, parameter, DhatuVidha, voice, lakara))
     try:
         options = ['गण', 'पदि', 'कर्म', 'इट्']
         dhatu, option, parameter, DhatuVidha, voice, lakara = transliterate_lines(dhatu, 'devanagari'), transliterate_lines(option, 'devanagari'), transliterate_lines(parameter, 'devanagari'), transliterate_lines(DhatuVidha, 'devanagari'), transliterate_lines(voice, 'devanagari'), transliterate_lines(lakara, 'devanagari'),
         if option not in options: raise SyntaxError("invalid option - has to be one of गण, पदि, कर्म, or इट्")
-        validParameters = [Kosha_Subanta_Krdanta_Tiganta.Tganas, Kosha_Subanta_Krdanta_Tiganta.Tpadis,
-                           Kosha_Subanta_Krdanta_Tiganta.Tkarmas, Kosha_Subanta_Krdanta_Tiganta.Tyits][options.index(option)]
+        validParameters = [MorphologicalAnalysis.Tganas, MorphologicalAnalysis.Tpadis,
+                           MorphologicalAnalysis.Tkarmas, MorphologicalAnalysis.Tyits][options.index(option)]
         if parameter not in validParameters: raise SyntaxError('invalid parameter - must be one of ' + ' / '.join(validParameters))
-        func = [Kosha_Subanta_Krdanta_Tiganta.krdanta_Gana, Kosha_Subanta_Krdanta_Tiganta.krdanta_Padi,
-                Kosha_Subanta_Krdanta_Tiganta.krdanta_Karma, Kosha_Subanta_Krdanta_Tiganta.krdanta_It][options.index(option)]
-        arthas, karmas, dhatuNo, dataDhatu, cols = func(parameter, requested_script=script)
-        forms, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_Generation(dhatuNo, DhatuVidha, voice, lakara, requested_script=script)  # tigData always empty
+        forms, _, arthas, karmas, dataDhatu, cols = MorphologicalAnalysis.generate_tiganta_by_option(option, parameter, DhatuVidha, voice, lakara, requested_script=script)
         if option == 'गण': gana = transliterate_lines(parameter, script)
-        else: gana = transliterate_lines(Kosha_Subanta_Krdanta_Tiganta.Tganas[dataDhatu[0][cols.index('Field9')] // 100 - 1], script)
+        else: gana = transliterate_lines(MorphologicalAnalysis.Tganas[dataDhatu[0][cols.index('gpi_code')] // 100 - 1], script)
         if option == 'पदि': padi = transliterate_lines(parameter, script)
-        else: padi = transliterate_lines(Kosha_Subanta_Krdanta_Tiganta.Tpadis[(dataDhatu[0][cols.index('Field9')] % 100) // 10 - 1], script)
+        else: padi = transliterate_lines(MorphologicalAnalysis.Tpadis[(dataDhatu[0][cols.index('gpi_code')] % 100) // 10 - 1], script)
         if option == 'इट्': it = transliterate_lines(parameter, script)
-        else: it = transliterate_lines(Kosha_Subanta_Krdanta_Tiganta.Tyits[dataDhatu[0][cols.index('Field9')] % 10 - 1], script)
+        else: it = transliterate_lines(MorphologicalAnalysis.Tyits[dataDhatu[0][cols.index('gpi_code')] % 10 - 1], script)
         # if option == 'कर्म': karma = parameter
         karma = ','.join(karmas)
         return jsonify({"Tigantas": {"forms": forms, transliterate_lines("धात्वार्य", script): ','.join(arthas),
-                         transliterate_lines("णिजिधातु", script): transliterate_lines(dataDhatu[0][cols.index("Field3")], script),
-                         transliterate_lines("शनिधातु", script): transliterate_lines(dataDhatu[0][cols.index("Field4")], script),
+                         transliterate_lines("णिजिधातु", script): transliterate_lines(dataDhatu[0][cols.index("nijanta_root")], script),
+                         transliterate_lines("शनिधातु", script): transliterate_lines(dataDhatu[0][cols.index("sannanta_root")], script),
                          transliterate_lines("कर्म", script): karma, transliterate_lines("गण", script): gana,
                          transliterate_lines("पदि", script): padi, transliterate_lines("इट्", script): it,
                          transliterate_lines("धातुविदा", script): transliterate_lines(DhatuVidha, script),
@@ -475,18 +427,18 @@ def get_DhatuTigantaArthasOptionGanaPadiKarmaIt():
 @app.route(endpoint_prefix + 'TigantaDhatuVoiceLakara', methods=['GET'])
 @cross_origin()
 def get_DhatuTigantaVoiceLakara():
-    dhatu, DhatuVidha, voice, lakara, script = request.args.get('dhatu'), request.args.get('DhatuVidha'), request.args.get('voice'), request.args.get('lakara'), request.args.get('script', "devanagari")
+    dhatu, DhatuVidha, voice, lakara = request.args.get('dhatu'), request.args.get('DhatuVidha'), request.args.get('voice'), request.args.get('lakara')
+    script = get_requested_script()
     logging.debug('servicing Amarakosha Tiganta generation for word %s DhatuVidha %s voice %s lakara %s'%(dhatu, DhatuVidha, voice, lakara))
     try:
         dhatu = transliterate_lines(dhatu, "devanagari")
-        arthas, karmas, dhatuNo, dataDhatu, cols = Kosha_Subanta_Krdanta_Tiganta.tiganta_krdanta_arthas_karmas(dhatu, script)
-        forms, _ = Kosha_Subanta_Krdanta_Tiganta.tiganta_Generation(dhatuNo, DhatuVidha, voice, lakara, requested_script=script)  # tigData always empty
-        gana = Kosha_Subanta_Krdanta_Tiganta.Tganas[dataDhatu[0][cols.index('Field9')] // 100 - 1]
-        padi = Kosha_Subanta_Krdanta_Tiganta.Tpadis[(dataDhatu[0][cols.index('Field9')] % 100) // 10 - 1]
-        it = Kosha_Subanta_Krdanta_Tiganta.Tyits[dataDhatu[0][cols.index('Field9')] % 10 - 1]
+        forms, _, arthas, karmas, dataDhatu, cols = MorphologicalAnalysis.generate_tiganta_by_dhatu(dhatu, DhatuVidha, voice, lakara, requested_script=script)
+        gana = MorphologicalAnalysis.Tganas[dataDhatu[0][cols.index('gpi_code')] // 100 - 1]
+        padi = MorphologicalAnalysis.Tpadis[(dataDhatu[0][cols.index('gpi_code')] % 100) // 10 - 1]
+        it = MorphologicalAnalysis.Tyits[dataDhatu[0][cols.index('gpi_code')] % 10 - 1]
         return jsonify({"Tigantas": {"forms": forms, transliterate_lines("धात्वार्य", script): ','.join(arthas),
-                         transliterate_lines("णिजिधातु", script): transliterate_lines(dataDhatu[0][cols.index("Field3")], script),
-                         transliterate_lines("शनिधातु", script): transliterate_lines(dataDhatu[0][cols.index("Field4")], script),
+                         transliterate_lines("णिजिधातु", script): transliterate_lines(dataDhatu[0][cols.index("nijanta_root")], script),
+                         transliterate_lines("शनिधातु", script): transliterate_lines(dataDhatu[0][cols.index("sannanta_root")], script),
                          transliterate_lines("कर्म", script): ','.join(karmas),
                          transliterate_lines("गण", script): transliterate_lines(gana, script),
                          transliterate_lines("पदि", script): transliterate_lines(padi, script),
@@ -498,4 +450,6 @@ def get_DhatuTigantaVoiceLakara():
     except KeyError as e:
         return abort(400, description=e)
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=5002)
+    port = sys.argv[1] if len(sys.argv) > 1 else 5000
+    # port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
