@@ -74,7 +74,7 @@ def splitTheWord(word: str) -> split:
     splitWord.noOfSplits = j
     return splitWord
 
-karthari, karmani, fullstop = 0, 1, 'è'
+karthari, karmani, fullstop = 0, 1, '।'
 class subanta_data:
     def __init__(self, size=1000):
         self.vibhakti = [None] * size  # type: list[int]
@@ -319,7 +319,7 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
         noun.vibhakti[noun.numofNouns] = (int(splitSen[7]) - 1) // 3 + 1
         noun.vacana[noun.numofNouns] = (int(splitSen[7]) - 1) % 3 + 1
         noun.linga[noun.numofNouns] = ord(splitSen[6][1]) - 48
-        noun.purusha[noun.numofNouns] = {'ÍÝÖèÌÄè':2, '¤×èÌÄè':3,}.get(splitSen[3], 1)
+        noun.purusha[noun.numofNouns] = {'युष्मद्':2, 'अस्मद्':3}.get(splitSen[4], 1)
         noun.wordNum[noun.numofNouns] = m
         word.word[m] = 'subanta'
         noun.numofNouns += 1
@@ -421,7 +421,7 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
     for m in range(rec.numofIdens):
         splitSen = rec.idens[m][:-1].split()
         case = int(splitSen[3])
-        if not splitSen[1] == 'Øá':
+        if not splitSen[1] == 'हे':
             func = [assign_subanta, assign_krdanta, assign_avyaya, assign_krdav, assign_tiganta, assign_subanta, assign_subanta][case - 1]
             arg[case - 1] = func()
     noun, participle, indeclinable, krdav, verb, adj, pro = arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]
@@ -949,7 +949,7 @@ def syntacticCheck(adj: subanta_data, pro: subanta_data, krdav: krdav_data, inde
                 else: result.append('The verbs agree in vacana but not in pursuha')
             else:
                 if flagv: result.append('The verbs do not agree in purusha and vacana')
-                else: result.append('There is more than one verb present in the sentence and there is no ¸ or ÔÚ present in the sentence.\nThe sentence is syntactically not compatible.')
+                else: result.append('There is more than one verb present in the sentence and there is no च or वा present in the sentence.\nThe sentence is syntactically not compatible.')
         result.append('---------------')
     return qflag, result
 def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, indeclinable: avyaya_data, krdanta: PARTICIPLE, subject: VIBHAKTI, object: VIBHAKTI, locative: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, vocative: VIBHAKTI,
@@ -1014,7 +1014,7 @@ def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, ind
                     if avyayaflag:
                         for i in range(indeclinable.numofAvyayas): result.append('%s '%indeclinable.avyava[i])
                         result.append('in the sentence is not in the correct place')
-                    else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.")
+                    else: result.append("there is no 'च ' or 'वा' in the sentence.")
             else:
                 if object.numofWords == 0: result.append('Any subanta in %s, %s \nand in %s can be the %s\n%s'%(data1.Case[0], data1.Vacana[krdanta.vacana-1],data1.Linga[krdanta.linga], 'subject', dsp.mesgn))
                 elif object.numofWords == 1:
@@ -1026,7 +1026,7 @@ def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, ind
                     if avyayaflag:
                         for i in range(indeclinable.numofAvyayas): result.append('%s '%indeclinable.avyava[i])
                         result.append('in the sentence is not in the correct place')
-                    else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.")
+                    else: result.append("there is no 'च ' or 'वा' in the sentence.")
         else: result.append('There is no verb. The sentence is syntactically not compatible')
     else:
         qflag = True
@@ -1061,7 +1061,7 @@ def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, ind
 def checkforAvyaya(indeclinable: avyaya_data) -> int:
     if indeclinable == None: return 0
     for i in range(indeclinable.numofAvyayas):
-       result = {'.':1, '¤ÈÛ':1, 'ÔÚ':5, '¤ÃÔÚ':3, '¨Â':3, '¥Øå×èÔÛÂè':3}.get(indeclinable.avyava[i], 0)
+       result = {'.':1, 'अपि':1, 'वा':5, 'अथवा':3, 'उत':3, 'आहोस्वित्':3}.get(indeclinable.avyava[i], 0)
     return result
 def checkPosofAvyaya(indeclinable: avyaya_data, vibhakti: VIBHAKTI, avyayaFlag: int) -> int:
     if indeclinable == None or vibhakti == None: return 0
@@ -1098,7 +1098,7 @@ def displaytheInformation(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHA
             clas = vocative
             if clas.numofWords > 0:
                 res = 'Vocative(s) '
-                for i in range(clas.numofWords): res += 'Øá :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
+                for i in range(clas.numofWords): res += 'हे :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
                 result.append(res)
     else: return result
     for adjpro in [adj, pro]:
@@ -1141,7 +1141,7 @@ def displaytheInformation1(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBH
         clas = vocative
         if clas.numofWords > 0:
             res = 'Vocative(s) '
-            for i in range(clas.numofWords): res += 'Øá :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
+            for i in range(clas.numofWords): res += 'हे :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
             result.append(res)
     for adjpro in [adj, pro]:
         if adjpro != None and adjpro.numofNouns > 0:
@@ -1288,24 +1288,24 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
                     if flag['a']: result.append(analyseAkarmakaWithoutObjects(clasName, flag['purusha'], flag['vacana'], flag['karma'], adjFlag, proFlag,
                               subject, object, instrument, dative, ablative, locative, genitive, vocative, pro, adj, verb))
                     else:
-                        if VinaaSahaFlag > 0: result.append(['ÔÛÆÚ is not handled properly', '×Ø is not handled properly'][VinaaSahaFlag - 1])
+                        if VinaaSahaFlag > 0: result.append(['विना is not handled properly', 'सह is not handled properly'][VinaaSahaFlag - 1])
                         else:
                             for clas, flag, str in zip(allVibhaktiRoles, errorflag.values(), allVibhaktiLiterals):
                                 if clas.numofWords > 0 and flag: result.append('There is more than one %s in the sentence and ' % str)
                                 if avyayaFlag:
                                     for j in indeclinable.numofAvyayas: result.append('%s ' % indeclinable.avyava[j])
                                     result.append('in the sentence is not in the correct place. %s' % dsp.mesgn)
-                                else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence. %s" % dsp.mesgn)
+                                else: result.append("there is no 'च' or 'वा' in the sentence. %s" % dsp.mesgn)
             else:
                 if VinaaSahaFlag > 0:
-                    result.append(['ÔÛÆÚ is not handled properly', '×Ø is not handled properly'][VinaaSahaFlag - 1])
+                    result.append(['विना is not handled properly', 'सह is not handled properly'][VinaaSahaFlag - 1])
                 else:
                     for clas, flag, str in zip(allVibhaktiRoles, errorflag.values(), allVibhaktiLiterals):
                         if clas.numofWords > 0 and flag: result.append('There is more than one %s in the sentence and ' % str)
                         if avyayaFlag:
                             for j in indeclinable.numofAvyayas: result.append('%s ' % indeclinable.avyava[j])
                             result.append('in the sentence is not in the correct place. %s' % dsp.mesgn)
-                        else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.\ %s" % dsp.mesgn)
+                        else: result.append("there is no 'च' or 'वा' in the sentence.\ %s" % dsp.mesgn)
     result = []
     allVibhaktiRoles, allVibhaktiLiterals = [subject, object, instrument, dative, ablative, genitive, locative, vocative], ['subject', 'object', 'instrument', 'dative', 'ablative', 'genitive', 'locative', 'vocative']
     flag = {'a': False, 'vacana': False, 'linga': False, 'purusha': False, 'karma': True, 'ak': False, 'ka': False, 'krdanta': 0, 'krdav': 0}
@@ -1408,27 +1408,27 @@ def compatibilityCheck2(participle: krdanta_data, krdanta: PARTICIPLE, subject: 
                                subject, object, instrument, dative, ablative, locative, genitive, vocative, pro, adj, krdanta))
                     else:
                         if VinaaSahaFlag > 0:
-                            result.append(['ÔÛÆÚ is not handled properly', '×Ø is not handled properly'][VinaaSahaFlag - 1])
+                            result.append(['विना is not handled properly', 'सह is not handled properly'][VinaaSahaFlag - 1])
                         else:
                             for clas, flag, str in zip(allVibhaktiRoles, errorflag.values(), allVibhaktiLiterals):
                                 if clas.numofWords > 0 and flag: result.append('There is more than one %s in the sentence and ' % str)
                                 if avyayaflag:
                                     for j in indeclinable.numofAvyayas: result.append('%s ' % indeclinable.avyava[j])
                                     result.append('in the sentence is not in the correct place. %s' % dsp.mesgn)
-                                else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.\ %s" % dsp.mesgn)
+                                else: result.append("there is no 'च' or 'वा' in the sentence.\ %s" % dsp.mesgn)
             else:
                 if flag['a']:
                     result.append(analyseAkarmakaWithoutObjects1(clasName, flag['p'], flag['v'], flag['k'], adjFlag, proFlag,
                                    subject, object, instrument, dative, ablative, locative, genitive, vocative, pro, adj, krdanta))
                 else:
-                    if VinaaSahaFlag > 0: result.append(['ÔÛÆÚ is not handled properly', '×Ø is not handled properly'][VinaaSahaFlag - 1])
+                    if VinaaSahaFlag > 0: result.append(['विना is not handled properly', 'सह is not handled properly'][VinaaSahaFlag - 1])
                     else:
                         for clas, flag, str in zip(allVibhaktiRoles, errorflag.values(), allVibhaktiLiterals):
                             if clas.numofWords > 0 and flag: result.append('There is more than one %s in the sentence and ' % str)
                             if avyayaflag:
                                 for j in indeclinable.numofAvyayas: result.append('%s ' % indeclinable.avyava[j])
                                 result.append('in the sentence is not in the correct place. %s' % dsp.mesgn)
-                            else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.\ %s" % dsp.mesgn)
+                            else: result.append("there is no 'च' or 'वा' in the sentence.\ %s" % dsp.mesgn)
 
     result = []
     allVibhaktiRoles, allVibhaktiLiterals = [subject, object, instrument, dative, ablative, genitive, locative, vocative], \
@@ -1593,7 +1593,7 @@ def checkVinaaSahaCompatibility(indeclinable: avyaya_data, adj: subanta_data, pr
     flag = 0
     if indeclinable != None:
         for i in range(indeclinable.numofAvyayas):
-            if indeclinable.avyava[i] == 'ÔÛÆÚ':
+            if indeclinable.avyava[i] == 'विना':
                 flag = 1
                 for j in range(object.numofWords):
                     if object.wordPos[j] == indeclinable.wordNum[i]:
@@ -1624,7 +1624,7 @@ def checkVinaaSahaCompatibility(indeclinable: avyaya_data, adj: subanta_data, pr
                         if krdtemp.vibhakti[j] in [3, 5] and krdtemp.wordNum[j] + 1 == indeclinable.wordNum[i]:
                             flag = 0
                             break
-            elif indeclinable.avyava[i] == '×Ø':
+            elif indeclinable.avyava[i] == 'सह':
                 flag = 2
                 for j in range(instrument.numofWords):
                     if instrument.wordPos[j] + 1 == indeclinable.wordNum[i]:
@@ -1998,7 +1998,7 @@ def write_out_aci(OSOut, outfile=None):
     if isinstance(OSOut, str): # external file
         fos = open(OSOut, 'r')
         for line in fos:
-            if line.split(' ')[0] == "ÔÚ³èÍÌè":
+            if line.split(' ')[0] == "वाक्यम्":
                 rec = record()
                 rec.sentence, sentend, i = line[:-1], False, 0
             elif line[0] == '-':
@@ -2016,7 +2016,7 @@ def write_out_aci(OSOut, outfile=None):
         fos.close()
     else:  # in-memory list
         for line in OSOut:
-            if line.split(' ')[0] == "ÔÚ³èÍÌè":
+            if line.split(' ')[0] == "वाक्यम्":
                 rec = record()
                 rec.sentence, sentend, i = line[:-1], False, 0
             elif line[0] == '-':
@@ -2062,7 +2062,7 @@ def write_result_aci_from_out_aci(outfile, resultfile):
 def commoncode(out):
     res = []
     for line in out:
-        if line.split(' ')[0] == "ÔÚ³èÍÌè":
+        if line.split(' ')[0] == "वाक्यम्":
             rec = record()
             rec.sentence, sentend, i = line[:-1], False, 0
         elif line[0] == '-':

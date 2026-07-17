@@ -51,8 +51,8 @@ def analysis(base, script):
                 for item in subDetails:
                     numpages += 1
                     Subantas.append([item.rupam, transliterate_lines(item.base, script), item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                    syntaxInputFile.append([i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 1, AmaraKosha_Database_Queries.unicode_iscii(item.base),
-                                            AmaraKosha_Database_Queries.unicode_iscii(item.erb), item.det, item.vibvach + 1])
+                    syntaxInputFile.append([i + 1, word, wids, 1, item.base,
+                                            item.erb, item.det, item.vibvach + 1])
                     wids += 1
             except Exception as e:
                 logging.debug(e)
@@ -64,15 +64,15 @@ def analysis(base, script):
                     numpages += len(krdData)
                     for krdDetail in krdData:
                         syntaxInputFile.append(
-                            [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 2,
-                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.erb),
-                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sabda),
+                            [i + 1, word, wids, 2,
+                             krdDetail.erb,
+                             krdDetail.sabda,
                              krdDetail.det,
                              krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno,
-                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.verb),
-                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.nijverb),
-                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sanverb),
-                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.meaning), ('%03d' % krdDetail.GPICode),
+                             krdDetail.verb,
+                             krdDetail.nijverb,
+                             krdDetail.sanverb,
+                             krdDetail.meaning, ('%03d' % krdDetail.GPICode),
                              krdDetail.CombinedM, krdDetail.karmaCode])
                         wids += 1
             except Exception as e:
@@ -84,18 +84,18 @@ def analysis(base, script):
                     Tigantas += tigDatas
                     numpages += len(tigDatas)
                     for tigData in tigDatas:
-                        syntaxInputFile.append([i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 5,
-                                                AmaraKosha_Database_Queries.unicode_iscii(tigData.base), tigData.Dno,
-                                                AmaraKosha_Database_Queries.unicode_iscii(tigData.verb),
-                                                AmaraKosha_Database_Queries.unicode_iscii(tigData.nijverb),
-                                                AmaraKosha_Database_Queries.unicode_iscii(tigData.sanverb),
-                                                AmaraKosha_Database_Queries.unicode_iscii(tigData.meaning),
+                        syntaxInputFile.append([i + 1, word, wids, 5,
+                                                tigData.base, tigData.Dno,
+                                                tigData.verb,
+                                                tigData.nijverb,
+                                                tigData.sanverb,
+                                                tigData.meaning,
                                                 ('%03d' % tigData.GPICode), tigData.pralak, tigData.purvach,
                                                 tigData.CombinedM, tigData.karmaCode])
                         wids += 1
             except Exception as e:
                 logging.debug(e)
-        syntaxInput = [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्') + ' -- %s' % AmaraKosha_Database_Queries.unicode_iscii(bas)]
+        syntaxInput = ['वाक्यम् -- %s' % bas]
         for line in syntaxInputFile:
             syntaxInput.append('%d) ' % line[0] + ' '.join([str(x) for x in line[1:]]))
         syntaxInput.append('----------')
@@ -141,11 +141,11 @@ def interpret(result, script='devanagari'):
         line = line.replace('\t', '').replace('\n', '').strip()
         words = line.split(' ')
         word = words[0]
-        if word == AmaraKosha_Database_Queries.unicode_iscii( 'वाक्यम्'): sentence = AmaraKosha_Database_Queries.iscii_unicode(line[line.index(' -- ') + 4:line.index(' (')])
-        if word in [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्'), ""] or ( len(words) == 1 and word == "subject"): pass
+        if word == 'वाक्यम्': sentence = line[line.index(' -- ') + 4:line.index(' (')]
+        if word in ['वाक्यम्', ""] or ( len(words) == 1 and word == "subject"): pass
         elif word == "The" or "VOICE" in words or "Considering the verb" in line: conclusions[sentence_no]['conclusions'].append(line)
         elif any([phrase in line for phrase in ["can be assumed to be the", "Any subanta"]]):
-            cell = transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(line), script)
+            cell = transliterate_lines(line, script)
             edges['Subject(s)'] = [cell.split()[0], '', '', '']
             conclusions[sentence_no]['conclusions'].append(cell)
         elif 'Noun(s) are:' in line:
@@ -153,7 +153,7 @@ def interpret(result, script='devanagari'):
             conclusions[sentence_no]['conclusions'].append('Blah')
         elif 'Noun(s) are:' in result[line_no - 1]:
             parts = line.split(',')
-            cell = [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), script)
+            cell = [transliterate_lines(w, script)
                     for w in ['word', word, parts[0][:-1], parts[1].strip(), parts[2].strip()]]
             conclusions[sentence_no]['cells'].append(cell)
             # conclusions[sentence_no]['cells'].append(['?'] + ['']*4)
@@ -164,25 +164,25 @@ def interpret(result, script='devanagari'):
             else: parts = line[line.index(' ( ') + 2:].split(' / ')
             if parts == '': conclusions[sentence_no]['cells'].append([transliterate_lines(word, script), '', '', '', ''])
             else:
-                cell = [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), script)
+                cell = [transliterate_lines(w, script)
                         for w in [word, words[2], parts[0], parts[1], parts[2][:-2]]]
-                cellDevanagari = [AmaraKosha_Database_Queries.iscii_unicode(w) for w in
+                cellDevanagari = [w for w in
                                   [word, words[2], parts[0], parts[1], parts[2][:-2]]]
                 conclusions[sentence_no]['cells'].append(cell)
                 w = line[:line.index(' ( ')].split(' : ')[1]
-                edges[word] = transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), IndianLanguages[0])
+                edges[word] = transliterate_lines(w, IndianLanguages[0])
                 edges[word] = [edges[word]] + [transliterate_lines(word, IndianLanguages[0]) for word in
                                                cellDevanagari[1:]]
         elif word in subtypeList or 'Verb(s) are : ' in result[line_no - 1]:
             parts = line[line.index(' ( ') + 2:].split(' / ')
             if 'Verb(s) are : ' in result[line_no - 1]: word = 'Verb(s)'
-            cell = [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), script) for w in
+            cell = [transliterate_lines(w, script) for w in
                     [word, words[2], parts[0], parts[1], parts[2][:-2]]]
-            cellDevanagari = [AmaraKosha_Database_Queries.iscii_unicode(w) for w in
+            cellDevanagari = [w for w in
                               [word, words[2], parts[0], parts[1], parts[2][:-2]]]
             w = line[line.index(' '):line.index(' ( ')]
             if w[0] == ':': w = w[1:]
-            edges[word] = transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(w), script)
+            edges[word] = transliterate_lines(w, script)
             edges[word] = [edges[word]] + [transliterate_lines(word, IndianLanguages[0]) for word in cellDevanagari[1:]]
             conclusions[sentence_no]['cells'].append(cell)
         elif word[0] == '-':

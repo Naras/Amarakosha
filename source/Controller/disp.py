@@ -37,27 +37,27 @@ mesgp1 = "The pronoun has a matching noun in all aspects"
 mesgp2 = "The pronoun has no matching noun in all aspects"
 mesgp2a = " Some pronoun(s) has(have) no matching noun in all aspects"
 
-mesg = "Any subanta other than ÍÝÖèÌÄè and ¤×èÌÄè ÕÊèÄ"
-karmaniVerb = "ËÞÍÂá"
+mesg = "Any subanta other than युष्मद् and अस्मद् शब्द"
+karmaniVerb = "भूयते"
 mesg1 = "can be assumed to be the verb"
 mesg2 = "the sentence is incomplete"
 mesg3 = "There is no common subject for verb and krdanta"
 
-Vibhakti = ["ÈèÏÃÌÔÛË³èÂÛ", "ÂßÂÜÍÔÛË³èÂÛ"]
-MPurusha  = ["ÂèÔÌè","ÍÝÔÚÌè","ÍÞÍÌè"]
-UPurusha  = ["¤ØÌè","¥ÔÚÌè","ÔÍÌè"]
-uttamaPurushaVerb = ["¤×èÌÛ/ËÔÚÌÛ","×èÔ£/ËÔÚÔ£","×èÌ£/ËÔÚÌ£"]
-madhyamaPurushaVerb = ["¤×Û/ËÔ×Û","×èÃ£/ËÔÃ£","×èÃ/ËÔÃ"]
-prathamaPurushaVerb = ["¤×èÂÛ/ËÔÂÛ","×èÂ£/ËÔÂ£","×ÆèÂÛ/ËÔÆèÂÛ"]
+Vibhakti = ["प्रथमाविभक्ति", "तृतीयाविभक्ति"]
+MPurusha  = ["त्वम्","युवाम्","यूयम्"]
+UPurusha  = ["अहम्","आवाम्","वयम्"]
+uttamaPurushaVerb = ["अस्मि/भवामि","स्वः/भवावः","स्मः/भवामः"]
+madhyamaPurushaVerb = ["असि/भवसि","स्थः/भवथः","स्थ/भवथ"]
+prathamaPurushaVerb = ["अस्ति/भवति","स्तः/भवतः","सन्ति/भवन्ति"]
 
-Gana     =  ["ËèÔÚÄÛµÁ£","¤ÄÚÄÛµÁ£","ºÝØåÂèÍÚÄÛµÁ£", "ÄÛÔÚÄÛµÁ£","×èÔÚÄÛµÁ£","ÂÝÄÚÄÛµÁ£", "ÏÝÅÚÄÛµÁ£","ÂÆÚÄÛµÁ£","³èÏÍÚÄÛµÁ£" ,"¸ÝÏÚÄÛµÁ£" ]
-Padi     =  ["ÈÏ×èÌâÈÄÜ","¥ÂèÌÆáÈÄÜ","¨ËÍÈÄÜ"]
-Karma    =  ["×³ÏèÌ³£","¤³ÏèÌ³£","ÄèÔÛ³ÏèÌ³£"]
-It       =  ["×á½è","¤ÆÛ½è","Ôá½è"]
-Tig      =  ["³áÔÑÂÛ·ÆèÂ£","ÁÛºÆèÂ£","×ÆèÆÆèÂ£"]
-Krudarth =  ["ÔÛÅèÍÏèÃ ÂÔèÍ","ÔÛÅèÍÏèÃ ¤ÆÜÍÏè", "ÔÛÅèÍÏèÃ Í","ËÞÂ ³èÂ","ËÞÂ ³èÂÔÂÝ", "ÔÏèÂÌÚÆ ÕÂß","ÔÏèÂÌÚÆ ÕÚÆ¸è", "ËÔÛÖèÍÂè ×èÍÕÂß","ËÔÛÖèÍÂè ×èÍÕÚÆ¸è"]
+Gana     =  ["भ्वादिगणः","अदादिगणः","जुहोत्यादिगणः", "दिवादिगणः","स्वादिगणः","तुदादिगणः", "रुधादिगणः","तनादिगणः","क्रयादिगणः" ,"चुरादिगणः" ]
+Padi     =  ["परस्मैपदी","आत्मनेपदी","उभयपदी"]
+Karma    =  ["सकर्मकः","अकर्मकः","द्विकर्मकः"]
+It       =  ["सेट्","अनिट्","वेट्"]
+Tig      =  ["केवलतिङन्तः","णिजन्तः","सन्नन्तः"]
+Krudarth =  ["विध्यर्थ तव्य","विध्यर्थ अनीयर्", "विध्यर्थ य","भूत क्त","भूत क्तवतु", "वर्तमान शतृ","वर्तमान शानच्", "भविष्यत् स्यशतृ","भविष्यत् स्यशानच्"]
 
-Krudavyaya = ["ÂÝÌÝÆè","³èÂèÔÚ"]
+Krudavyaya = ["तुमुन्","क्त्वा"]
 
 engGana = ["I Conjugation","II Conjugation","III Conjugation", "IV Conjugation","V Conjugation","VI Conjugation", "VII Conjugation","VIII Conjugation","IX Conjugation",
 		   "X Conjugation"]
@@ -67,10 +67,10 @@ engIt = ["Set","Anit","vet"]
 engTig = ["Ordinary","Causative","Desiderative"]
 engKrudarth =  ["Potential tavya","Potential aniyar", "Potential ta","Past Passive","Past Active", "Present Satr","Present Sanac", "Future syaSatr","Future syaSanac"]
 
-Voice = ["³ÏèÂÏÛ","³ÏèÌÁÛ","ËÚÔá"]
-Lakara =  ["Ñ½è","ÑÛ½è","ÑÝ½è","Ñß½è","Ñå½è","Ñ·è","ÔÛÅÛÑÛ·è","¥ÕÜÏèÑÛ·è","ÑÝ·è","Ñß·è"]
-Person = ["ÈèÏÃÌÈÝÏÝÖ£","ÌÅèÍÌÈÝÏÝÖ£","¨ÂèÂÌÈÝÏÝÖ£"]
-Vacana = ["¬³Ô¸ÆÌè","ÄèÔÛÔ¸ÆÌè","ÊØÝÔ¸ÆÌè"]
+Voice = ["कर्तरि","कर्मणि","भावे"]
+Lakara =  ["लट्","लिट्","लुट्","लृट्","लोट","लङ्","विधिलिङ्","आशीर्लिङ्","लुङ्","लृङ्"]
+Person = ["प्रथमपुरुषः","मध्यमपुरुषः","उत्तमपुरुषः"]
+Vacana = ["एकवचनम्","द्विवचनम्","बहुवचनम्"]
 
 engVoice = ["Active","Passive","Impersonal"]
 engLakara = ["Present","Perfect","I Future","II Future","Imperative", "Imperfect","Potential","Benedictive","Aorist","Conditional"]
@@ -78,9 +78,10 @@ engLakara = ["Present","Perfect","I Future","II Future","Imperative", "Imperfect
 engPerson = ["III Pesrson","II Person","I Person"]
 engVacana = ["Singular","Dual","Plural"]
 
-Linga = ["×èÂèÏÜÑÛ·èµ£","ÈÝÑèÑÛ·èµ£","ÆÈÝ¢×³ÑÛ·èµ£","×èÂèÏÜ.ÈÝ¢","×èÂèÏÜ.ÆÈÝ¢","ÈÝ¢.ÆÈÝ¢","×èÂèÏÜ.ÈÝ¢.ÆÈÝ¢","¤ÑÛ·èµ"]
-Anta = ["¤","¥","¦","§","¨","©","ª","ª","*","¦é","¬","­","°","±","*","¸","º","Á","Â","Ã","Ä","Å","Æ","È","Ë","Ì","ÏáÉ","Ô","Õ","Ö","×","Ø","ÔèÍ¼èºÆ","Ñ"]
+Linga = ["स्त्रीलिङ्गः","पुल्लिङ्गः","नपुंसकलिङ्गः","स्त्री.पुं","स्त्री.नपुं","पुं.नपुं","स्त्री.पुं.नपुं","अलिङ्ग"]
+Anta = ["अ","आ","इ","ई","उ","ऊ","ऋ","ऋ","*","इ़","ए","ऐ","ओ","औ","*","च","ज","ण","त","थ","द","ध","न","प","भ","म","रेफ","व","श","ष","स","ह","व्यञ्जन","ल"]
 engLinga = ["Feminine","Masculine","Neuter","Fem.Mas","Fem.Neu","Mas.Neu","Fem.Mas.Neu","No Gender"]
-Case = ["ÈèÏÃÌÚÔÛË³èÂÛ£","ÄèÔÛÂÜÍÚÔÛË³èÂÛ£","ÂßÂÜÍÚÔÛË³èÂÛ£","¸ÂÝÏèÃÜÔÛË³èÂÛ£","È¼è¸ÌÜÔÛË³èÂÛ£","ÖÖè¾ÜÔÛË³èÂÛ£","×ÈèÂÌÜÔÛË³èÂÛ£","×¢/ÈèÏÃÌÚÔÛË³èÂÛ£"]
+Case = ["प्रथमाविभक्तिः","द्वितीयाविभक्तिः","तृतीयाविभक्तिः","चतुर्थीविभक्तिः","पञ्चमीविभक्तिः","षष्ठीविभक्तिः","सप्तमीविभक्तिः","सं/प्रथमाविभक्तिः"]
 engCase=["( Nominative )","( Accusative )", "( Instrumental )"," ( Dative )","( Ablative )","( Genetive )"," ( Locative )","( Vocative )"]
+
 

@@ -3402,7 +3402,7 @@ class Test(unittest.TestCase):
                             numpages += 1
                             Subantas.append([item.rupam, item.base,
                                             item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                            syntaxInputFile.append([i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 1, AmaraKosha_Database_Queries.unicode_iscii(item.base), AmaraKosha_Database_Queries.unicode_iscii(item.erb), item.det, item.vibvach + 1])
+                            syntaxInputFile.append([i + 1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
                             wids += 1
                     except Exception as e:
                         print(e)
@@ -3413,9 +3413,9 @@ class Test(unittest.TestCase):
                             Krdantas += krdData
                             numpages += len(krdData)
                             for krdDetail in krdData:
-                                syntaxInputFile.append([i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 2, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.erb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sabda), krdDetail.det,
-                                     krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.verb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.nijverb),
-                                     AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sanverb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.meaning), krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
+                                syntaxInputFile.append([i + 1, word, wids, 2, krdDetail.erb, krdDetail.sabda, krdDetail.det,
+                                     krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb, krdDetail.nijverb,
+                                     krdDetail.sanverb, krdDetail.meaning, krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
                                 wids += 1
                     except Exception as e:
                         print(e)
@@ -3427,8 +3427,8 @@ class Test(unittest.TestCase):
                             numpages += len(tigDatas)
                             for tigData in tigDatas:
                                 # ic.ic('tiganta', i+1, word, wids)
-                                syntaxInputFile.append( [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 5, AmaraKosha_Database_Queries.unicode_iscii(tigData.base), tigData.Dno, AmaraKosha_Database_Queries.unicode_iscii(tigData.verb),
-                                                        AmaraKosha_Database_Queries.unicode_iscii(tigData.nijverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.sanverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.meaning), tigData.GPICode,
+                                syntaxInputFile.append( [i + 1, word, wids, 5, tigData.base, tigData.Dno, tigData.verb,
+                                                        tigData.nijverb, tigData.sanverb, tigData.meaning, tigData.GPICode,
                                                         tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
                                 wids += 1
                     except Exception as e:
@@ -3538,7 +3538,7 @@ class Test(unittest.TestCase):
                             [4, 'पूजयति', 5, 5, 'पूजय्', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम्1/', 931, '1A1', 1, '*', 1],
                             [4, 'पूजयति', 6, 5, 'पूजय्', 252, 'पूज्', 'पूजय्', 'पुपूजि', 'पूजायाम्1/', 931, '2A1', 1, '*', 1]]
 
-                morphologicalOutput = [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्') + ' -- %s' % AmaraKosha_Database_Queries.unicode_iscii(sentence)]
+                morphologicalOutput = ['वाक्यम्' + ' -- %s' % sentence]
                 for line in syntaxInputFile:
                     morphologicalOutput.append('%d) ' % line[0] + ' '.join([str(x) for x in line[1:]]))
                 morphologicalOutput.append('----------')
@@ -3547,8 +3547,7 @@ class Test(unittest.TestCase):
                 expected = [[str(item) for item in lst] for lst in expected]
                 syntaxInputFile = [[str(item) for item in lst] for lst in syntaxInputFile]
                 for input_list, expected_list in zip(syntaxInputFile, expected):
-                    self.assertEqual([AmaraKosha_Database_Queries.unicode_iscii(item) for item in expected_list], input_list)
-                    self.assertEqual(expected_list, [AmaraKosha_Database_Queries.iscii_unicode(item) for item in input_list])
+                    self.assertEqual(expected_list, input_list)
 
                 result = SyntaxAnalysis.write_result_aci(out)
 
@@ -3834,9 +3833,9 @@ class Test(unittest.TestCase):
                                   'The verbs do not agree in purusha and vacana', '---------------']
 
                 for actual_list, expected_list in zip(out, outExpected):
-                    self.assertEqual(AmaraKosha_Database_Queries.unicode_iscii(expected_list), actual_list)
+                    self.assertEqual(expected_list, actual_list)
                 for actual_list, expected_list in zip(result, resultExpected):
-                    self.assertEqual(AmaraKosha_Database_Queries.unicode_iscii(expected_list), actual_list)
+                    self.assertEqual(expected_list, actual_list)
 
 
 if __name__ == '__main__':

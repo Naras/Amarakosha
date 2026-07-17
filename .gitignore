@@ -1,4 +1,3 @@
-DecipheredVarValues.rtf
 sourceAll.txt
 /*.log
 /Semantic
@@ -15,3 +14,7 @@ sourceAll.txt
 /databaseModel.py
 /*pyc
 **pycache**
+**.db
+**shm
+**wal
+Docker*

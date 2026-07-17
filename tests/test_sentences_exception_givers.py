@@ -21,8 +21,8 @@ def morphological_syntactic_analysis_exception_givers(sentence):
                 numpages += 1
                 Subantas.append([item.rupam, transliterate_lines(item.base,"devanagari"),
                                  item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                syntaxInputFile.append([i + 1, word, wids, 1, AmaraKosha_Database_Queries.unicode_iscii(item.base),
-                                        AmaraKosha_Database_Queries.unicode_iscii(item.erb), item.det,
+                syntaxInputFile.append([i + 1, word, wids, 1, item.base,
+                                        item.erb, item.det,
                                         item.vibvach + 1])
                 wids += 1
         except Exception as e:
@@ -35,13 +35,13 @@ def morphological_syntactic_analysis_exception_givers(sentence):
                 numpages += len(krdData)
                 for krdDetail in krdData:
                     syntaxInputFile.append(
-                        [i + 1, word, wids, 2, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.erb),
-                         AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sabda), krdDetail.det,
+                        [i + 1, word, wids, 2, krdDetail.erb,
+                         krdDetail.sabda, krdDetail.det,
                          krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno,
-                         AmaraKosha_Database_Queries.unicode_iscii(krdDetail.verb),
-                         AmaraKosha_Database_Queries.unicode_iscii(krdDetail.nijverb),
-                         AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sanverb),
-                         AmaraKosha_Database_Queries.unicode_iscii(krdDetail.meaning), krdDetail.GPICode,
+                         krdDetail.verb,
+                         krdDetail.nijverb,
+                         krdDetail.sanverb,
+                         krdDetail.meaning, krdDetail.GPICode,
                          krdDetail.CombinedM,
                          krdDetail.karmaCode])
                     wids += 1
@@ -55,16 +55,16 @@ def morphological_syntactic_analysis_exception_givers(sentence):
                 numpages += len(tigDatas)
                 for tigData in tigDatas:
                     syntaxInputFile.append(
-                        [i + 1, word, wids, 5, AmaraKosha_Database_Queries.unicode_iscii(tigData.base), tigData.Dno,
-                         AmaraKosha_Database_Queries.unicode_iscii(tigData.verb),
-                         AmaraKosha_Database_Queries.unicode_iscii(tigData.nijverb),
-                         AmaraKosha_Database_Queries.unicode_iscii(tigData.sanverb),
-                         AmaraKosha_Database_Queries.unicode_iscii(tigData.meaning), tigData.GPICode,
+                        [i + 1, word, wids, 5, tigData.base, tigData.Dno,
+                         tigData.verb,
+                         tigData.nijverb,
+                         tigData.sanverb,
+                         tigData.meaning, tigData.GPICode,
                          tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
                     wids += 1
         except Exception as e:
             pass  # Word is not a tiganta
-    morphologicalOutput = [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्') + ' -- %s' % AmaraKosha_Database_Queries.unicode_iscii(sentence)]
+    morphologicalOutput = ['वाक्यम्' + ' -- %s' % sentence]
     for line in syntaxInputFile: morphologicalOutput.append('%d) ' % line[0] + ' '.join([str(x) for x in line[1:]]))
     morphologicalOutput.append('----------')
     out = SyntaxAnalysis.write_out_aci(morphologicalOutput)
@@ -82,8 +82,8 @@ class Test(unittest.TestCase):
         outExpected, resultExpected = {}, {}
         try:
             out, result = morphological_syntactic_analysis_exception_givers(sentence)
-            outExpected[sentence.strip()]  = [AmaraKosha_Database_Queries.iscii_unicode(str(l)) for l in out]
-            resultExpected[sentence.strip()] = [AmaraKosha_Database_Queries.iscii_unicode(str(l)) for l in result]
+            outExpected[sentence.strip()]  = [str(l) for l in out]
+            resultExpected[sentence.strip()] = [str(l) for l in result]
         except Exception as e:
             print(f'morphological_syntactic_analysis_exception_giving_sentence-print: sentence {sentence}\nout={out}\nresult = {result} Exception {e}')
 
@@ -103,7 +103,6 @@ class Test(unittest.TestCase):
     def morphological_analysis(self, sentence):
         numpages, subforms, krdforms, tigforms, Subantas, Krdantas, Tigantas, syntaxInputFile = 0, [], [], [], [], [], [], []
         for i, word in enumerate(sentence.split(' ')):
-            word = AmaraKosha_Database_Queries.unicode_iscii(word)
             try:
                 wids = 1
                 forms, subDetails = Kosha_Subanta_Krdanta_Tiganta.subanta_Analysis(word)
@@ -111,7 +110,7 @@ class Test(unittest.TestCase):
                 for item in subDetails:
                     numpages += 1
                     Subantas.append([item.rupam, item.base, item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                    syntaxInputFile.append([i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 1, AmaraKosha_Database_Queries.unicode_iscii(item.base), AmaraKosha_Database_Queries.unicode_iscii(item.erb), item.det, item.vibvach + 1])
+                    syntaxInputFile.append([i + 1, word, wids, 1, item.base, item.erb, item.det, item.vibvach + 1])
                     wids += 1
             except Exception as e:
                 print(e)
@@ -122,9 +121,9 @@ class Test(unittest.TestCase):
                     Krdantas += krdData
                     numpages += len(krdData)
                     for krdDetail in krdData:
-                        syntaxInputFile.append(  [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 2, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.erb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sabda), krdDetail.det,
-                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, AmaraKosha_Database_Queries.unicode_iscii(krdDetail.verb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.nijverb),
-                             AmaraKosha_Database_Queries.unicode_iscii(krdDetail.sanverb), AmaraKosha_Database_Queries.unicode_iscii(krdDetail.meaning), krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
+                        syntaxInputFile.append(  [i + 1, word, wids, 2, krdDetail.erb, krdDetail.sabda, krdDetail.det,
+                             krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno, krdDetail.verb, krdDetail.nijverb,
+                             krdDetail.sanverb, krdDetail.meaning, krdDetail.GPICode, krdDetail.CombinedM, krdDetail.karmaCode])
                         wids += 1
             except Exception as e:
                 print(e)
@@ -136,22 +135,24 @@ class Test(unittest.TestCase):
                     numpages += len(tigDatas)
                     for tigData in tigDatas:
                         # ic.ic('tiganta', i+1, word, wids)
-                        syntaxInputFile.append( [i + 1, AmaraKosha_Database_Queries.unicode_iscii(word), wids, 5, AmaraKosha_Database_Queries.unicode_iscii(tigData.base), tigData.Dno, AmaraKosha_Database_Queries.unicode_iscii(tigData.verb),
-                                                AmaraKosha_Database_Queries.unicode_iscii(tigData.nijverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.sanverb), AmaraKosha_Database_Queries.unicode_iscii(tigData.meaning), tigData.GPICode,
+                        syntaxInputFile.append( [i + 1, word, wids, 5, tigData.base, tigData.Dno, tigData.verb,
+                                                tigData.nijverb, tigData.sanverb, tigData.meaning, tigData.GPICode,
                                                 tigData.pralak, tigData.purvach, tigData.CombinedM, tigData.karmaCode])
                         wids += 1
             except Exception as e:
                 print(e)
-        morphologicalOutput = [AmaraKosha_Database_Queries.unicode_iscii('वाक्यम्') + ' -- %s' % AmaraKosha_Database_Queries.unicode_iscii(sentence)]
+        morphologicalOutput = ['वाक्यम्' + ' -- %s' % sentence]
         for line in syntaxInputFile:
             morphologicalOutput.append('%d) ' % line[0] + ' '.join([str(x) for x in line[1:]]))
         morphologicalOutput.append('----------')
         print(f'sentence = {sentence}\nnumpages = {numpages}\nsubforms = {subforms}\nkrdforms = {krdforms}\ntigforms = {tigforms}\nSubantas = {Subantas}\nKrdantas = {[item.get() for item in Krdantas]}\nTigantas = {[item.get() for item in Tigantas]}\nmorphologicalOutput = {morphologicalOutput}')
-            # [AmaraKosha_Database_Queries.iscii_unicode(line) for line in morphologicalOutput])
 
         try:
             out = SyntaxAnalysis.write_out_aci(morphologicalOutput)
             result = SyntaxAnalysis.write_result_aci(out)
-            print(f'{sentence}  ಸರಿಯಾಗಿದೆ!\nout = {[AmaraKosha_Database_Queries.iscii_unicode(line) for line in out]}\nresult = {[AmaraKosha_Database_Queries.iscii_unicode(line) for line in result]}')
+            print(f'{sentence}  ಸರಿಯಾಗಿದೆ!\nout = {out}\nresult = {result}')
         except Exception as e:
             print(f'sentence {sentence} Exception {e}')
+
+if __name__ == '__main__':
+    unittest.main()
