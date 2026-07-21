@@ -18,3 +18,4 @@ sourceAll.txt
 **shm
 **wal
 Docker*
+/Documentation/*png

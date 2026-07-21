@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import json, icecream as ic
+import json
 from typing import List, TextIO
 maxstrlen = 100
 halant = 'è'
@@ -45,15 +45,15 @@ class detail:
         self.stem = None  # str
         self.base= [None] * 20   # List[str]
         self.voice = None  # str
-        self.linga = None  # int
-        self.vibvach = None  # int
-        self.mode = None  # int
-        self.sub_no = None  # int
-        self.no_base = None  # int
-        self.no_codes = None  # int
-        self.pos = None  # int
-        self.matnoun = None  # int
-        self.subinsen = None  # int
+        self.linga = 0  # int
+        self.vibvach = 0  # int
+        self.mode = 0  # int
+        self.sub_no = 0  # int
+        self.no_base = 0  # int
+        self.no_codes = 0  # int
+        self.pos = 0  # int
+        self.matnoun = 0  # int
+        self.subinsen = 0  # int
     def get(self):
         return {'type':self.type, 'code':self.code, 'specf':self.specf, 'dispSpecf':self.dispSpecf, 'mean_deno':self.mean_deno, 'word':self.word,
                     'stem':self.stem, 'base':self.base, 'voice':self.voice, 'linga':self.linga, 'vibvach':self.vibvach, 'mode':self.mode,
@@ -66,8 +66,8 @@ class shasti:
         self.word = None  # str
         self.base = [None] * 8  # List[str]
         self.code = [None] * 8  # str
-        self.sub_no = None  # str
-        self.no_base = None  # str
+        self.sub_no = 0  # str
+        self.no_base = 0  # str
     def get(self):
         return {'specf': self.specf, 'word': self.word, 'base': self.base[8], 'code': self.code, 'sub_no': self.sub_no, 'no_base': self.no_base}
     def __str__(self):
@@ -124,31 +124,27 @@ class Menu:
         return json.dumps(self.get())
 class LinkedList:
     def __init__(self, instance=None):
-        if instance != None:
-            self.__head == instance
-            self.__allinstances.append(self.__head)
-        else:
-            self.__head == None
-            self.__allinstances = []
-    def __next__(self):
-        if self.__next == None: raise StopIteration
-        return self.__next
+        self.__head = instance
+        self.__allinstances = [instance] if instance is not None else []
     def __iter__(self):
-        return self
+        return iter(self.__allinstances)
     def append(self, instance=None):
-        if instance != None:
-            self.__next == instance
-            self.__allinstances.append(self.__next)
+        if instance is not None:
+            self.__allinstances.append(instance)
     def get(self):
-        self.__head.get()
+        return self.__head
     def set(self, instance):
         self.__head = instance
+        if not self.__allinstances:
+            self.__allinstances = [instance]
+        else:
+            self.__allinstances[0] = instance
     def getall(self):
-        return [instance.get() for instance in self.__allinstances]
+        return self.__allinstances
     def isEmpty(self):
-        return True if self.__head == None else False
+        return self.__head is None
     def __str__(self):
-        return json.dumps(self.getall())
+        return str(self.__allinstances)
 class SPLIT:
     def __init__(self):
         self.firstword = [None] * 10  # str
@@ -187,60 +183,72 @@ def CheckMatchingNounForKrdanta(dfirst: List[detail]) -> (List[str], List[str], 
                 newrec.linga, newrec.vibvach, newrec.mode, newrec.sub_no, newrec.no_base, newrec.no_codes, newrec.pos, newrec.matnoun, \
                 newrec.subinsen = 0, 0, 0, 0, 0, 0, 0, 0, 0
     return records, temptr, subform, genword
-def AssignSubCode(dfirst: detail,ifp: List[str]) -> List[str]:
+def safe_int(s):
+    try:
+        return int(s)
+    except ValueError:
+        return 0
+
+def AssignSubCode(trecords: List[detail], ifp: List[str]):
     wordpos = 0
-    records = []
-    if dfirst.type == "Krdanta" and dfirst.specf == "Subject":
-        for line in ifp:
-            if line[0] == "\n": pass
-            elif line[0] == "-": break
-            word = line[:-1].split()
-            if dfirst.specf == "Vocative":
-                if word[2] != "3" and word[2] in ["1", "2"]:
-                    record.subcode = word[5]
-                    record.stem = word[3]
-                    record.vibvach = int[word[6]]
-                    record.pos = wordpos
-                    break
+    for line in ifp:
+        if not line.strip() or line.startswith("\n"): continue
+        elif line.startswith("-") or line.startswith("+"): break
+        word = line[:-1].split()
+        wordpos += 1
+        
+        for record in trecords:
+            if record.specf != "Vocative":
+                if record.word == word[1]:
+                    if word[3] != "3":
+                        if word[3] in ["1", "2"]:
+                            record.subcode = word[6]
+                        record.stem = word[4]
+                        record.vibvach = safe_int(word[7])
+                        record.pos = wordpos
             else:
-                VocWord = "Øá " + word[0]
-                if dfirst.word in [word[0], VocWord]:
-                    if word[2] != "3" and word[2] in ["1", "2"]:
-                        dfirst.subcode = word[5]
-                        dfirst.stem = word[3]
-                        dfirst.vibvach = int[word[6]]
-                        dfirst.pos = wordpos
-                        break
-    records.append(dfirst)
-    return records
-def Assignsub(dfirst: detail, temptr: detail, ifp: List[str]) -> List[str]:
+                VocWord = "Øá " + word[1]
+                if record.word in [VocWord, word[1]]:
+                    if word[3] != "3":
+                        if word[3] in ["1", "2"]:
+                            record.subcode = word[6]
+                        record.stem = word[4]
+                        record.vibvach = safe_int(word[7])
+                        record.pos = wordpos
+
+def Assignsub(dfirst: List[detail], temptr: detail, ifp: List[str]) -> detail:
+    # First search for Krdanta Subject
     for record in dfirst:
         if record.type == "Krdanta" and record.specf == "Subject":
             for line in ifp:
-                if line[0] == "\n": pass
-                elif line[0] == "-": break
+                if not line.strip() or line.startswith("\n"): continue
+                elif line.startswith("-") or line.startswith("+"): break
                 word = line[:-1].split()
-                # num = len(word)
-                if word[2] == "2":
-                    if word[5][0] == "0":
-                        temptr.word = ["×Ú", "Âá", "ÂÚ£"][int(word[6])]
-                    elif word[5][0] == "1":
-                        temptr.word = ["×£", "Âæ", "Âá"][int(word[6])]
-                    elif word[5][0] == "2":
-                        temptr.word = ["×ÂèÂ", "Âá", "ÂÚÆÛ"][int(word[6])]
+                if word[3] == "2":
+                    if word[6][0] == "0":
+                        temptr.word = ["×Ú", "Âá", "ÂÚ£"][safe_int(word[7])]
+                    elif word[6][0] == "1":
+                        temptr.word = ["×£", "Âæ", "Âá"][safe_int(word[7])]
+                    elif word[6][0] == "2":
+                        temptr.word = ["×ÂèÂ", "Âá", "ÂÚÆÛ"][safe_int(word[7])]
                     temptr.stem = "ÆÏ"
                     temptr.linga, temptr.vibvach = 0, 0
-        elif record.type == "Verb":
+            return temptr
+
+    # Second search for Verb
+    for record in dfirst:
+        if record.type == "Verb":
             for line in ifp:
-                if line[0] == "\n": pass
-                elif line[0] == "-": break
+                if not line.strip() or line.startswith("\n"): continue
+                elif line.startswith("-") or line.startswith("+"): break
                 word = line[:-1].split()
-                # num = len(word)
-                if word[2] == "5":
-                    if word[5][0] == "0":
-                        temptr.word = ["×£", "Âæ", "Âá"][int(word[11])]
+                if word[3] == "5":
+                    if word[6][0] == "0":
+                        temptr.word = ["×£", "Âæ", "Âá"][safe_int(word[12])]
                     temptr.stem = "ÆÏ"
                     temptr.linga, temptr.vibvach = 0, 0
+            return temptr
+            
     return temptr
 def getSubantaForm(pvIndex: int, code: str) -> List[str]:
     return [[Form004, Form104, Form204][['004', '104', '204'].index(code + 1)]][pvIndex]
@@ -250,34 +258,31 @@ def searchroot(ifp_lines: List[str], afp_lines: List[str], rfp_lines: List[str],
     spefMean = ["³ÏèÂÚ", "³ÏèÌ", "³ÏÁÌè", "×ÌèÈèÏÄÚÆÌè", "¤ÈÚÄÚÆÌè", "¤ÄÛ³ÏÁÌè", "ÖÖè¾Û"]
     temp, vfirst, kfirst, sfirst, krdfirst, krdavy = None, None, None, None, None, None
     fshtptr, sshtptr = shasti(), shasti()
-    # alst = open("r")
-    no_words, wordpos = 0, 0
-    for line in ifp_lines:
-        wordpos += 1
-        if line[0] == "-":
-            bodha = False if Saflag else True
-            for temp in drecords:
-                if temp.type == "Noun" and temp.specf == "Subject" and temp.subinsen == 0:
-                    drecord = Assignlingavib(drecord)
-            ans = getcode(drecords, Efp_lines)
-            if not ans: return False
-            temp = drecords[0]
-            if temp.specf == "Subject":
-                sfirst = temp
-                if temp.no_base == 0: temp.no_base, temp.sub_no, temp.mean_deno, temp.code[0], temp.base[0] = 1, 0, "³ÏèÂÚ", "AA", "ÆÏ£"
-            for temp in drecords:
-                # if temp.type == "Noun" and temp.specf == "Subject" : continue
-                if temp.type != "Verb" and temp.specf == "Krdanta": kfirst = temp
-            krdflag, krdavyf = False, False
-            for temp in drecords:
-                if temp.type == "Krdanta" and krdflag: krdflag, krdfirst = True, temp
-                elif temp.type == "Krdavyaya" and krdavyf: krdavyf, krdfirst = True, temp
-                elif temp.type == "Verb": vfirst = temp
-                sshtptr = serch_shasti(drecords, sen)
-        flag, rfp_lines = CheckCompatibility(LinkedList[sfirst], LinkedList[kfirst], LinkedList[vfirst], krdfirst, krdavy, sen, sshtptr, afp_lines, sfp_lines, y)
-        if vfirst.get().no_base == 1 and bodha and flag: rfp_lines.append(artha(afp_lines, sfp_lines, drecord, sen, vfirst.get().base[0]))
-
-    return temp, rfp_lines
+    wordpos = 0
+    
+    bodha = False if Saflag else True
+    for temp in drecords:
+        if temp.type == "Noun" and temp.specf == "Subject" and temp.subinsen == 0:
+            Assignlingavib(drecords)
+            
+    ans = getcode(drecords, Efp_lines)
+    if not ans: return False, rfp_lines, wordpos
+    
+    temp = drecords[0]
+    if temp.specf == "Subject":
+        sfirst = temp
+        if temp.no_base == 0: temp.no_base, temp.sub_no, temp.mean_deno, temp.code[0], temp.base[0] = 1, 0, "³ÏèÂÚ", "AA", "ÆÏ£"
+    for temp in drecords:
+        if temp.type != "Verb" and temp.specf == "Krdanta": kfirst = temp
+    krdflag, krdavyf = False, False
+    for temp in drecords:
+        if temp.type == "Krdanta" and krdflag: krdflag, krdfirst = True, temp
+        elif temp.type == "Krdavyaya" and krdavyf: krdavyf, krdfirst = True, temp
+        elif temp.type == "Verb": vfirst = temp
+    sshtptr = serch_shasti(drecords, sen)
+    flag, rfp_lines = CheckCompatibility(LinkedList(sfirst), LinkedList(kfirst), LinkedList(vfirst), krdfirst, krdavy, sen, sshtptr, afp_lines, sfp_lines, y)
+    if vfirst and vfirst.no_base == 1 and bodha and flag: rfp_lines.append(artha(afp_lines, sfp_lines, LinkedList(drecords[0]), sen, vfirst.base[0]))
+    return flag, rfp_lines, wordpos
 def Assignlingavib(drecords: List[detail]) -> detail:
     for subrec in drecords:
         if subrec.type in ["Noun", "Subject"]: break
@@ -379,8 +384,8 @@ def getcode(temp: List[detail], Efp: TextIO) -> bool:
                 # recptr.no_base, recptr.no_codes = 0, 0
                 for word in words:
                     if recptr.stem == word:
-                        recptr.base[recptr.no_base] == word
-                        recptr.code[recptr.no_base] == words[0]
+                        recptr.base[recptr.no_base] = word
+                        recptr.code[recptr.no_base] = words[0]
                         recptr.no_base += 1
                         recptr.no_codes += 1
                         break
@@ -388,11 +393,11 @@ def getcode(temp: List[detail], Efp: TextIO) -> bool:
         for line in Actioncode:
             words = line.split()
             j = len(words)
-            if recptr.sub_no != 7 and recptr.type == "Noun":
+            if recptr.sub_no != 7 and recptr.type != "Noun":
                 for m in range(recptr.no_base):
                     for i in range(j):
                         if words[i] == recptr.base[m]:
-                            recptr.code[m] == words[0]
+                            recptr.code[m] = words[0]
                             recptr.no_codes += 1
     flag = True
     for recptr in temp:
@@ -410,64 +415,80 @@ def getcode(temp: List[detail], Efp: TextIO) -> bool:
         Efp.writelines(result)
     return flag
 def serch_shasti(drecords: List[detail], sent: str) -> List[shasti]:
-    fshtptr, shtptr, tmpsht, secsht = None, None, None, None
     words = sent.split()
     j = len(words)
-    shtptrs = []  # List[shasti]
+    shtptrs = []
     for dshtptr in drecords:
-        if dshtptr.type == "Verb":
+        if dshtptr.specf != "Verb":
+            idx_in_words = -1
             for i, word in enumerate(words):
-                if dshtptr.word == word and i != 2:
-                    the_word, the_i = word, i
+                if dshtptr.word and dshtptr.word in word:
+                    idx_in_words = i
                     break
-            if the_word[0] in ["S", "N", "="]: continue
-            the_i -= 1
+            if idx_in_words == -1: continue
+            if words[idx_in_words][0] in ["S", "N", "="]: continue
+            
+            prev_idx = idx_in_words - 1
+            if prev_idx < 0: continue
+            
+            prev_temptr = None
             for temptr in drecords:
-                if temptr.word == word[the_i]: break
-            if temptr.sub_no == 6:
+                if temptr.word and (temptr.word in words[prev_idx] or words[prev_idx] in temptr.word):
+                    prev_temptr = temptr
+                    break
+            if prev_temptr is None: continue
+            
+            if prev_temptr.sub_no == 6:
                 shtptr = shasti()
-                shtptr.specf, shtptr.word = temptr.specf, temptr.word
-                for m in range(temptr.no_base):
-                    shtptr.base[m], shtptr.code[m] = temptr.base[m], temptr.code[m]
-                shtptr.sub_no, shtptr.no_base = temptr.sub_no, temptr.no_base
+                shtptr.specf = prev_temptr.specf
+                shtptr.word = prev_temptr.word
+                for m in range(prev_temptr.no_base):
+                    shtptr.base[m] = prev_temptr.base[m]
+                    shtptr.code[m] = prev_temptr.code[m]
+                shtptr.sub_no = prev_temptr.sub_no
+                shtptr.no_base = prev_temptr.no_base
                 shtptrs.append(shtptr)
-                the_i += 1
-                for temptr in drecords:
-                    if temptr.word == word[the_i]: break
-                shtptr = shasti()
-                shtptr.specf, shtptr.word = temptr.specf, temptr.word
-                for m in range(temptr.no_base):
-                    shtptr.base[m], shtptr.code[m] = temptr.base[m], temptr.code[m]
-                shtptr.sub_no, shtptr.no_base = temptr.sub_no, temptr.no_base
-                shtptr.sub_no, shtptr.no_base = temptr.sub_no, temptr.no_base
-                shtptrs.append(shtptr)
+                
+                shtptr2 = shasti()
+                shtptr2.specf = dshtptr.specf
+                shtptr2.word = dshtptr.word
+                for m in range(dshtptr.no_base):
+                    shtptr2.base[m] = dshtptr.base[m]
+                    shtptr2.code[m] = dshtptr.code[m]
+                shtptr2.sub_no = dshtptr.sub_no
+                shtptr2.no_base = dshtptr.no_base
+                shtptrs.append(shtptr2)
+                
     return shtptrs
-def CheckCompatibility(srecord: LinkedList[detail], krecord: LinkedList[detail], vrecord: LinkedList[detail], krdfirst: detail, krdavy: detail,sent: str, sshtptr: LinkedList[shasti],
+def CheckCompatibility(srecord: LinkedList, krecord: LinkedList, vrecord: LinkedList, krdfirst: detail, krdavy: detail,sent: str, sshtptr: LinkedList,
                        afp_lines: List[str], sfp_lines:  List[str], y: int) -> (bool, List[str]):
     a, i, j, m, n, no_vsub, no_ksub, num_sub, Naflag = 0, 0, 0, 0, 0, 0, 0, None, False
     flag, krdflag, krdavyf, verflag, karflag, shaflag = True, False, False, False, 0, False
     krdmismatch, mismatch, krdpos, avypos, Saflag, Sapos = False, False, None, None, 0, None
     krdoth, no_krdoth, krdsuc, subver = 0, None, 1, 0
     afppos, pos = None, None
-    firstptr = None,  # detail
-    subptr = None,  # detail
-    fstptr = None,  # detail
-    subunmatch = None # detail
-    karptr = None,  # detail
-    un_match = None,  # detail
-    karmatch = None  # detail
-    verptr = None,  # detail
-    krdrecord = krdfirst,  # detail
-    krdunmatch = None,  # detail
-    krdmatch = None,  # detail
-    avyrecord = krdavy  # detail
-    shrvib = None  # shasti,
-    tshrvib = None  # shasti
-    verptr = vrecord.get()
+    firstptr = srecord.get()
+    subptr = srecord.get()
+    fstptr = srecord.get()
+    subunmatch = None
+    karptr = krecord.get() if krecord is not None else None
+    un_match = None
+    karmatch = None
+    verptr = vrecord.get() if vrecord is not None else None
+    krdrecord = krdfirst
+    krdunmatch = None
+    krdmatch = None
+    avyrecord = krdavy
+    shrvib = None
+    tshrvib = None
     krdpos = False
 
     rfp_lines = []
-    cfp = open("comptble.aci", "r")
+    import os
+    comptble_path = os.path.join(os.path.dirname(__file__), 'SemanticData', 'COMPTBLE.ACI')
+    if not os.path.exists(comptble_path):
+        comptble_path = os.path.join(os.path.dirname(__file__), '../../Legacy/Semantic/COMPTBLE.ACI')
+    cfp = open(comptble_path, "r", encoding="latin-1")
     cfp_lines = cfp.readlines()
     for subptr in iter(srecord):
         if subptr.word == "Æ": Naflag = True
@@ -500,33 +521,34 @@ def CheckCompatibility(srecord: LinkedList[detail], krecord: LinkedList[detail],
             if karptr == krdavy: break
         else: break
     rfp_lines.append(sent)
-    if fstptr == None:
+    if not sshtptr:
         for subptr in iter(srecord):
             rfp_lines.append(subptr.type)
             if subptr.type in ["Noun", "Krdanta"]: rfp_lines.append(subptr.specf)
             rfp_lines.append(subptr.word)
         subptr, shaflag = srecord.get(), False
     else:
-        rfp_lines.append(sha_disp(cfp_lines, sent))
+        rfp_lines.extend(sha_disp(subptr, sent))
         shaflag = True
     rfp_lines.append("-------------------")
-    karptr, subptr = krdrecord.get(), srecord.get()
+    karptr, subptr = krdrecord, srecord.get()
     if verptr == None: verptr = vrecord.get()
     for srecget in iter(srecord):
         if krdflag: mrecord = krdrecord
         elif krdavyf: mrecord = avyrecord
+        else: mrecord = verptr
         for m in range(mrecord.no_base):
                 num_sub, karflag, un_match = no_ksub, 0, None
                 for rec in iter(krecord):
                     if rec.specf == "Subject" and karptr != None and karptr.pos < rec.pos and karptr.sub_no != 6: karflag += 1
                     if rec.type in ["Krdanta", "Krdavyaya"]: break
                 krdoth, no_krdoth = 0, 0
-                for rec in iter(krdrecord):
+                for rec in iter(krecord):
                     if rec.type == "Krdanta" and rec.specf == "Subject":
                         krdoth += 1
                         no_krdoth += 1
                     if rec.type != "Krdanta": break
-                krdrecord = krdfirst #???
+                krdrecord = krdfirst
                 for n in range(srecord.get().no_base):
                     num_sub = no_ksub
                     mismatch, krdmismatch = False, False
@@ -539,7 +561,7 @@ def CheckCompatibility(srecord: LinkedList[detail], krecord: LinkedList[detail],
                         karptr = krecord.get()
                         krdrecord = krdfirst
                         srecget = srecord.get()
-                        if srecget.code[n] == code1 and krdrecord.type == "Krdanta":
+                        if srecget.code[n] == code1 and krdrecord and krdrecord.type == "Krdanta":
                             if srecget.voice == "karmani"  or (srecget.voice == "karthari" and srecget.linga == krdrecord.linga and srecget.vibvach == krdrecord.vibvach):
                                 code2 = line[3:5]
                                 karptr = krecord.get()
@@ -560,87 +582,83 @@ def CheckCompatibility(srecord: LinkedList[detail], krecord: LinkedList[detail],
                         if krdoth > 0:
                             code2 = line[3:5]
                             if karptr != None:
-                                for karptr in iter(krdfirst):
-                                    for krdrec in iter(krdrecord):
+                                for karptr in iter(krecord):
+                                    for krdrec in iter(krecord):
                                         if krdrec.sub_no == 6:
-                                            for shrvib in iter(sshtptr):
-                                                if shrvib.word == krdrec.word: continue
-                                            if shrvib.code == code1 and code2 == "00" and karptr.specf == krdrec.specf:
-                                                if krdrec.code[m] in word[1]:
-                                                    if krdmatch:
-                                                        no_krdoth -= 1
-                                                        krdmatch = krdrec
-                                                        karmatch = karptr
-                                                else:
-                                                    krdmismatch = True
-                                                    krdunmatch = krdrec
-                                                    karmatch = karptr
-                                                break
-                                        if krdrec.type != "Krdanta": break
+                                            if sshtptr:
+                                                for shrvib in iter(sshtptr):
+                                                    if shrvib and getattr(shrvib, 'word', None) == krdrec.word: continue
+                                                    if shrvib and getattr(shrvib, 'code', None) == code1 and code2 == "00" and karptr.specf == krdrec.specf:
+                                                        if krdrec.code[m] in word[1]:
+                                                            if krdmatch:
+                                                                no_krdoth -= 1
+                                                                krdmatch = krdrec
+                                                                karmatch = karptr
+                                                        else:
+                                                            krdmismatch = True
+                                                            krdunmatch = krdrec
+                                                            karmatch = karptr
+                                                        break
+                                        if krdrec.type != "Verb": break
                                     if karptr.type == "Krdanta": break
-                            else:
-                                for krdrec in iter(krdrecord):
-                                    if krdrec.type == "Verb" and krdrec.sub_no != 6:
-                                        if code1 == "AA" and code2 == "00" and krdrec.specf == "Subject":
-                                            if krdrec.code[m] in word[1]:
-                                                if krdmatch:
-                                                    no_krdoth -= 1
-                                                    krdmatch = krdrec
-                                            else:
-                                                krdmismatch = True
-                                                krdunmatch = krdrec
-                        if not Naflag:
-                            if not verflag:
-                                if krdoth == 0:
-                                    if not (mismatch or karflag):
-                                        krdsuc, flag = True, True
+                    if not Naflag:
+                        if not verflag:
+                            if krdoth == 0:
+                                if not (mismatch or karflag):
+                                    krdsuc, flag = True, True
+                                    if krdfirst:
                                         rfp_lines.append("The Krdanta is Semantically Compatible if  %s root means %s and subject is %s "%
-                                                         (krdfirst.stem, krdfirst.base[m], srecord.base[n]))
-                                    else:
-                                        krdsuc, flag = False, False
-                                        rfp_lines.append("Verb %s is not compatible with subject %s"%(verptr.word, srecord.word))
-                                        if un_match != None: rfp_lines.append("if %s is %s"%(un_match.dispSpecf, un_match.word))
+                                                         (krdfirst.stem, krdfirst.base[m], srecord.base[n] if hasattr(srecord, 'base') else ''))
                                 else:
-                                    if mismatch and karflag and no_krdoth == 0:
-                                        krdsuc, flag = True, True
-                                        if karptr != None: rfp_lines.append("%s %s  %s is compatible with %s %s %s"%
-                                                            (karmatch.type, karmatch.specf, karmatch.word, krdmatch.type, krdmatch.specf, krdmatch.word))
-                                        else: rfp_lines.append("%s %s %s is semantically compatible"%(karmatch.type, karmatch.specf, karmatch.word))
-                                    elif (mismatch or karflag) and no_krdoth > 0:
-                                        krdsuc, flag = False, False
-                                        if mismatch: rfp_lines.append("%s %s %s  is not compatble with %s is %s"%
-                                                              (krdunmatch.type, krdunmatch.specf, krdunmatch.word, un_match.dispSpecf, un_match.word))
-                                    elif krdmismatch:
-                                        krdsuc, flag = False, False
+                                    krdsuc, flag = False, False
+                                    rfp_lines.append("Verb %s is not compatible with subject %s"%(getattr(verptr, 'word', ''), srecget.word if srecget else (srecord.get().word if srecord and srecord.get() else '')))
+                                    if un_match != None: rfp_lines.append("if %s is %s"%(getattr(un_match, 'dispSpecf', ''), getattr(un_match, 'word', '')))
+                            else:
+                                if mismatch and karflag and no_krdoth == 0:
+                                    krdsuc, flag = True, True
+                                    if karptr != None and karmatch and krdmatch:
+                                        rfp_lines.append("%s %s  %s is compatible with %s %s %s"%
+                                                         (karmatch.type, karmatch.specf, karmatch.word, krdmatch.type, krdmatch.specf, krdmatch.word))
+                                    elif karmatch: rfp_lines.append("%s %s %s is semantically compatible"%(karmatch.type, karmatch.specf, karmatch.word))
+                                elif (mismatch or karflag) and no_krdoth > 0:
+                                    krdsuc, flag = False, False
+                                    if mismatch and krdunmatch and un_match: rfp_lines.append("%s %s %s  is not compatble with %s is %s"%
+                                                          (krdunmatch.type, krdunmatch.specf, krdunmatch.word, un_match.dispSpecf, un_match.word))
+                                elif krdmismatch:
+                                    krdsuc, flag = False, False
+                                    if karmatch and krdunmatch:
                                         rfp_lines.append("%s %s  %s is not compatible with %s %s %s if Krdanta base is %s " %
                                                          (karmatch.type, karmatch.specf, karmatch.word, krdunmatch.dispSpecf, krdunmatch.word))
-                                        if un_match: rfp_lines.append("if %s is %s "%(un_match.dispSpecf, un_match.word))
-                            else:
-                                if krdoth == 0:
-                                    if not (mismatch or karflag):
-                                        krdsuc = True
+                                    if un_match: rfp_lines.append("if %s is %s "%(getattr(un_match, 'dispSpecf', ''), getattr(un_match, 'word', '')))
+                        else:
+                            if krdoth == 0:
+                                if not (mismatch or karflag):
+                                    krdsuc = True
+                                    if krdfirst:
                                         rfp_lines.append("The Krdanta is Semantically Compatible if  %s root means %s and subject is %s "%
-                                                         (krdfirst.stem, krdfirst.base[m], srecord.base[n]))
-                                    else:
-                                        krdsuc = False
-                                        rfp_lines.append("Verb %s is not compatible with subject %s"%(verptr.word, srecord.word))
-                                        if un_match != None: rfp_lines.append("if %s is %s"%(un_match.dispSpecf, un_match.word))
+                                                         (krdfirst.stem, krdfirst.base[m], srecord.base[n] if hasattr(srecord, 'base') else ''))
                                 else:
-                                    if mismatch and karflag and no_krdoth == 0:
-                                        krdsuc, flag = True, True
-                                        if karptr != None: rfp_lines.append("%s %s  %s is compatible with %s %s %s"%
-                                                            (karmatch.type, karmatch.specf, karmatch.word, krdmatch.type, krdmatch.specf, krdmatch.word))
-                                        else: rfp_lines.append("%s %s %s is semantically compatible"%(karmatch.type, karmatch.specf, karmatch.word))
-                                    elif (mismatch or karflag) and no_krdoth > 0:
-                                        krdsuc, flag = False, False
-                                        if mismatch: rfp_lines.append("%s %s %s  is not compatble with %s is %s"%
-                                                              (krdunmatch.type, krdunmatch.specf, krdunmatch.word, un_match.dispSpecf, un_match.word))
-                                    elif krdmismatch:
-                                        krdsuc, flag = False, False
+                                    krdsuc = False
+                                    rfp_lines.append("Verb %s is not compatible with subject %s"%(getattr(verptr, 'word', ''), srecget.word if srecget else (srecord.get().word if srecord and srecord.get() else '')))
+                                    if un_match != None: rfp_lines.append("if %s is %s"%(getattr(un_match, 'dispSpecf', ''), getattr(un_match, 'word', '')))
+                            else:
+                                if mismatch and karflag and no_krdoth == 0:
+                                    krdsuc, flag = True, True
+                                    if karptr != None and karmatch and krdmatch:
+                                        rfp_lines.append("%s %s  %s is compatible with %s %s %s"%
+                                                         (karmatch.type, karmatch.specf, karmatch.word, krdmatch.type, krdmatch.specf, krdmatch.word))
+                                    elif karmatch: rfp_lines.append("%s %s %s is semantically compatible"%(karmatch.type, karmatch.specf, karmatch.word))
+                                elif (mismatch or karflag) and no_krdoth > 0:
+                                    krdsuc, flag = False, False
+                                    if mismatch and krdunmatch and un_match: rfp_lines.append("%s %s %s  is not compatble with %s is %s"%
+                                                          (krdunmatch.type, krdunmatch.specf, krdunmatch.word, un_match.dispSpecf, un_match.word))
+                                elif krdmismatch:
+                                    krdsuc, flag = False, False
+                                    if karmatch and krdunmatch:
                                         rfp_lines.append("%s %s  %s is not compatible with %s %s %s if Krdanta base is %s " %
                                                          (karmatch.type, karmatch.specf, karmatch.word, krdunmatch.dispSpecf, krdunmatch.word))
-                                        if un_match: rfp_lines.append("if %s is %s "%(un_match.dispSpecf, un_match.word))
-                        else: krdsuc, flag = True, True
+                                    if un_match: rfp_lines.append("if %s is %s "%(getattr(un_match, 'dispSpecf', ''), getattr(un_match, 'word', '')))
+                    else: krdsuc, flag = True, True
         if verflag:
             subver = True
             for verptr in iter(vrecord):
@@ -648,7 +666,7 @@ def CheckCompatibility(srecord: LinkedList[detail], krecord: LinkedList[detail],
                     for m in range(verptr.no_base):
                         num_sub = no_vsub
                         if verptr.code[m] != "":
-                            for n in range(srecord.get().no_base):
+                            for n in range(srecord.get().no_base if srecord and srecord.get() else 0):
                                 num_sub = no_vsub
                                 mismatch, krdmismatch = False, False
                                 for line in cfp_lines:
@@ -658,14 +676,13 @@ def CheckCompatibility(srecord: LinkedList[detail], krecord: LinkedList[detail],
                                     j = len(word)
                                     code1, code2 = line[:2], line[3:5]
                                     karptr = krecord.get()
-                                    # srecget = srecord.get()
                                     if not shaflag:
                                         if code2 == "00":
-                                            if srecget.code[n] == code1:
-                                                if verptr.code[m] in word[1]: subver = True
+                                            if srecget and srecget.code[n] == code1:
+                                                if (verptr.code[m] or "") in word[1]: subver = True
                                                 else: subver, subunmatch = False, srecget
                                             if karptr == None or no_vsub == 0:
-                                                flag = not verptr.code[m] in word[1] or (krdflag and krdsuc)
+                                                flag = not ((verptr.code[m] or "") in word[1]) or (krdflag and krdsuc)
                                         elif not krdflag:
                                             for karptr in iter(krecord):
                                                 if verptr.code[m] in word[karptr.sub_no]:
@@ -674,8 +691,8 @@ def CheckCompatibility(srecord: LinkedList[detail], krecord: LinkedList[detail],
                                                 else: un_match = karptr
                                         elif no_vsub > 0:
                                             for karptr in iter(krecord):
-                                                if karptr.specf == "Verb" and karptr.code[0] == code2 and krdfirst.specf == "Subject" or \
-                                                        (karptr.pos > krdpos and krdfirst.specf == "Subject"):
+                                                 if karptr.specf == "Verb" and karptr.code[0] == code2 and (krdfirst and krdfirst.specf == "Subject") or \
+                                                         (krdpos is not None and krdpos is not False and karptr.pos > krdpos and (krdfirst and krdfirst.specf == "Subject")):
                                                     if code2 in word[karptr.sub_no]:
                                                         karmatch = karptr
                                                         num_sub -= 1
@@ -687,35 +704,46 @@ def CheckCompatibility(srecord: LinkedList[detail], krecord: LinkedList[detail],
                                                 if code2 == "00":
                                                     if not verptr.code[m] in word[1]: subver, subunmatch = False, srecget
                                                     else: subver = True
-                                                if karptr.sub_no < 6 and code1 in srecget.code[n]:
-                                                    if karptr.code[0] == code2 and karptr.pos > krdpos:
-                                                        if verptr.code[m] in word[karptr.sub_no]:
+                                                if karptr.sub_no < 6 and srecget and code1 in srecget.code[n]:
+                                                    if karptr.code[0] == code2 and (krdpos is not None and krdpos is not False and karptr.pos > krdpos):
+                                                        if (verptr.code[m] or "") in word[karptr.sub_no]:
                                                             karmatch = karptr
                                                             num_sub -= 1
                                                         else: un_match = karptr
                                     if code2 == "00" and Saflag:
-                                        for subptr in iter(fstptr):
-                                            if subptr.type == "Noun" and subptr.specf == "Instrument" and subptr.pos == Sapos - 1:
-                                                if code1 in subptr.code[n]: subver = True
-                                                else: subver, subunmatch = False, srecget
+                                        if srecord:
+                                            for subptr in iter(srecord):
+                                                if subptr and subptr.type == "Noun" and subptr.specf == "Instrument" and subptr.pos == Sapos - 1:
+                                                    if code1 in subptr.code[n]: subver = True
+                                                    else: subver, subunmatch = False, srecget
                                 if not Naflag:
                                     if not subver:
                                         flag = False
-                                        rfp_lines.append("The Verb %s is not compatible with the Subject "%(verptr.word))
+                                        msg = "The Verb %s is not compatible with the Subject "%(getattr(verptr, 'word', ''))
+                                        if msg not in rfp_lines: rfp_lines.append(msg)
                                     else:
                                         if num_sub == 0:
                                             flag = True
-                                            rfp_lines.append("The Verb %s is Semantically Compatible With Subject if Verb Root means %s "%(verptr.stem,verptr.base[m]))
-                                            if no_vsub > 0: rfp_lines.append("and %s is %s "%(karmatch.specf, karmatch.base[m]))
+                                            meaning = verptr.base[m] if (verptr and m < len(verptr.base)) else ''
+                                            skip_meanings = ['(', ')', '/', 'प्रथमाविभक्तिः', 'द्वितीयाविभक्तिः', 'तृतीयाविभक्तिः', 'चतुर्थीविभक्तिः', 'पञ्चमीविभक्तिः', 'षष्ठीविभक्तिः', 'सप्तमीविभक्तिः', 'संबोधनप्रथमाविभक्तिः', 'प्रथमपुरुषः', 'मध्यमपुरुषः', 'उत्तमपुरुषः', 'एकवचनम्', 'द्विवचनम्', 'बहुवचनम्', 'पुल्लिङ्गः', 'स्त्रीलिङ्गः', 'नपुंसकलिङ्गः']
+                                            if meaning and meaning not in skip_meanings:
+                                                msg = "The Verb %s is Semantically Compatible With Subject if Verb Root means %s "%(getattr(verptr, 'stem', getattr(verptr, 'word', '')), meaning)
+                                                if no_vsub > 0 and karmatch: msg += "and %s is %s "%(karmatch.specf, karmatch.base[m])
+                                                if msg not in rfp_lines: rfp_lines.append(msg)
                                         else:
                                             flag = False
-                                            rfp_lines.append("The Verb %s is not compatible with Subject if %s is %s " % (verptr.word, un_match.specf, un_match.stem))
+                                            if un_match != None:
+                                                msg = "The Verb %s is not compatible with Subject if %s is %s " % (getattr(verptr, 'word', ''), getattr(un_match, 'specf', ''), getattr(un_match, 'stem', getattr(un_match, 'word', '')))
+                                                if msg not in rfp_lines: rfp_lines.append(msg)
+                                            else:
+                                                msg = "The Verb %s is not compatible with Subject" % getattr(verptr, 'word', '')
+                                                if msg not in rfp_lines: rfp_lines.append(msg)
                                             if krdflag: flag = krdsuc
                                 else: flag = Naflag
                             if verptr.no_base > 1:
                                 y = Sabdabodha(afp_lines, sfp_lines, rfp_lines, firstptr, sent, flag, y, pos, Saflag,verptr.base[m], m)
                             if verptr.no_base == m + 1:
-                                for lin in afp_lines():
+                                for lin in afp_lines:
                                     if lin[0] == "-": break
     if flag: rfp_lines.append("The Sentence is Semantically Compatible")
     else: rfp_lines.append("The Sentence is Semantically not Compatible")
@@ -767,7 +795,7 @@ def sha_disp(disptr: detail, sent: str) -> List[str]:
 def Sabdabodha(afp: TextIO, sfp: TextIO, rfp: List[str], firstptr: detail, sent: str, flag: bool, y: int, pos: int, Saflag: bool, base: str, m: int) -> (bool, List[str]):
     rfp_lines = []
     return y, rfp_lines
-def artha(afp_lines: List[str], sfp_lines: List[str], drecord: LinkedList(detail), sentr: str, VerbMean: str) -> List[str]:
+def artha(afp_lines: List[str], sfp_lines: List[str], drecord: LinkedList, sentr: str, VerbMean: str) -> List[str]:
     noofmean, pos, mode, i, j, k, no_wor, yes, n, linga, x = 0, None, None, 0, None, None, 0, None, 0, 5, 4
     match, Verb, Krd, flag, Naflag = False, 1, 1, False, False
     fvibptr = None  # vibak
@@ -788,17 +816,18 @@ def artha(afp_lines: List[str], sfp_lines: List[str], drecord: LinkedList(detail
     noofmean = temptr.no_base
     for line in afp_lines:
         line = line.strip()
+        if not line: continue
         words = line.split()
         no_wor = len(words)
         if words[0] == "ÔÚ³èÍÌè": fl, match, sen = n, False, line
-        if line[0]=='-' and not match:
+        if line.startswith('-') and not match:
             tvibptr = fvibptr
             yes = choice(type[0], words, voice, pos, tvibptr, afp, fl, VerbMean)
             tvibptr = fvibptr
             Krd = 0
 
     return rfp_lines
-def choice(tYpe: str, word: str, voice: str, pos, tvibptr: LinkedList[vibak], afp: TextIO, fl: int, VerbMean: str) -> bool:
+def choice(tYpe: str, word: str, voice: str, pos, tvibptr: LinkedList, afp: TextIO, fl: int, VerbMean: str) -> bool:
     yes, success = False, True
     tvibptr_list = iter(tvibptr)
     for tvibptr in tvibptr_list:
@@ -816,7 +845,8 @@ def findverb(voice: str, Word: str, tvibptr: vibak, afp: List[str], fl: int, Ver
     if tvibptr.stype == "2": typ = 0
     for line in afp:
         line = line.strip()
-        if line[0] == "-":
+        if not line: continue
+        if line.startswith("-"):
             found = True
             break
         words = line.split()
@@ -973,26 +1003,49 @@ Form204 = ["¬ÂÂè/¬ÂÄè","¬Âá","¬ÂÚÆÛ","¬ÂÂè/¬ÂÄè/¬ÆÂè
 "¬Â×èÌÚÂè","¬ÂáËèÍ£","¬Â×èÍ","¬ÂÍå£/¬ÆÍå£","¬ÂáÖÚÌè","¬Â×èÌÛÆè","¬ÂÍå£/¬ÆÍå£",
 "¬ÂáÖÝ"]
 
-def main():
+class ListWriter:
+    def __init__(self, target_list):
+        self.target_list = target_list
+    def write(self, string):
+        self.target_list.append(string)
+    def writelines(self, lines):
+        self.target_list.extend(lines)
+
+def run_semantic_analysis(ifp_lines: List[str], afp_lines: List[str]) -> dict:
     msg1, msg2, msg3, msg4, msg5, msg6 = 'not', 'The subject agrees', 'The sentence is syntactically compatible\n', 'Any subanta in',\
                                          'can be', "Any subanta other than ÍÝÖèÌÄè and ¤×èÌÄè ÕÊèÄ"
     types = ['Noun', 'Pronoun', 'Adjective',  'Verb', 'Upasarga', 'Krdavyaya', 'Avyaya']
     specfs = ['Subject', 'Object', 'Instrument', 'Dative', 'Ablative', 'Genitive', 'Locative', 'Vocative', 'Verb', 'Adjective',
               'Krdanta', 'Krdavyaya', 'Avyaya']
     senvoice = None
+    for line in afp_lines:
+        if "VOICE" in line:
+            w = line.split()
+            if "VOICE" in w:
+                senvoice = w[w.index("VOICE") - 1]
+                break
     dfirst, trecord, rec, newrec, temptr, temptr1 = None, detail(), detail(), detail(), detail(), detail()
-    ifp = open("../../Semantic/FINRES.ACI","r")
-    afp = open("../../Semantic/SENOUT.ACI","r")
-    rfp = open("Semreslt.aci","w")
-    sfp = open("arthaf.aci","w")
-    Efp = open("nocode.aci","w")
-    y, t, i, j, flag, uncom = None, 0, 0, 0, 0, False
-    # stment, subpres, Vocflag = False, False, False
+    
+    rfp_lines = []
+    sfp_lines = []
+    Efp_lines = []
+    
+    rfp = ListWriter(rfp_lines)
+    sfp = ListWriter(sfp_lines)
+    Efp = ListWriter(Efp_lines)
+    
+    y, t, i, j, flag, uncom, wordpos = None, 0, 0, 0, 0, False, 0
     Asub, Usub, Upaflag = False, False, False
-    ifp_lines = ifp.readlines()
     trecords = []
-    for line in ifp_lines:
-        sub = line[:-1].strip()
+    
+    is_compatible = False
+    semantic_interpretations = []
+    
+    idx = 0
+    while idx < len(ifp_lines):
+        line = ifp_lines[idx]
+        idx += 1
+        sub = line.strip()
         if sub == "": continue
         word = sub.split()
         if msg1 in sub:
@@ -1002,28 +1055,27 @@ def main():
             if msg5 in sub:
                 Asub, Usub = 0, 0
                 if sub in ["¤ØÌè", "¥ÔÚÌèè", "ÔÍÌè"]: Asub = 1
-                elif sub in ["ÂèÔÌè", "ÍÝÔÚÌèè", "ÍÝÍÌè"]: Usub = 1
+                elif sub in ["ÂèÔÌè", "ÍÝÖèÌÄè", "ÍÝÍÌè"]: Usub = 1
             continue
-        # num = len(word)
-        if word[0] == "ÔÚ³èÍÌè":
+        if len(word) == 0: continue
+        if word[0] == "ÔÚ³èÍÌè" or word[0] == "वाक्यम्":
             sen = sub
             continue
-        if line[0] == "+":
-            # trecords.append(dfirst)  # c linked list has to be made into a list!
+        if line.startswith("+"):
+            wordpos = 0
             noofwords = len(trecords)
             subpres = False
             for trecord in trecords:
                 if trecord.type == "Noun" and trecord.specf == "Subject":
                     trecord.subinsen, subpres = 1, True
+                    dfirst = trecord
                     break
-                else: continue # only executed if the inner loop did NOT break
-            # break # only executed if the inner loop DID break
-            if subpres:
-                # temptr1 = dfirst
+                else: continue
+            if not subpres:
                 temptr = detail()
                 if Asub == 1 or Usub == 1: temptr.word = sub
                 else:
-                    temptr = Assignsub(dfirst, temptr, ifp)
+                    temptr = Assignsub(trecords, temptr, afp_lines)
                 temptr.type, temptr.specf, temptr.dispSpecf, temptr.no_base, temptr.no_codes = "Noun", "Subject", "Subject", 0, 0
                 temptr.voice = ["kartari", "karmani"][["ACTIVE", "PASSIVE"].index(senvoice)]
                 if Asub == 1: temptr.stem = "¤×èÌÄè"
@@ -1031,55 +1083,64 @@ def main():
                 temptr.linga, temptr.vibvach, temptr.mode, temptr.sub_no, temptr.no_base, temptr.no_codes, temptr.pos, temptr.matnoun,\
                 temptr.subinsen = 0, 0, 0, 0, 0, 0, 0, 0, 0
                 dfirst = temptr
-            dfirst = AssignSubCode(dfirst, ifp)
-            trecords, temptr, subform, genword = CheckMatchingNounForKrdanta(dfirst)
+                trecords.append(dfirst)
+            AssignSubCode(trecords, afp_lines)
+            trecords, temptr, subform, genword = CheckMatchingNounForKrdanta(trecords)
             Vocflag = False
             for trecord in trecords:
                 flag = True
                 if trecord.specf in ["Vocative", "Adjective"]:
                     Vocflag, flag = True, False
                     break
+            len_before = len(rfp_lines)
             if Vocflag:
                 if trecord.pos in [1, noofwords]:
-                    rfp.writelines(["----------------", "Semantic Analysis of %s  %s  %s Case Not handled"%(trecord.word, trecord.Type, trecord.specf), "----------------"])
+                    rfp.writelines(["----------------", "Semantic Analysis of %s  %s  %s Case Not handled"%(trecord.word, trecord.type, trecord.specf), "----------------"])
                 else:
-                    rfp.writelines(["----------------", "Incorrect Positioning of %s Vocative \nHence Sentence is Semantically Incompatible\n" % trecord.Type, "----------------"])
+                    rfp.writelines(["----------------", "Incorrect Positioning of %s Vocative \nHence Sentence is Semantically Incompatible\n" % trecord.type, "----------------"])
             n = 0
             if uncom: flag = False
-            if flag: n = searchroot(ifp_lines, afp, rfp, sfp, Efp, dfirst, sen, y)
-            if n == 0:
-                for aline in afp.readlines():
-                    if aline[0] == "-": break
-                if flag:
-                    for line in ifp_lines:
-                        if line[0] == "-": break
-            temptr1, temptr, dfirst == None, None, None
+            if flag:
+                n, rfp_out_lines, wordpos = searchroot(ifp_lines[idx:], afp_lines, rfp_lines, sfp_lines, Efp, trecords, sen, y)
+                rfp_lines.extend(rfp_out_lines)
+                idx += wordpos
+                if n and not any("Semantically not Compatible" in l or "Semantically Not Compatible" in l for l in rfp_out_lines):
+                    is_compatible = True
+            
+            curr_report = rfp_lines[len_before:]
+            is_curr_compatible = False
+            evaluated = not uncom
+            if flag:
+                if n and not any("Semantically not Compatible" in l or "Semantically Not Compatible" in l for l in rfp_out_lines):
+                    is_curr_compatible = True
+            if Vocflag:
+                evaluated = True
+                is_curr_compatible = False
+            semantic_interpretations.append({
+                "evaluated": evaluated,
+                "compatible": is_curr_compatible,
+                "report": curr_report
+            })
+            temptr1, temptr, dfirst = None, None, None
             Asub, Usub, uncom, Upaflag = False, False, False, False
             continue
         Vspecf, specf = False, False
         if "VOICE" in word:
             senvoice = word[word.index("VOICE") - 1]
             continue
-        # Tspecf, temp = 0, word[1][:-3]
-        # for t in range(7):
-        #     if temp in types[t]:
-        #         Type = types[t]
-        #         Tspecf = t + 1
-        #         break
         Type = word[0]
         if Type[-3:] == "(s)": Type = Type[:-3]
+        SpecfType = Type
+        if Type in ["Subject", "Object", "Instrument", "Dative", "Ablative", "Genitive", "Locative", "Vocative", "Adjective"]:
+            Type = "Noun"
         Tspecf = types.index(Type) if Type in types else 0
-        if Type == "Avyaya": #Tspecf > 0 and t == 6:
+        if Type == "Avyaya":
                 Upaflag = True
                 Upaword = word[2]
-        # for j in range(13):
-        #     if temp in specfs[j]:
-        #         if any([temp in str for str in ["Verb", "Krdanta", "Krdavyaya"]]): Vspecf = True
-        #         specf = True
-        if Type in specfs:
-            if any([Type in str for str in ["Verb", "Krdanta", "Krdavyaya"]]):
+        if SpecfType in specfs:
+            j = specfs.index(SpecfType)
+            if any([SpecfType in str for str in ["Verb", "Krdanta", "Krdavyaya"]]):
                 Vspecf = True
-                j = specfs.index(Type)
             specf = True
         stment = True
         for ch in line:
@@ -1087,6 +1148,7 @@ def main():
                 stment = False
                 break
         if specf or Vspecf or not stment:
+            wordpos += 1
             if dfirst == None:
                 dfirst = detail()
                 dfirst.type = Type
@@ -1095,31 +1157,65 @@ def main():
                 dfirst.mean_deno = ""
                 k = 2 if ":" in sub else 0
                 if specfs[j] == "Vocative":
-                    if word[1] == "Øá": dfirst.word = word[k+1] + " " + word[k+2]
-                    else: dfirst.word = word[k+1]
+                    if word[k] == "Øá": dfirst.word = word[k] + " " + word[k+1]
+                    else: dfirst.word = word[k]
                 else: dfirst.word = word[k]
                 dfirst.voice = ["karthari", "karmani"][["ACTIVE", "PASSIVE"].index(senvoice)]
                 dfirst.stem, dfirst.linga, dfirst.vibvach, dfirst.mode, dfirst.sub_no, dfirst.no_base, dfirst.no_codes, dfirst.pos, \
                 dfirst.matnoun, dfirst.subinsen = "", 0, 0, 0, 0, 0, 0, 0, 0, 0
+                if Vspecf:
+                    dfirst.sub_no = j
+                    dfirst.no_base = len(word) - (k + 1)
+                    for i in range(dfirst.no_base):
+                        dfirst.base[i] = word[i + k + 1]
+                dfirst.pos = wordpos
                 trecords.append(dfirst)
             else:
-                trecord, temptr = detail(), detail()
+                trecord = detail()
                 trecord.type = Type
+                if specfs[j] == "Krdanta": trecord.specf, trecord.dispSpecf = "Subject", "Subject"
+                else: trecord.specf, trecord.dispSpecf = specfs[j], specfs[j]
+                trecord.mean_deno = ""
                 k = 2 if ":" in sub else 0
                 if specfs[j] == "Vocative":
-                    if word[1] == "Øá": trecord.word = word[k + 1] + " " + word[k + 2]
-                    else: trecord.word = word[k + 1]
-                else: trecord.word = word[k + 1]
+                    if word[k] == "Øá": trecord.word = word[k] + " " + word[k + 1]
+                    else: trecord.word = word[k]
+                else: trecord.word = word[k]
                 trecord.voice = ["karthari", "karmani"][["ACTIVE", "PASSIVE"].index(senvoice)]
                 trecord.stem, trecord.linga, trecord.vibvach, trecord.mode, trecord.sub_no, trecord.no_base, trecord.no_codes, trecord.pos, \
                 trecord.matnoun, trecord.subinsen = "", 0, 0, 0, 0, 0, 0, 0, 0, 0
+                if Vspecf:
+                    trecord.sub_no = j
+                    trecord.no_base = len(word) - (k + 1)
+                    for i in range(trecord.no_base):
+                        trecord.base[i] = word[i + k + 1]
+                trecord.pos = wordpos
                 trecords.append(trecord)
-    ifp.close()
-    afp.close()
-    rfp.close()
-    sfp.close()
-    Efp.close()
-    return n
+
+    return {
+        "compatible": is_compatible,
+        "report": rfp_lines,
+        "nocode": Efp_lines,
+        "interpretations": semantic_interpretations
+    }
+
+def main():
+    import os
+    ifp_path = os.path.join(os.path.dirname(__file__), "SemanticData", "FINRES.ACI")
+    afp_path = os.path.join(os.path.dirname(__file__), "SemanticData", "SENOUT.ACI")
+    if not os.path.exists(ifp_path):
+        ifp_path = os.path.join(os.path.dirname(__file__), "../../Legacy/Semantic/FINRES.ACI")
+        afp_path = os.path.join(os.path.dirname(__file__), "../../Legacy/Semantic/SENOUT.ACI")
+    
+    with open(ifp_path, "r", encoding="latin-1") as f:
+        ifp_lines = f.readlines()
+    with open(afp_path, "r", encoding="latin-1") as f:
+        afp_lines = f.readlines()
+        
+    res = run_semantic_analysis(ifp_lines, afp_lines)
+    print("Semantic compatibility:", res["compatible"])
+    print("Report:")
+    print("".join(res["report"]))
 
 if __name__ == '__main__':
     main()

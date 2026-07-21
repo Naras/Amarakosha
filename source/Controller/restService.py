@@ -9,7 +9,7 @@ from flask_cors import CORS, cross_origin
 
 import sys
 sys.path.insert(1, os.getcwd())
-from source.Controller import MorphologicalAnalysis, SyntaxAnalysis
+from source.Controller import MorphologicalAnalysis, SyntaxAnalysis, SemanticAnalysis
 from source.Controller.Transliterate import transliterate_lines, IndianLanguages
 from source.Model import AmaraKosha_Database_Queries
 
@@ -38,6 +38,11 @@ def loadBandarkar(script='devanagari'):
     return data
 def analysis(base, script):
     try:
+        def to_iscii(s):
+            if not s:
+                return ""
+            return AmaraKosha_Database_Queries.unicode_iscii(str(s))
+
         subforms, tigforms, krdforms = [], [], []
         Subantas, Krdantas, Tigantas = [], [], []
         syntaxInputFile, bas = [], transliterate_lines(base, 'devanagari').strip()
@@ -45,14 +50,15 @@ def analysis(base, script):
         for i, word in enumerate(bas.split(' ')):
             if word.strip() == '': continue
             wids = 1
+            word_iscii = AmaraKosha_Database_Queries.unicode_iscii(word)
             try:
                 forms, subDetails = MorphologicalAnalysis.subanta_Analysis(word, script)
                 if not forms == []: subforms += forms
                 for item in subDetails:
                     numpages += 1
                     Subantas.append([item.rupam, transliterate_lines(item.base, script), item.anta, item.linga, item.vib, item.vach, item.vibvach])
-                    syntaxInputFile.append([i + 1, word, wids, 1, item.base,
-                                            item.erb, item.det, item.vibvach + 1])
+                    syntaxInputFile.append([i + 1, word_iscii, wids, 1, to_iscii(item.base),
+                                            to_iscii(item.erb), item.det, item.vibvach + 1])
                     wids += 1
             except Exception as e:
                 logging.debug(e)
@@ -64,15 +70,15 @@ def analysis(base, script):
                     numpages += len(krdData)
                     for krdDetail in krdData:
                         syntaxInputFile.append(
-                            [i + 1, word, wids, 2,
-                             krdDetail.erb,
-                             krdDetail.sabda,
+                            [i + 1, word_iscii, wids, 2,
+                             to_iscii(krdDetail.erb),
+                             to_iscii(krdDetail.sabda),
                              krdDetail.det,
                              krdDetail.vibvach + 1, krdDetail.ddet, krdDetail.Dno,
-                             krdDetail.verb,
-                             krdDetail.nijverb,
-                             krdDetail.sanverb,
-                             krdDetail.meaning, ('%03d' % krdDetail.GPICode),
+                             to_iscii(krdDetail.verb),
+                             to_iscii(krdDetail.nijverb),
+                             to_iscii(krdDetail.sanverb),
+                             to_iscii(krdDetail.meaning), ('%03d' % krdDetail.GPICode),
                              krdDetail.CombinedM, krdDetail.karmaCode])
                         wids += 1
             except Exception as e:
@@ -84,22 +90,32 @@ def analysis(base, script):
                     Tigantas += tigDatas
                     numpages += len(tigDatas)
                     for tigData in tigDatas:
-                        syntaxInputFile.append([i + 1, word, wids, 5,
-                                                tigData.base, tigData.Dno,
-                                                tigData.verb,
-                                                tigData.nijverb,
-                                                tigData.sanverb,
-                                                tigData.meaning,
+                        syntaxInputFile.append([i + 1, word_iscii, wids, 5,
+                                                to_iscii(tigData.base), tigData.Dno,
+                                                to_iscii(tigData.verb),
+                                                to_iscii(tigData.nijverb),
+                                                to_iscii(tigData.sanverb),
+                                                to_iscii(tigData.meaning),
                                                 ('%03d' % tigData.GPICode), tigData.pralak, tigData.purvach,
                                                 tigData.CombinedM, tigData.karmaCode])
                         wids += 1
             except Exception as e:
                 logging.debug(e)
-        syntaxInput = ['वाक्यम् -- %s' % bas]
+        bas_iscii = AmaraKosha_Database_Queries.unicode_iscii(bas)
+        syntaxInput = ['वाक्यम् -- %s' % bas_iscii]
         for line in syntaxInputFile:
             syntaxInput.append('%d) ' % line[0] + ' '.join([str(x) for x in line[1:]]))
         syntaxInput.append('----------')
-        synt = syntaxAnalysis(syntaxInput)
+        out = SyntaxAnalysis.write_out_aci(syntaxInput)
+        synt = SyntaxAnalysis.write_result_aci(out)
+        synt_for_semantic = [line.replace('---------------', '+++++++++++++++') for line in synt]
+        try:
+            semantic_res = SemanticAnalysis.run_semantic_analysis(synt_for_semantic, out)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            logging.debug("Semantic analysis error: %s" % e)
+            semantic_res = {'compatible': False, 'report': ['Semantic Analysis Failed: ' + str(e)]}
     except Exception as e:
         logging.debug(e)
     subDatas = []
@@ -117,15 +133,38 @@ def analysis(base, script):
         krdDatas.append(krdDat)
     tigDatas = []
     for tigData in Tigantas:
-        keys = [transliterate_lines(key, script) for key in ['धातुः','धात्वर्य:','णिजि धातु:','सनि धातु:','गण:','पदिः','कर्मः','इट्','धातुविधः','प्रयोगः','लकारः']]
-        vals = [tigData.verb, tigData.base,tigData.nijverb, tigData.sanverb, tigData.gana,tigData.padi, tigData.karma, tigData.it, tigData.dhatuVidah, tigData.voice, tigData.lakara]
+        keys = [transliterate_lines(key, script) for key in ['धातुः','धात्वर्य:','णिजि धातु:','सनि धातु:','गण:','पदिः','कर्मः','इट्','धातुविधः','प्रयोगः','लकारः','पुरुषः','वचनः']]
+        vals = [tigData.verb, tigData.base, tigData.nijverb, tigData.sanverb, tigData.gana, tigData.padi, tigData.karma, tigData.it, tigData.dhatuVidah, tigData.voice, tigData.lakara, tigData.purusha, tigData.vacana]
         tigDat = {}
-        for key, val in zip(keys, vals): tigDat[key] = transliterate_lines(val, script)
+        for key, val in zip(keys, vals): tigDat[key] = transliterate_lines(val, script) if val else ''
         tigDatas.append(tigDat)
     morph = {'सुबंतः': subDatas, 'सुबंतःForms': subforms, 'कृदंतःForms': krdforms, 'तिगंतःForms': tigforms, 'कृदंतः':krdDatas, 'तिगंतः': tigDatas}
-    interpretations, graphs = interpret(synt, script)
+    synt_unicode = [AmaraKosha_Database_Queries.iscii_unicode(line) for line in synt]
+    interpretations, graphs = interpret(synt_unicode, script)
     # for i, graph in enumerate(graphs): json.dump(json_graph.node_link_data(graph), open('jsondata/amarakosha-force-' + str(i) + '.json', 'w'))
-    return {'morphological': morph, 'syntactic': {'interpretations': interpretations, 'graphs': [json_graph.node_link_data(graph) for graph in graphs]}}
+    sem_interps = semantic_res.get('interpretations', []) if 'semantic_res' in locals() else []
+    for idx_inter, interp in enumerate(interpretations):
+        if idx_inter < len(sem_interps):
+            sem_item = sem_interps[idx_inter]
+            interp['semantic'] = {
+                'evaluated': sem_item.get('evaluated', False),
+                'compatible': sem_item.get('compatible', False),
+                'report': [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(line), script) for line in sem_item.get('report', [])]
+            }
+        else:
+            interp['semantic'] = {
+                'evaluated': False,
+                'compatible': False,
+                'report': []
+            }
+    return {
+        'morphological': morph,
+        'syntactic': {'interpretations': interpretations, 'graphs': [json_graph.node_link_data(graph) for graph in graphs]},
+        'semantic': {
+            'compatible': semantic_res.get('compatible', False) if 'semantic_res' in locals() else False,
+            'report': [transliterate_lines(AmaraKosha_Database_Queries.iscii_unicode(line), script) for line in semantic_res.get('report', [])] if 'semantic_res' in locals() else []
+        }
+    }
 def syntaxAnalysis(SyntaxInputFile):
     out = SyntaxAnalysis.write_out_aci(SyntaxInputFile)
     result = SyntaxAnalysis.write_result_aci(out)
@@ -134,15 +173,14 @@ def interpret(result, script='devanagari'):
     typeList = ['Noun(s)', 'Pronoun(s)', 'Adjective(s)', 'Krdanta(s)', 'KrdAvyaya(s)', 'Avyaya(s)']
     subtypeList = ['Subject(s)', 'Object(s)', 'Instrument(s)', 'Dative(s)', 'Ablative(s)', 'Genitive(s)', 'Locative(s)',
                    'Vocative(s)', 'Verb(s)', 'Verb']
-    edges, set_edge_labels = {}, []
     conclusions, sentence_no = [{'cells': [], 'conclusions': []}], 0
-    graphs = []
+    edges, set_edge_labels, graphs = {}, [], []
     for line_no, line in enumerate(result):
-        line = line.replace('\t', '').replace('\n', '').strip()
-        words = line.split(' ')
-        word = words[0]
-        if word == 'वाक्यम्': sentence = line[line.index(' -- ') + 4:line.index(' (')]
-        if word in ['वाक्यम्', ""] or ( len(words) == 1 and word == "subject"): pass
+        words = line.split()
+        if len(words) > 0: word = words[0]
+        else: word = ''
+        if word in ['वाक्यम्', ""] or (len(words) == 1 and word == "subject") or line.strip() == "": pass
+        elif line.startswith('वाक्यम्'): sentence_no = int(line[line.index(' ( ') + 3:line.rindex('/')].strip()) - 1
         elif word == "The" or "VOICE" in words or "Considering the verb" in line: conclusions[sentence_no]['conclusions'].append(line)
         elif any([phrase in line for phrase in ["can be assumed to be the", "Any subanta"]]):
             cell = transliterate_lines(line, script)
@@ -175,17 +213,19 @@ def interpret(result, script='devanagari'):
                                                cellDevanagari[1:]]
         elif word in subtypeList or 'Verb(s) are : ' in result[line_no - 1]:
             parts = line[line.index(' ( ') + 2:].split(' / ')
-            if 'Verb(s) are : ' in result[line_no - 1]: word = 'Verb(s)'
+            is_verbs_are = 'Verb(s) are : ' in line or 'Verb(s) are : ' in result[line_no - 1]
+            if is_verbs_are: word = 'Verb(s)'
+            target_word = words[3] if is_verbs_are and len(words) > 3 else words[2]
             cell = [transliterate_lines(w, script) for w in
-                    [word, words[2], parts[0], parts[1], parts[2][:-2]]]
+                    [word, target_word, parts[0], parts[1], parts[2][:-2]]]
             cellDevanagari = [w for w in
-                              [word, words[2], parts[0], parts[1], parts[2][:-2]]]
+                              [word, target_word, parts[0], parts[1], parts[2][:-2]]]
             w = line[line.index(' '):line.index(' ( ')]
             if w[0] == ':': w = w[1:]
             edges[word] = transliterate_lines(w, script)
             edges[word] = [edges[word]] + [transliterate_lines(word, IndianLanguages[0]) for word in cellDevanagari[1:]]
             conclusions[sentence_no]['cells'].append(cell)
-        elif word[0] == '-':
+        elif word.startswith('-'):
             conclusions.append({'cells': [], 'conclusions': []})
             sentence_no += 1
             if 'Verb' in edges.keys():
@@ -257,8 +297,9 @@ def get_SentencesBandarkar():
 @app.route(endpoint_prefix + 'SentenceAnalysis', methods=['GET'])
 @cross_origin()
 def get_SentenceAnalysis():
-    logging.debug('servicing analyse Sentence ' + request.args.get('sentence'))
-    sentence, script = request.args.get('sentence'), get_requested_script()
+    sentence = decode_param(request.args.get('sentence'))
+    logging.debug('servicing analyse Sentence ' + sentence)
+    script = get_requested_script()
     return jsonify({'sentenceAnalysis': analysis(sentence, script)})
 
 @app.route(endpoint_prefix + 'Dhatu/<string:dhatu>', methods=['GET'])
@@ -452,4 +493,4 @@ def get_DhatuTigantaVoiceLakara():
 if __name__ == '__main__':
     port = sys.argv[1] if len(sys.argv) > 1 else 5000
     # port = int(os.environ.get('PORT', 5000))
-    app.run(debug=True, host='0.0.0.0', port=port)
+    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=port)

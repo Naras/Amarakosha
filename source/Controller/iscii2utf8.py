@@ -541,9 +541,18 @@ class Parser:
 
         for i in range(n):
             curr_char = src[i]
+            if curr_char > 255:
+                if prev_char != NO_CHAR:
+                    ch = prev_char
+                    m = script_maps[self.curr_script][ch] if ch <= 0xFF else ch
+                    self.dest.append(m)
+                    self.pos += 1
+                    prev_char = NO_CHAR
+                self.dest.append(curr_char)
+                self.pos += 1
+                continue
             dest_char = NO_CHAR
             add_prev = 0
-
             if invalid_chars[self.curr_script][curr_char]:
                 # just ignore the invalid iscii characters
                 raise IllegalInput('ignoring invalid iscii char %s(%s) Source:%s'%(chr(curr_char),hex(curr_char), ''.join([chr(c) for c in src])))

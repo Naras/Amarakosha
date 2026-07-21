@@ -267,9 +267,12 @@
       }
 
       table th, table td {
-        padding: 12px;
+        padding: 10px 12px;
         text-align: center;
         border-bottom: 1px solid var(--border-color);
+        white-space: normal;
+        word-break: break-word;
+        font-size: 0.95rem;
       }
 
       table th {
@@ -334,6 +337,7 @@
       var sentence = null;
       var sectionInterpretation = null;
       var sectionGraphs = null;
+      var sectionSemantic = null;
       var numpages = 0;
       var numpagesInterpretation = 0;
       var subantas_tigantas_krdantas = {'सुबंतः':0,  'तिगंतः':0, 'कृदंतः':0};
@@ -373,6 +377,7 @@
           .then(data => {
             sectionInterpretation = data.sentenceAnalysis.syntactic.interpretations;
             sectionGraphs = data.sentenceAnalysis.syntactic.graphs;
+            sectionSemantic = data.sentenceAnalysis.semantic;
 
             let sentenceAnalysisDiv = document.getElementById("sentenceAnalysis");
             if (sentenceAnalysisDiv != null) sentenceAnalysisDiv.parentNode.removeChild(sentenceAnalysisDiv);
@@ -399,14 +404,14 @@
                 
                 const pageDiv = generatePageKeyValuePairs(data, section, i);
                 pageDiv.id = 'page-' + pageNumber;
-                pageDiv.style.visibility = "hidden";
+                pageDiv.style.display = "none";
                 flexDiv.appendChild(pageAnchor);
                 flexDiv.appendChild(pageDiv);
               }
 
               vacanas = ['एकवचन', 'द्विवचन', 'बहुवचन'];
               const tblDiv = generatePageTable(data, section, rownames, vacanas, pageNumber);
-              tblDiv.style.visibility = "hidden";
+              tblDiv.style.display = "none";
               flexDiv.appendChild(tblDiv);
               sentenceAnalysisDiv.appendChild(flexDiv);
             }
@@ -444,21 +449,51 @@
 
         document.getElementById("btnGraph").disabled = false;
 
-        pageNumber = 0; numpagesInterpretation = 0;
+        pageNumber = sectionInterpretation.length; numpagesInterpretation = sectionInterpretation.length;
         const flexDiv = document.createElement('div');
         flexDiv.setAttribute("class", "flex-container");
         flexDiv.setAttribute("id", "Interpretations");
-        for (let i = 0; i < sectionInterpretation.length; i++) {
-          pageNumber += 1;
-          const pageAnchor = document.createElement('a');
-          pageAnchor.name = 'Page ' + pageNumber;
-          const tblDiv = generateInterpretationsTable(sectionInterpretation, pageNumber);
-          tblDiv.style.visibility = "hidden";
-          flexDiv.style.visibility = "visible";
-          flexDiv.appendChild(tblDiv);
-          sentenceAnalysisDiv.appendChild(flexDiv);
+        const tblDiv = generateInterpretationsTable(sectionInterpretation, 0);
+        flexDiv.style.display = "flex";
+        flexDiv.appendChild(tblDiv);
+        sentenceAnalysisDiv.appendChild(flexDiv);
+
+        if (sectionSemantic) {
+          const semCard = document.createElement('div');
+          semCard.setAttribute("class", "tileVertical");
+          semCard.setAttribute("id", "semanticCard");
+          semCard.style.marginTop = "25px";
+          
+          const semLabel = document.createElement('label');
+          semLabel.textContent = "Semantic Evaluation";
+          semCard.appendChild(semLabel);
+          
+          const statusBadge = document.createElement('div');
+          statusBadge.setAttribute("id", "semanticStatusBadge");
+          statusBadge.style.display = "inline-block";
+          statusBadge.style.padding = "6px 16px";
+          statusBadge.style.borderRadius = "20px";
+          statusBadge.style.fontWeight = "bold";
+          statusBadge.style.fontSize = "0.9rem";
+          statusBadge.style.margin = "10px 0";
+          statusBadge.style.width = "fit-content";
+          semCard.appendChild(statusBadge);
+          
+          const reportDiv = document.createElement('pre');
+          reportDiv.setAttribute("id", "semanticReport");
+          reportDiv.style.fontFamily = "'Courier New', Courier, monospace";
+          reportDiv.style.background = "rgba(0, 0, 0, 0.3)";
+          reportDiv.style.padding = "15px";
+          reportDiv.style.borderRadius = "8px";
+          reportDiv.style.border = "1px solid rgba(255, 255, 255, 0.05)";
+          reportDiv.style.color = "var(--text-muted)";
+          reportDiv.style.overflowX = "auto";
+          reportDiv.style.whiteSpace = "pre-wrap";
+          semCard.appendChild(reportDiv);
+          
+          sentenceAnalysisDiv.appendChild(semCard);
         }
-        numpagesInterpretation = pageNumber;    
+
         buttons = document.getElementById("pageButtons");
         while (buttons.firstChild) {
           buttons.removeChild(buttons.firstChild);
@@ -513,9 +548,11 @@
       function generateTable(data, rownames, colnames, hdr) {
         const table = document.createElement('table');
         const headerRow = table.insertRow();
-        const header = document.createElement('th');
-        header.textContent = hdr;
-        headerRow.appendChild(header);
+        if (hdr && hdr.trim() !== "") {
+          const header = document.createElement('th');
+          header.textContent = hdr;
+          headerRow.appendChild(header);
+        }
         Object.entries(colnames).forEach((k,v) => {
           const header = document.createElement('th');
           header.textContent = colnames[v];
@@ -523,8 +560,10 @@
         });
         for (const [key, value] of Object.entries(data)) {
           const row = table.insertRow();
-          const labelCell = row.insertCell();
-          labelCell.textContent = rownames[key];
+          if (rownames && rownames[key] && rownames[key].trim() !== "") {
+            const labelCell = row.insertCell();
+            labelCell.textContent = rownames[key];
+          }
           for (const form of value) {
             const cell = row.insertCell();
             cell.textContent = form;
@@ -555,12 +594,12 @@
         const pageId = document.getElementById('page-' + pageNumber);
         for (let i = 0; i < numpages; i++) {
           p = document.getElementById(('page-' + (i + 1))); 
-          p.style.visibility = "hidden"; 
-          p.parentNode.style.visibility = "hidden";
+          p.style.display = "none"; 
+          p.parentNode.style.display = "none";
         }
         for (section in pages) { 
           for (let i = 0; i < subantas_tigantas_krdantas_forms[pages[section]]; i++) {
-            document.getElementById(pages[section] + "-" + i).style.visibility = "hidden"; 
+            document.getElementById(pages[section] + "-" + i).style.display = "none"; 
           }
         }
         if (pageNumber <= subantas_tigantas_krdantas['सुबंतः']) {
@@ -574,16 +613,18 @@
         tblId = section + "-" + Math.min((subantas_tigantas_krdantas[section] - pageNumber), subantas_tigantas_krdantas_forms[section] - 1);
         tbl = document.getElementById(tblId);
 
-        tbl.style.visibility = "visible";
+        tbl.style.display = "table";
         parent = tbl.parentNode;
+        parent.style.display = "flex";
         grandparent = parent.parentNode;
         parent.removeChild(tbl);
         grandparent.removeChild(parent);
         parent.prepend(tbl);
         grandparent.prepend(parent);
 
-        pageId.style.visibility = "visible";
+        pageId.style.display = "flex";
         parent = pageId.parentNode; 
+        parent.style.display = "flex";
         grandparent=parent.parentNode;
         parent.removeChild(pageId);
         grandparent.removeChild(parent);
@@ -595,30 +636,27 @@
         const pagesDiv = document.createElement('div');
         for (k = 0; k < data.length; k++) {
           const pageDiv = document.createElement('div');
+          pageDiv.style.display = "flex";
+          pageDiv.style.gap = "15px";
+          pageDiv.style.width = "100%";
           cellData = data[k].cells;
           conclusions = data[k].conclusions;
 
-          rownames = ["", "", ""];
+          rownames = [];
           colnames = ["Roles", "Words", "linga/rupa", "vibhakti/purusha", "vacana"];
           hdr = "";
           const tableDiv = generateTable(cellData, rownames, colnames, hdr);
-          const labelSection = document.createElement("label");
-          labelSection.htmlFor = tableDiv.id;
-          labelSection.textContent = tableDiv.id;
-          pageDiv.appendChild(labelSection);
+          tableDiv.style.flex = "3";
           pageDiv.appendChild(tableDiv);
 
-          rownames = ["", "", ""];
+          rownames = [];
           colnames = ["Interpretation"];
           hdr = "";
           const tableDivC = generateTableInter(conclusions, rownames, colnames, hdr);
-          const labelSectionC = document.createElement("label");
-          labelSectionC.htmlFor = tableDivC.id;
-          labelSectionC.textContent = tableDivC.id;
-          pageDiv.appendChild(labelSectionC);
+          tableDivC.style.flex = "2";
           pageDiv.appendChild(tableDivC);
-          numpagesInterpretation++;
-          pageDiv.id = "page-" + numpagesInterpretation;
+
+          pageDiv.id = "page-" + (k + 1);
           pagesDiv.appendChild(pageDiv);
         }
         return pagesDiv;
@@ -630,36 +668,70 @@
 
         for (let i = 0; i < numpagesInterpretation; i++) {
           p = document.getElementById(('page-' + (i + 1))); 
-          p.style.visibility = "hidden"; 
-          p.parentNode.style.visibility = "hidden";
+          p.style.display = "none"; 
+          p.parentNode.style.display = "none";
         }
         
-        flexDiv.style.visibility = "visible";
-        pageId.style.visibility = "visible";
+        flexDiv.style.display = "flex";
+        pageId.style.display = "flex";
         parent = pageId.parentNode; 
+        parent.style.display = "block";
         grandparent=parent.parentNode;
         parent.removeChild(pageId);
         grandparent.removeChild(parent);
         parent.prepend(pageId);
         grandparent.prepend(parent);
+
+        // Update semantic card contents dynamically based on active page's semantic details
+        if (sectionInterpretation && sectionInterpretation[pageNumber - 1]) {
+          const interp = sectionInterpretation[pageNumber - 1];
+          const semCard = document.getElementById("semanticCard");
+          if (semCard) {
+            if (interp.semantic && interp.semantic.evaluated) {
+              semCard.style.display = "flex"; // Show card
+              const badge = document.getElementById("semanticStatusBadge");
+              const report = document.getElementById("semanticReport");
+              if (badge && report) {
+                if (interp.semantic.compatible) {
+                  badge.textContent = "Compatible";
+                  badge.style.background = "rgba(34, 197, 94, 0.2)";
+                  badge.style.color = "#4ade80";
+                  badge.style.border = "1px solid rgba(74, 222, 128, 0.3)";
+                } else {
+                  badge.textContent = "Incompatible";
+                  badge.style.background = "rgba(239, 68, 68, 0.2)";
+                  badge.style.color = "#f87171";
+                  badge.style.border = "1px solid rgba(248, 113, 113, 0.3)";
+                }
+                report.textContent = interp.semantic.report.join('\n');
+              }
+            } else {
+              semCard.style.display = "none"; // Hide card if not evaluated
+            }
+          }
+        }
       }
 
       function generateTableInter(data, rownames, colnames, hdr) {
         const table = document.createElement('table');
         const headerRow = table.insertRow();
-        const header = document.createElement('th');
-        header.textContent = hdr;
-        headerRow.appendChild(header);
+        if (hdr && hdr.trim() !== "") {
+          const header = document.createElement('th');
+          header.textContent = hdr;
+          headerRow.appendChild(header);
+        }
         Object.entries(colnames).forEach((k,v) => {
           const header = document.createElement('th');
           header.textContent = colnames[v];
           headerRow.appendChild(header);
         });
         const row = table.insertRow();
-        const labelCell = row.insertCell();
-        labelCell.textContent = "";
+        if (rownames && rownames[0] && rownames[0].trim() !== "") {
+          const labelCell = row.insertCell();
+          labelCell.textContent = rownames[0];
+        }
         const cell = row.insertCell();
-        cell.textContent = data;
+        cell.textContent = Array.isArray(data) ? data.join('\n') : data;
         return table;
       }
 
