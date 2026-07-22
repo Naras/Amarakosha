@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Amarakosha - Script Selection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #0f172a;
+        --panel-bg: rgba(30, 41, 59, 0.7);
+        --accent-color: #38bdf8;
+        --accent-hover: #0ea5e9;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --card-bg: rgba(15, 23, 42, 0.6);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        font-family: 'Noto Sans', sans-serif;
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
+                          radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 40%);
+      }
+
+      /* Navbar */
+      #navbar {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-color);
+        padding: 10px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      #navbar ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      #navbar li {
+        display: inline-block;
+        border: none;
+        margin: 0;
+      }
+
+      #navbar li a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        font-size: 1rem;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      #navbar li a:hover {
+        color: var(--text-main);
+        background: rgba(56, 189, 248, 0.15);
+      }
+
+      /* Center Container */
+      .center-container {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .card {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+        box-sizing: border-box;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+
+      h1 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.5rem;
+        margin: 0 0 10px 0;
+        background: linear-gradient(135deg, #f8fafc 30%, #38bdf8 90%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      p.subtitle {
+        color: var(--text-muted);
+        margin: 0 0 30px 0;
+        font-size: 1.05rem;
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .input-group label {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+      }
+
+      select#scripts {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-main);
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        width: 100%;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        text-align: center;
+      }
+
+      select#scripts:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navbar">
+      <ul>
+        <li><a href="webclient_Amara_Synonyms.html">Amarakosha</a></li>
+        <li><a href="webclient_Subanta_Generate.html">Subanta</a></li>
+        <li><a href="webclient_Tiganta_Generate.html">Tiganta</a></li>
+        <li><a href="webclient_Krdanta_Generate.html">Krdanta</a></li>
+        <li><a href="webclient_sentence_analyser.html">Analysis</a></li>
+      </ul>
+    </div>
+
+    <div class="center-container">
+      <div class="card">
+        <h1>Amarakosha</h1>
+        <p class="subtitle">Sanskrit Morphological & Syntactic Analyzer</p>
+        
+        <div class="input-group">
+          <label for="scripts">Choose a script for output display</label>
+          <select id="scripts" onchange="saveSelectedScript()">
+            <option value="devanagari" selected="selected">devanagari</option>
+            <option value="bengali">bengali</option>
+            <option value="gurmukhi">gurmukhi</option>
+            <option value="gujarati">gujarati</option>
+            <option value="oriya">oriya</option>
+            <option value="tamizh">tamizh</option>
+            <option value="telugu">telugu</option>
+            <option value="kannada">kannada</option>
+            <option value="malayalam">malayalam</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script>
+      sessionStorage.setItem("script", "devanagari");
+      function saveSelectedScript() {
+        sessionStorage.setItem("script", document.getElementById("scripts").value);
+        console.log("script selected", sessionStorage.getItem("script"))
+      }
+    </script>
+  </body>
+</html>

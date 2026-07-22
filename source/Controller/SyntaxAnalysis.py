@@ -74,18 +74,17 @@ def splitTheWord(word: str) -> split:
     splitWord.noOfSplits = j
     return splitWord
 
-# Syntax.h
-karthari, karmani, fullstop = 0, 1, 'è'
+karthari, karmani, fullstop = 0, 1, '।'
 class subanta_data:
-    def __init__(self):
-        self.vibhakti = [None] * 20  # type: list[int]
-        self.vacana = [None] * 20  # type: list[int]
-        self.linga = [None] * 20  # type: list[int]
-        self.purusha = [None] * 20  # type: list[int]
-        self.subanta = [None] * 20  # type: list[str]
-        self.pratipadika = [None] * 20  # type: list[str]
-        self.erb = [None] * 20  # type: list[str]
-        self.wordNum = [None] * 20  # type: list[int]
+    def __init__(self, size=1000):
+        self.vibhakti = [None] * size  # type: list[int]
+        self.vacana = [None] * size  # type: list[int]
+        self.linga = [None] * size  # type: list[int]
+        self.purusha = [None] * size  # type: list[int]
+        self.subanta = [None] * size  # type: list[str]
+        self.pratipadika = [None] * size  # type: list[str]
+        self.erb = [None] * size  # type: list[str]
+        self.wordNum = [None] * size  # type: list[int]
         self.numofNouns = 0  # type: int
     def get(self):
         return {'vibhakti':self.vibhakti[:self.numofNouns], 'vacana':self.vacana[:self.numofNouns], 'linga':self.linga[:self.numofNouns],
@@ -94,23 +93,23 @@ class subanta_data:
     def __str__(self):
         return json.dumps(self.get())
 class tiganta_data:
-    def __init__(self):
-        self.dhatuVidha = [None] * 10  # type: list[int]
-        self.prayoga = [None] * 10  # type: list[int]
-        self.lakara = [None] * 10  # type: list[int]
-        self.purusha = [None] * 10  # type: list[int]
-        self.vacana = [None] * 10  # type: list[int]
-        self.gana = [None] * 10  # type: list[int]
-        self.padi = [None] * 10  # type: list[int]
-        self.it = [None] * 10  # type: list[int]
-        self.karma = [None] * 10  # type: list[int]
-        self.tiganta = [None] * 10  # type: list[str]
-        self.dhatu = [None] * 10  # type: list[str]
-        self.nijdhatu = [None] * 10  # type: list[str]
-        self.sandhatu = [None] * 10  # type: list[str]
-        self.artha = [None] * 10  # type: list[str]
-        self.err = [None] * 10  # type: list[str]
-        self.wordNum = [None] * 10  # type: list[int]
+    def __init__(self, size=1000):
+        self.dhatuVidha = [None] * size  # type: list[int]
+        self.prayoga = [None] * size  # type: list[int]
+        self.lakara = [None] * size  # type: list[int]
+        self.purusha = [None] * size  # type: list[int]
+        self.vacana = [None] * size  # type: list[int]
+        self.gana = [None] * size  # type: list[int]
+        self.padi = [None] * size  # type: list[int]
+        self.it = [None] * size  # type: list[int]
+        self.karma = [None] * size  # type: list[int]
+        self.tiganta = [None] * size  # type: list[str]
+        self.dhatu = [None] * size  # type: list[str]
+        self.nijdhatu = [None] * size  # type: list[str]
+        self.sandhatu = [None] * size  # type: list[str]
+        self.artha = [None] * size  # type: list[str]
+        self.err = [None] * size  # type: list[str]
+        self.wordNum = [None] * size  # type: list[int]
         self.numofVerbs = 0  # type: int
     def instance(self,i):
         v = VERB()
@@ -125,26 +124,26 @@ class tiganta_data:
     def __str__(self):
         return json.dumps(self.get())
 class krdanta_data:
-    def __init__(self):
-        self.vibhakti = [None] * 20  # type: list[int]
-        self.vacana = [None] * 20  # type: list[int]
-        self.linga = [None] * 20  # type: list[int]
-        self.prayoga = [None] * 20  # type: list[int]
-        self.dhatuVidha = [None] * 20  # type: list[int]
-        self.krdType = [None] * 20  # type: list[int]
-        self.purusha = [None] * 20  # type: list[int]
-        self.gana = [None] * 20  # type: list[int]
-        self.padi = [None] * 20  # type: list[int]
-        self.karma = [None] * 20  # type: list[int]
-        self.it = [None] * 20  # type: list[int]
-        self.krdanta = [None] * 20  # type: list[str]
-        self.pratipadika = [None] * 20  # type: list[str]
-        self.dhatu = [None] * 20  # type: list[str]
-        self.nijdhatu = [None] * 20  # type: list[str]
-        self.sandhatu = [None] * 20  # type: list[str]
-        self.artha = [None] * 20  # type: list[str]
-        self.erb = [None] * 20  # type: list[str]
-        self.wordNum = [None] * 20  # type: list[int]
+    def __init__(self, size=1000):
+        self.vibhakti = [None] * size  # type: list[int]
+        self.vacana = [None] * size  # type: list[int]
+        self.linga = [None] * size  # type: list[int]
+        self.prayoga = [None] * size  # type: list[int]
+        self.dhatuVidha = [None] * size  # type: list[int]
+        self.krdType = [None] * size  # type: list[int]
+        self.purusha = [None] * size  # type: list[int]
+        self.gana = [None] * size  # type: list[int]
+        self.padi = [None] * size  # type: list[int]
+        self.karma = [None] * size  # type: list[int]
+        self.it = [None] * size  # type: list[int]
+        self.krdanta = [None] * size  # type: list[str]
+        self.pratipadika = [None] * size  # type: list[str]
+        self.dhatu = [None] * size  # type: list[str]
+        self.nijdhatu = [None] * size  # type: list[str]
+        self.sandhatu = [None] * size  # type: list[str]
+        self.artha = [None] * size  # type: list[str]
+        self.erb = [None] * size  # type: list[str]
+        self.wordNum = [None] * size  # type: list[int]
         self.numofKrdantas = 0  # type: int
     def instance(self,i):
         k = PARTICIPLE()
@@ -155,49 +154,49 @@ class krdanta_data:
         'purusha':self.purusha[:self.numofKrdantas], 'prayoga':self.prayoga[:self.numofKrdantas], 'dhatuVidha':self.dhatuVidha[:self.numofKrdantas],
         'gana':self.gana[:self.numofKrdantas], 'padi':self.padi[:self.numofKrdantas], 'it':self.it[:self.numofKrdantas],
         'krdanta':self.krdanta[:self.numofKrdantas], 'pratipadika':self.pratipadika[:self.numofKrdantas], 'dhatu':self.dhatu[:self.numofKrdantas],
-        'nijdhatu': self.nijdhatu[:self.numofKrdantas], 'sandhatu':self.sandhatu[:self.numofKrdantas], 'artha':self.artha[self.numofKrdantas],
+        'nijdhatu': self.nijdhatu[:self.numofKrdantas], 'sandhatu':self.sandhatu[:self.numofKrdantas], 'artha':self.artha[:self.numofKrdantas],
         'erb':self.erb[:self.numofKrdantas], 'wordNum':self.wordNum[:self.numofKrdantas], 'numofKrdantas':self.numofKrdantas}
     def __str__(self):
         return json.dumps(self.get())
 class avyaya_data:
-    def __init__(self):
-        self.avyava = [None] * 30  # type: list[str]
-        self.wordNum = [None] * 30 # type: list[int]
+    def __init__(self, size=1000):
+        self.avyava = [None] * size  # type: list[str]
+        self.wordNum = [None] * size # type: list[int]
         self.numofAvyayas = 0 # type: int
     def get(self):
-        return {'avyaya':self.avyava[:self.numofAvyayas], 'wordNum':self.wordNum[:self.numofAvyayas], 'numofAvyayas':self.numofAvyayasnum}
+        return {'avyaya':self.avyava[:self.numofAvyayas], 'wordNum':self.wordNum[:self.numofAvyayas], 'numofAvyayas':self.numofAvyayas}
     def __str__(self):
         return json.dumps(self.get())
 class krdav_data:
-    def __init__(self):
-        self.dhatuVidha = [None] * 20  # type: list[int]
-        self.krdavType = [None] * 20  # type: list[int]
-        self.purusha = [None] * 20  # type: list[int]
-        self.gana = [None] * 20  # type: list[int]
-        self.padi = [None] * 20  # type: list[int]
-        self.karma = [None] * 20  # type: list[int]
-        self.it = [None] * 20  # type: list[int]
-        self.krdavyaya = [None] * 20  # type: list[str]
-        self.dhatu = [None] * 20  # type: list[str]
-        self.nijdhatu = [None] * 20  # type: list[str]
-        self.sandhatu = [None] * 20  # type: list[str]
-        self.artha = [None] * 20  # type: list[str]
-        self.wordNum = [None] * 20  # type: list[int]
+    def __init__(self, size=1000):
+        self.dhatuVidha = [None] * size  # type: list[int]
+        self.krdavType = [None] * size  # type: list[int]
+        self.purusha = [None] * size  # type: list[int]
+        self.gana = [None] * size  # type: list[int]
+        self.padi = [None] * size  # type: list[int]
+        self.karma = [None] * size  # type: list[int]
+        self.it = [None] * size  # type: list[int]
+        self.krdavyaya = [None] * size  # type: list[str]
+        self.dhatu = [None] * size  # type: list[str]
+        self.nijdhatu = [None] * size  # type: list[str]
+        self.sandhatu = [None] * size  # type: list[str]
+        self.artha = [None] * size  # type: list[str]
+        self.wordNum = [None] * size  # type: list[int]
         self.numofKrdavyayas = 0  # type: int
     def get(self):
         return {'dhatuVidha': self.dhatuVidha[:self.numofKrdavyayas], 'gana':self.gana[:self.numofKrdavyayas], 'padi': self.padi[:self.numofKrdavyayas], 'it': self.it[:self.numofKrdavyayas],
                 'dhatu': self.dhatu[:self.numofKrdavyayas], 'nijdhatu': self.nijdhatu[:self.numofKrdavyayas], 'sandhatu': self.sandhatu[:self.numofKrdavyayas],
-                'artha': self.artha[self.numofKrdavyayas], 'krdavyaya': self.krdavyaya[:self.numofKrdavyayas], 'wordNum': self.wordNum[:self.numofKrdavyayas], 'numofKrdavyayas': self.numofKrdavyayas}
+                'artha': self.artha[:self.numofKrdavyayas], 'krdavyaya': self.krdavyaya[:self.numofKrdavyayas], 'wordNum': self.wordNum[:self.numofKrdavyayas], 'numofKrdavyayas': self.numofKrdavyayas}
     def __str__(self):
         return json.dumps(self.get())
 class VIBHAKTI:
-    def __init__(self):
-        self.word = [None] * 20  # type: list[str]
-        self.vibhakti = [None] * 20  # type: list[int]
-        self.vacana = [None] * 20 # type: list[int]
-        self.purusha = [None] * 20 # type: list[int]
-        self.linga = [None] * 20 # type: list[int]
-        self.wordPos = [None] * 20 # type: list[int]
+    def __init__(self, size=1000):
+        self.word = [None] * size  # type: list[str]
+        self.vibhakti = [None] * size  # type: list[int]
+        self.vacana = [None] * size # type: list[int]
+        self.purusha = [None] * size # type: list[int]
+        self.linga = [None] * size # type: list[int]
+        self.wordPos = [None] * size # type: list[int]
         self.numofWords = 0 # type: int
     def get(self):
         return {'word': self.word[:self.numofWords], 'vibhakti':self.vibhakti[:self.numofWords], 'vacana': self.vacana[:self.numofWords], 'purusha': self.purusha[:self.numofWords],
@@ -320,7 +319,7 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
         noun.vibhakti[noun.numofNouns] = (int(splitSen[7]) - 1) // 3 + 1
         noun.vacana[noun.numofNouns] = (int(splitSen[7]) - 1) % 3 + 1
         noun.linga[noun.numofNouns] = ord(splitSen[6][1]) - 48
-        noun.purusha[noun.numofNouns] = {'ÍÝÖèÌÄè':2, '¤×èÌÄè':3,}.get(splitSen[3], 1)
+        noun.purusha[noun.numofNouns] = {'युष्मद्':2, 'अस्मद्':3}.get(splitSen[4], 1)
         noun.wordNum[noun.numofNouns] = m
         word.word[m] = 'subanta'
         noun.numofNouns += 1
@@ -345,9 +344,10 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
                 karmaflag = False;
                 break;
         participle.karma[participle.numofKrdantas] = karma[0] if karmaflag else 0
-        participle.gana[participle.numofKrdantas] = ord(splitSen[14][0]) - 48
-        participle.padi[participle.numofKrdantas] = ord(splitSen[14][1]) - 48
-        participle.it[participle.numofKrdantas] = ord(splitSen[14][2]) - 48
+        gpi = splitSen[14].zfill(3) if len(splitSen[14]) < 3 else splitSen[14]
+        participle.gana[participle.numofKrdantas] = ord(gpi[0]) - 48
+        participle.padi[participle.numofKrdantas] = ord(gpi[1]) - 48
+        participle.it[participle.numofKrdantas] = ord(gpi[2]) - 48
         participle.vibhakti[participle.numofKrdantas] = (int(splitSen[7]) - 1) // 3
         participle.vacana[participle.numofKrdantas] = (int(splitSen[7]) - 1) % 3
         participle.linga[participle.numofKrdantas] = ord(splitSen[6][1]) - 48
@@ -377,9 +377,10 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
             krdav.karma[krdav.numofKrdavyayas] = int(temp[:-1]) - 48
         krdav.dhatuVidha[krdav.numofKrdavyayas] = int(splitSen[3][1]) - 48
         krdav.krdavType[krdav.numofKrdavyayas] = int(splitSen[3][0]) - 96
-        krdav.gana[krdav.numofKrdavyayas] = int(splitSen[9][0]) - 48
-        krdav.padi[krdav.numofKrdavyayas] = int(splitSen[9][1]) - 48
-        krdav.it[krdav.numofKrdavyayas] = int(splitSen[9][2]) - 48
+        gpi = splitSen[9].zfill(3) if len(splitSen[9]) < 3 else splitSen[9]
+        krdav.gana[krdav.numofKrdavyayas] = int(gpi[0]) - 48
+        krdav.padi[krdav.numofKrdavyayas] = int(gpi[1]) - 48
+        krdav.it[krdav.numofKrdavyayas] = int(gpi[2]) - 48
         krdav.wordNum[krdav.numofKrdavyayas] = m
         word.word[m] = 'krdav'
         return krdav
@@ -403,9 +404,10 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
         verb.lakara[verb.numofVerbs] = (ord(splitSen[11][1]) - 65) // 2
         verb.purusha[verb.numofVerbs] = (int(splitSen[12]) - 1) // 3
         verb.vacana[verb.numofVerbs] = int(splitSen[12]) % 3
-        verb.gana[verb.numofVerbs] = ord(splitSen[10][0]) - 48
-        verb.padi[verb.numofVerbs] = ord(splitSen[10][1]) - 48
-        verb.it[verb.numofVerbs] = ord(splitSen[10][2]) - 48
+        gpi = splitSen[10].zfill(3) if len(splitSen[10]) < 3 else splitSen[10]
+        verb.gana[verb.numofVerbs] = ord(gpi[0]) - 48
+        verb.padi[verb.numofVerbs] = ord(gpi[1]) - 48
+        verb.it[verb.numofVerbs] = ord(gpi[2]) - 48
         word.word[m] = 'tiganta'
         verb.wordNum[verb.numofVerbs] = m
         verb.numofVerbs += 1
@@ -419,7 +421,7 @@ def checkForSyntacticCompatibility(rec: record) -> List[str]:
     for m in range(rec.numofIdens):
         splitSen = rec.idens[m][:-1].split()
         case = int(splitSen[3])
-        if not splitSen[1] == 'Øá':
+        if not splitSen[1] == 'हे':
             func = [assign_subanta, assign_krdanta, assign_avyaya, assign_krdav, assign_tiganta, assign_subanta, assign_subanta][case - 1]
             arg[case - 1] = func()
     noun, participle, indeclinable, krdav, verb, adj, pro = arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6]
@@ -843,7 +845,10 @@ def dispMesgNoun(rec: record, noun: subanta_data, indeclinable: avyaya_data, krd
     for c, cl in enumerate([noun, adj, pro]):
         if cl != None:
             result.append(['Noun(s) are:', 'Adjective(s) are:', 'Pronoun(s) are:'][c])
-            for i in range(cl.numofNouns):result.append('%s, '%cl.subanta[i])
+            are = ''
+            for i in range(cl.numofNouns): are += ('%s, '%cl.subanta[i])
+            result.append(are)
+            result.append('---------------')
     if indeclinable != None:
         result.append('Avyaya(s) are:')
         for i in range(indeclinable.numofAvyayas): result.append('%s, ' % indeclinable.avyava[i])
@@ -921,7 +926,7 @@ def syntacticCheck(adj: subanta_data, pro: subanta_data, krdav: krdav_data, inde
             tiganta, dhatu, purusha, vacana = tupl
             purusha, vacana = dsp.Person[purusha], dsp.Vacana[vacana]
             res += '%s ( %s / %s / %s )\n'%(tiganta, dhatu, purusha, vacana)
-        result.append('Verb(s) are : ' + res[:-1])
+        for rs in res[:-1].split('\n'): result.append('Verb(s) are : ' + rs)
         flagp = getPurushaofAllVerbs(verbs)
         flagv = getVacanaofAllVerbs(verbs)
         if avyayaFlag:
@@ -944,7 +949,7 @@ def syntacticCheck(adj: subanta_data, pro: subanta_data, krdav: krdav_data, inde
                 else: result.append('The verbs agree in vacana but not in pursuha')
             else:
                 if flagv: result.append('The verbs do not agree in purusha and vacana')
-                else: result.append('There is more than one verb present in the sentence and there is no ¸ or ÔÚ present in the sentence.\nThe sentence is syntactically not compatible.')
+                else: result.append('There is more than one verb present in the sentence and there is no च or वा present in the sentence.\nThe sentence is syntactically not compatible.')
         result.append('---------------')
     return qflag, result
 def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, indeclinable: avyaya_data, krdanta: PARTICIPLE, subject: VIBHAKTI, object: VIBHAKTI, locative: VIBHAKTI, instrument: VIBHAKTI, dative: VIBHAKTI, ablative: VIBHAKTI, vocative: VIBHAKTI,
@@ -1009,7 +1014,7 @@ def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, ind
                     if avyayaflag:
                         for i in range(indeclinable.numofAvyayas): result.append('%s '%indeclinable.avyava[i])
                         result.append('in the sentence is not in the correct place')
-                    else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.")
+                    else: result.append("there is no 'च ' or 'वा' in the sentence.")
             else:
                 if object.numofWords == 0: result.append('Any subanta in %s, %s \nand in %s can be the %s\n%s'%(data1.Case[0], data1.Vacana[krdanta.vacana-1],data1.Linga[krdanta.linga], 'subject', dsp.mesgn))
                 elif object.numofWords == 1:
@@ -1021,7 +1026,7 @@ def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, ind
                     if avyayaflag:
                         for i in range(indeclinable.numofAvyayas): result.append('%s '%indeclinable.avyava[i])
                         result.append('in the sentence is not in the correct place')
-                    else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.")
+                    else: result.append("there is no 'च ' or 'वा' in the sentence.")
         else: result.append('There is no verb. The sentence is syntactically not compatible')
     else:
         qflag = True
@@ -1056,7 +1061,7 @@ def syntacticCheck1(adj: subanta_data, pro: subanta_data, krdav: krdav_data, ind
 def checkforAvyaya(indeclinable: avyaya_data) -> int:
     if indeclinable == None: return 0
     for i in range(indeclinable.numofAvyayas):
-       result = {'.':1, '¤ÈÛ':1, 'ÔÚ':5, '¤ÃÔÚ':3, '¨Â':3, '¥Øå×èÔÛÂè':3}.get(indeclinable.avyava[i], 0)
+       result = {'.':1, 'अपि':1, 'वा':5, 'अथवा':3, 'उत':3, 'आहोस्वित्':3}.get(indeclinable.avyava[i], 0)
     return result
 def checkPosofAvyaya(indeclinable: avyaya_data, vibhakti: VIBHAKTI, avyayaFlag: int) -> int:
     if indeclinable == None or vibhakti == None: return 0
@@ -1093,7 +1098,7 @@ def displaytheInformation(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBHA
             clas = vocative
             if clas.numofWords > 0:
                 res = 'Vocative(s) '
-                for i in range(clas.numofWords): res += 'Øá :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
+                for i in range(clas.numofWords): res += 'हे :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
                 result.append(res)
     else: return result
     for adjpro in [adj, pro]:
@@ -1136,7 +1141,7 @@ def displaytheInformation1(subject: VIBHAKTI, object: VIBHAKTI, instrument: VIBH
         clas = vocative
         if clas.numofWords > 0:
             res = 'Vocative(s) '
-            for i in range(clas.numofWords): res += 'Øá :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
+            for i in range(clas.numofWords): res += 'हे :%s  (  %s / %s /  %s )' % (clas.word[i], data1.Linga[clas.linga[i]], data1.Case[clas.vibhakti[i] - 1], data1.Vacana[clas.vacana[i] - 1])
             result.append(res)
     for adjpro in [adj, pro]:
         if adjpro != None and adjpro.numofNouns > 0:
@@ -1283,24 +1288,24 @@ def compatibilityCheck1(krdav: krdav_data, verb: VERB, krdtemp: krdanta_data, su
                     if flag['a']: result.append(analyseAkarmakaWithoutObjects(clasName, flag['purusha'], flag['vacana'], flag['karma'], adjFlag, proFlag,
                               subject, object, instrument, dative, ablative, locative, genitive, vocative, pro, adj, verb))
                     else:
-                        if VinaaSahaFlag > 0: result.append(['ÔÛÆÚ is not handled properly', '×Ø is not handled properly'][VinaaSahaFlag - 1])
+                        if VinaaSahaFlag > 0: result.append(['विना is not handled properly', 'सह is not handled properly'][VinaaSahaFlag - 1])
                         else:
                             for clas, flag, str in zip(allVibhaktiRoles, errorflag.values(), allVibhaktiLiterals):
                                 if clas.numofWords > 0 and flag: result.append('There is more than one %s in the sentence and ' % str)
                                 if avyayaFlag:
                                     for j in indeclinable.numofAvyayas: result.append('%s ' % indeclinable.avyava[j])
                                     result.append('in the sentence is not in the correct place. %s' % dsp.mesgn)
-                                else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence. %s" % dsp.mesgn)
+                                else: result.append("there is no 'च' or 'वा' in the sentence. %s" % dsp.mesgn)
             else:
                 if VinaaSahaFlag > 0:
-                    result.append(['ÔÛÆÚ is not handled properly', '×Ø is not handled properly'][VinaaSahaFlag - 1])
+                    result.append(['विना is not handled properly', 'सह is not handled properly'][VinaaSahaFlag - 1])
                 else:
                     for clas, flag, str in zip(allVibhaktiRoles, errorflag.values(), allVibhaktiLiterals):
                         if clas.numofWords > 0 and flag: result.append('There is more than one %s in the sentence and ' % str)
                         if avyayaFlag:
                             for j in indeclinable.numofAvyayas: result.append('%s ' % indeclinable.avyava[j])
                             result.append('in the sentence is not in the correct place. %s' % dsp.mesgn)
-                        else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.\ %s" % dsp.mesgn)
+                        else: result.append("there is no 'च' or 'वा' in the sentence.\ %s" % dsp.mesgn)
     result = []
     allVibhaktiRoles, allVibhaktiLiterals = [subject, object, instrument, dative, ablative, genitive, locative, vocative], ['subject', 'object', 'instrument', 'dative', 'ablative', 'genitive', 'locative', 'vocative']
     flag = {'a': False, 'vacana': False, 'linga': False, 'purusha': False, 'karma': True, 'ak': False, 'ka': False, 'krdanta': 0, 'krdav': 0}
@@ -1403,27 +1408,27 @@ def compatibilityCheck2(participle: krdanta_data, krdanta: PARTICIPLE, subject: 
                                subject, object, instrument, dative, ablative, locative, genitive, vocative, pro, adj, krdanta))
                     else:
                         if VinaaSahaFlag > 0:
-                            result.append(['ÔÛÆÚ is not handled properly', '×Ø is not handled properly'][VinaaSahaFlag - 1])
+                            result.append(['विना is not handled properly', 'सह is not handled properly'][VinaaSahaFlag - 1])
                         else:
                             for clas, flag, str in zip(allVibhaktiRoles, errorflag.values(), allVibhaktiLiterals):
                                 if clas.numofWords > 0 and flag: result.append('There is more than one %s in the sentence and ' % str)
                                 if avyayaflag:
                                     for j in indeclinable.numofAvyayas: result.append('%s ' % indeclinable.avyava[j])
                                     result.append('in the sentence is not in the correct place. %s' % dsp.mesgn)
-                                else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.\ %s" % dsp.mesgn)
+                                else: result.append("there is no 'च' or 'वा' in the sentence.\ %s" % dsp.mesgn)
             else:
                 if flag['a']:
                     result.append(analyseAkarmakaWithoutObjects1(clasName, flag['p'], flag['v'], flag['k'], adjFlag, proFlag,
                                    subject, object, instrument, dative, ablative, locative, genitive, vocative, pro, adj, krdanta))
                 else:
-                    if VinaaSahaFlag > 0: result.append(['ÔÛÆÚ is not handled properly', '×Ø is not handled properly'][VinaaSahaFlag - 1])
+                    if VinaaSahaFlag > 0: result.append(['विना is not handled properly', 'सह is not handled properly'][VinaaSahaFlag - 1])
                     else:
                         for clas, flag, str in zip(allVibhaktiRoles, errorflag.values(), allVibhaktiLiterals):
                             if clas.numofWords > 0 and flag: result.append('There is more than one %s in the sentence and ' % str)
                             if avyayaflag:
                                 for j in indeclinable.numofAvyayas: result.append('%s ' % indeclinable.avyava[j])
                                 result.append('in the sentence is not in the correct place. %s' % dsp.mesgn)
-                            else: result.append("there is no '¸ ' or 'ÔÚ' in the sentence.\ %s" % dsp.mesgn)
+                            else: result.append("there is no 'च' or 'वा' in the sentence.\ %s" % dsp.mesgn)
 
     result = []
     allVibhaktiRoles, allVibhaktiLiterals = [subject, object, instrument, dative, ablative, genitive, locative, vocative], \
@@ -1517,7 +1522,7 @@ def checkAdjProVibhaktiCompatibility(adj: subanta_data, subject: VIBHAKTI, objec
         for y in range(clas.numofWords):
             for x in range(adj.numofNouns):
                 flag = 0
-                if subject.wordPos[y] == adj.wordNum[x] and clas.vibhakti[y] == adj.vibhakti[x] and clas.vacana[y] == adj.vacana[x] and clas.linga[y] == adj.linga[x]:
+                if clas.vibhakti[y] == adj.vibhakti[x] and clas.vacana[y] == adj.vacana[x] and clas.linga[y] == adj.linga[x]:
                     flag = 1
                     break
     return flag
@@ -1588,7 +1593,7 @@ def checkVinaaSahaCompatibility(indeclinable: avyaya_data, adj: subanta_data, pr
     flag = 0
     if indeclinable != None:
         for i in range(indeclinable.numofAvyayas):
-            if indeclinable.avyava[i] == 'ÔÛÆÚ':
+            if indeclinable.avyava[i] == 'विना':
                 flag = 1
                 for j in range(object.numofWords):
                     if object.wordPos[j] == indeclinable.wordNum[i]:
@@ -1619,7 +1624,7 @@ def checkVinaaSahaCompatibility(indeclinable: avyaya_data, adj: subanta_data, pr
                         if krdtemp.vibhakti[j] in [3, 5] and krdtemp.wordNum[j] + 1 == indeclinable.wordNum[i]:
                             flag = 0
                             break
-            elif indeclinable.avyava[i] == '×Ø':
+            elif indeclinable.avyava[i] == 'सह':
                 flag = 2
                 for j in range(instrument.numofWords):
                     if instrument.wordPos[j] + 1 == indeclinable.wordNum[i]:
@@ -1852,8 +1857,8 @@ def checkAdjorProandVibhaktiCompatibility(adj: subanta_data, subject: VIBHAKTI, 
     if tflag and subject.numofWords > 0: flag = 2
     for clas in [subject, object, instrument, dative, ablative, locative, genitive, vocative]:
         for y in range(clas.numofWords):
-            for x in range(adj.numofnouns):
-                if clas.wordPos[x] == adj.wordNum[x] and clas.vibhakti[y] == adj.vibhakti[x] and clas.vacana[y] == adj.vacana[x] and clas.linga[y] == adj.linga[x]: flag = 1
+            for x in range(adj.numofNouns):
+                if clas.vibhakti[y] == adj.vibhakti[x] and clas.vacana[y] == adj.vacana[x] and clas.linga[y] == adj.linga[x]: flag = 1
     return flag
 def dispMesg6(prayoga: bool, purusha: int, vacana: int, str: str) -> List[str]:
     # result = []
@@ -1919,12 +1924,12 @@ def checkPronounKrdantaCompatibility(subject: VIBHAKTI, object: VIBHAKTI, instru
     flag = False
     if subject.numofWords == 0:
         for ii in range(pro.numofNouns):
-            if pro.vibhakti == krdanta.vibhakti and pro.vacana == krdanta.vacana:
-                if pro.linga == krdanta.linga:
+            if pro.vibhakti[ii] == krdanta.vibhakti and pro.vacana[ii] == krdanta.vacana:
+                if pro.linga[ii] == krdanta.linga:
                     flag = True;
                     break
                 else:
-                    flag = krdanta.linga in [[0,1], [0,2], [1,2], [0,1,2]][pro.linga - 3]
+                    flag = krdanta.linga in [[0,1], [0,2], [1,2], [0,1,2]][pro.linga[ii] - 3]
     else: flag = checkAdjorProandVibhaktiCompatibility(pro, subject, object, instrument, dative, ablative, locative, vocative, genitive, False)
     return flag
 def checkPosofAvyayaBetweenKrdantas(indeclinable: avyaya_data, participle :krdanta_data, avyayaflag :int) -> int:
@@ -1993,7 +1998,7 @@ def write_out_aci(OSOut, outfile=None):
     if isinstance(OSOut, str): # external file
         fos = open(OSOut, 'r')
         for line in fos:
-            if line.split(' ')[0] == "ÔÚ³èÍÌè":
+            if line.split(' ')[0] == "वाक्यम्":
                 rec = record()
                 rec.sentence, sentend, i = line[:-1], False, 0
             elif line[0] == '-':
@@ -2011,7 +2016,7 @@ def write_out_aci(OSOut, outfile=None):
         fos.close()
     else:  # in-memory list
         for line in OSOut:
-            if line.split(' ')[0] == "ÔÚ³èÍÌè":
+            if line.split(' ')[0] == "वाक्यम्":
                 rec = record()
                 rec.sentence, sentend, i = line[:-1], False, 0
             elif line[0] == '-':
@@ -2057,7 +2062,7 @@ def write_result_aci_from_out_aci(outfile, resultfile):
 def commoncode(out):
     res = []
     for line in out:
-        if line.split(' ')[0] == "ÔÚ³èÍÌè":
+        if line.split(' ')[0] == "वाक्यम्":
             rec = record()
             rec.sentence, sentend, i = line[:-1], False, 0
         elif line[0] == '-':

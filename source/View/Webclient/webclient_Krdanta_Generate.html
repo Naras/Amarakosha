@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Amarakosha - Krdanta Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #0f172a;
+        --panel-bg: rgba(30, 41, 59, 0.7);
+        --accent-color: #38bdf8;
+        --accent-hover: #0ea5e9;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --card-bg: rgba(15, 23, 42, 0.6);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        font-family: 'Noto Sans', sans-serif;
+        color: var(--text-main);
+        min-height: 100vh;
+        background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
+                          radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 40%);
+      }
+
+      /* Navbar */
+      #navbar {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-color);
+        padding: 8px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      #navbar ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      #navbar li {
+        display: inline-block;
+        border: none;
+        margin: 0;
+      }
+
+      #navbar li a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        font-size: 0.95rem;
+        padding: 6px 12px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+      }
+
+      #navbar li a:hover, #navbar li.active a {
+        color: var(--text-main);
+        background: rgba(56, 189, 248, 0.15);
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.1);
+      }
+
+      /* Container */
+      .app-container {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 20px;
+      }
+
+      /* Header info */
+      .header-section {
+        grid-column: 1 / -1;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .header-section h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.2rem;
+        margin: 0;
+        background: linear-gradient(135deg, #f8fafc 30%, #38bdf8 90%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .header-section p {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-top: 4px;
+      }
+
+      /* Sidebar & Details panel */
+      .sidebar {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 15px;
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        position: sticky;
+        top: 80px;
+        box-sizing: border-box;
+      }
+
+      .sidebar label {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 1rem;
+      }
+
+      select#Dhatus {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-main);
+        padding: 8px;
+        font-size: 0.95rem;
+        height: 180px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+      }
+
+      select#Dhatus:focus {
+        border-color: var(--accent-color);
+      }
+
+      /* Buttons */
+      .sidebar button {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+      }
+
+      .sidebar button:hover:not(:disabled) {
+        background: rgba(56, 189, 248, 0.15);
+        border-color: var(--accent-color);
+      }
+
+      .sidebar button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .sidebar button#DhatusButton {
+        background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+        color: var(--bg-color);
+        font-weight: 700;
+        border: none;
+        text-align: center;
+        padding: 10px;
+      }
+
+      .sidebar button#DhatusButton:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(56, 189, 248, 0.25);
+      }
+
+      /* Details view */
+      .details-panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        backdrop-filter: blur(8px);
+        min-height: 380px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .details-panel h5 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.35rem;
+        margin: 0;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 8px;
+        color: var(--accent-color);
+      }
+
+      /* Base attributes input/labels */
+      #textBoxes {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 10px;
+      }
+
+      #textBoxes .meta-box {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 8px 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      #textBoxes span.label {
+        font-family: 'Outfit', sans-serif;
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+      }
+
+      #textBoxes input.value {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        color: var(--text-main);
+        padding: 6px;
+        font-size: 0.9rem;
+        outline: none;
+      }
+
+      /* Parameter selector popup panel */
+      .param-panels-container {
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      .param-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .popup-selects-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .popup-selects-grid > div {
+        flex: 1;
+        min-width: 140px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .param-card label {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--accent-color);
+      }
+
+      .param-card select {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-main);
+        padding: 6px;
+        font-size: 0.85rem;
+        outline: none;
+        width: 100%;
+        max-height: 160px;
+      }
+
+      /* Hide layout spacing for elements toggled to hidden state */
+      .param-card[style*="visibility: hidden"],
+      .param-card[style*="visibility:hidden"],
+      #textBoxes[style*="visibility: hidden"],
+      #textBoxes[style*="visibility:hidden"],
+      #vibhakti_vachana[style*="visibility: hidden"],
+      #vibhakti_vachana[style*="visibility:hidden"],
+      #krdantaTbl[style*="visibility: hidden"],
+      #krdantaTbl[style*="visibility:hidden"] {
+        display: none !important;
+      }
+
+      /* Force clean display states for visible items */
+      .param-card[style*="visibility: visible"],
+      .param-card[style*="visibility:visible"] {
+        display: flex !important;
+      }
+
+      #textBoxes[style*="visibility: visible"],
+      #textBoxes[style*="visibility:visible"] {
+        display: grid !important;
+      }
+
+      #vibhakti_vachana[style*="visibility: visible"],
+      #vibhakti_vachana[style*="visibility:visible"] {
+        display: block !important;
+      }
+
+      /* Hide dummy layout components */
+      select[id^="Placeholder"], label[for^="Placeholder"], select[name^="Placeholder"], label[for^="Placeholder"] {
+        display: none !important;
+      }
+
+      /* Action controls in popup */
+      .action-row {
+        display: flex;
+        gap: 15px;
+        margin-top: 5px;
+      }
+
+      .action-row input[type="button"] {
+        flex-grow: 1;
+        padding: 8px;
+        border-radius: 6px;
+        border: none;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      #btnOk {
+        background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+        color: var(--bg-color);
+      }
+
+      #btnOk:hover {
+        box-shadow: 0 4px 10px rgba(56, 189, 248, 0.25);
+      }
+
+      input[name="cancel"] {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-main);
+        border: 1px solid var(--border-color) !important;
+      }
+
+      input[name="cancel"]:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+
+      /* Declension Table */
+      table#tbl {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+      }
+
+      table#tbl th, table#tbl td {
+        padding: 10px 14px;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.95rem;
+      }
+
+      table#tbl th {
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent-color);
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+      }
+
+      table#tbl tr:last-child td {
+        border-bottom: none;
+      }
+
+      table#tbl tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      #status {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navbar">
+      <ul>
+        <li><a href="webclient_Amara_Synonyms.html">Amarakosha</a></li>
+        <li><a href="webclient_Subanta_Generate.html">Subanta</a></li>
+        <li><a href="webclient_Tiganta_Generate.html">Tiganta</a></li>
+        <li class="active"><a href="webclient_Krdanta_Generate.html">Krdanta</a></li>
+        <li><a href="webclient_sentence_analyser.html">Analysis</a></li>
+        <li><a href="index.html">Home</a></li>
+      </ul>
+    </div>
+
+    <div class="app-container">
+      <div class="header-section">
+        <h2>Krdanta Generator</h2>
+        <p>Explore Sanskrit Participle Paradigms (Vibhakti & Vacana paradigms)</p>
+      </div>
+
+      <div class="sidebar">
+        <label for="Dhatus">Select Verbal Dhatu</label>
+        <select id="Dhatus" size="20"></select>
+        <button id="DhatusButton" disabled>Sorted List (अकारादि)</button>
+        <button id="DhatusButtonOptionGana" disabled>Ganas (गण)</button>
+        <button id="DhatusButtonOptionPadi" disabled>Padis (पदि)</button>
+        <button id="DhatusButtonOptionKarma" disabled>Karmas (कर्म)</button>
+        <button id="DhatusButtonOptionIt" disabled>Its (इट्)</button>
+      </div>
+
+      <div id="dhatu" class="details-panel">
+        <h5 id="dhatuTitle">Participle Paradigms</h5>
+        
+        <!-- Parameter select overlays positioned at the top of details card -->
+        <div class="param-panels-container">
+          <div class="param-card" id="popup" style="visibility: hidden;">
+            <div class="popup-selects-grid">
+              <div>
+                <label for="DhatuVidha">DhatuVidha</label>
+                <select id="DhatuVidha" name="DhatuVidha" size="3">
+                  <option selected value="केवलकृदन्तः">केवलकृदन्तः</option>
+                  <option value="णिजन्त">णिजन्तः</option>
+                  <option value="सन्नन्तः">सन्नन्तः</option>
+                </select>
+              </div>
+              <div>
+                <label for="Prayoga">कृदंतविधाः</label>
+                <select id="Prayoga" name="Prayoga" size="5">
+                  <option selected value="विध्यर्थः">विध्यर्थः</option>
+                  <option value="भूतः">भूतः</option>
+                  <option value="वर्तमानः">वर्तमानः</option>
+                  <option value="भविष्यत्">भविष्यत्</option>
+                  <option value="कृदव्ययम्">कृदव्ययम्</option>
+                </select>
+              </div>
+              <div>
+                <label for="KrdMode">Krdanta Mode</label>
+                <select id="KrdMode" name="KrdMode" size="5">
+                  <option selected value="तव्य">तव्य</option>
+                  <option value="अनीयर्">अनीयर्</option>
+                  <option value="य">य</option>
+                  <option value="क्त">क्त</option>
+                  <option value="क्तवतु">क्तवतु</option>
+                  <option value="शतृ">शतृ</option>
+                  <option value="शानच्">शानच्</option>
+                  <option value="स्यशतृ">स्यशतृ</option>
+                  <option value="स्यशानच्">स्यशानच्</option>
+                  <option value="तुमुन्">तुमुन्</option>
+                  <option value="क्त्वा">क्त्वा</option>
+                </select>
+              </div>
+            </div>
+            <div class="action-row">
+              <input type="button" id="btnOk" name="sortedList" value="OK" onclick="optionsClicked()" style="visibility: hidden;">
+              <input type="button" name="cancel" value="Cancel" onclick="alert('cancelled')">
+            </div>
+          </div>
+
+          <div class="param-card" id="optionGana" style="visibility: hidden;">
+            <div>
+              <label id="lblgana" for="gana">गण</label>
+              <select id="gana" name="gana" size="5">
+                <option selected value="भ्वादिगणः">भ्वादिगणः</option>
+                <option value="अदादिगणः">अदादिगणः</option>
+                <option value="जुहोत्यादिगणः">जुहोत्यादिगणः</option>
+                <option value="दिवादिगणः">दिवादिगणः</option>
+                <option value="स्वादिगणः">स्वादिगणः</option>
+                <option value="तुदादिगणः">तुदादिगणः</option>
+                <option value="रुधादिगणः">रुधादिगणः</option>
+                <option value="तनादिगणः">तनादिगणः</option>
+                <option value="क्रयादिगणः">क्रयादिगणः</option>
+                <option value="चुरादिगणः">चुरादिगणः</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="param-card" id="optionPadi" style="visibility: hidden;">
+            <div>
+              <label id="lblpadi" for="padi">पदि</label>
+              <select id="padi" name="padi" size="3">
+                <option selected value="परस्मैपदी">परस्मैपदी</option>
+                <option value="आत्मनेपदी">आत्मनेपदी</option>
+                <option value="उभयपदी">उभयपदी</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="param-card" id="optionKarma" style="visibility: hidden;">
+            <div>
+              <label id="lblkarma" for="karma">कर्म</label>
+              <select id="karma" name="karma" size="3">
+                <option selected value="सकर्मकः">सकर्मकः</option>
+                <option value="अकर्मकः">अकर्मकः</option>
+                <option value="द्विकर्मकः">द्विकर्मकः</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="param-card" id="optionIt" style="visibility: hidden;">
+            <div>
+              <label id="lblit" for="it">इट्</label>
+              <select id="it" name="it" size="3">
+                <option selected value="सेट्">सेट्</option>
+                <option value="अनिट्">अनिट्</option>
+                <option value="वेट्">वेट्</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="textBoxes">
+          <!-- Metadata populated dynamically -->
+        </div>
+
+        <div id="vibhakti_vachana"></div>
+
+        <div id="krdantaTbl">
+          <table id="tbl">
+            <tr><td style="color: var(--text-muted); text-align: center; padding: 40px;">Select a Dhatu and configure parameters on the left to generate Krdantas.</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <input id="status" type="text" value="" name="status">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+      document.getElementById("status").value="";
+      const DhatusSelect = document.getElementById("Dhatus");
+
+      fetch(getApiUrl('KrdantaTigantaDhatus'))
+        .then(response => response.json())
+        .then(json => {
+          dataArray = json['KrdantaTigantaDhatus'];
+          dataArray.forEach((item, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.text = item;
+            DhatusSelect.appendChild(option);
+          });
+        });
+
+      const DhatusListBox = document.getElementById("Dhatus");
+      DhatusListBox.addEventListener("change", () => {
+        const dhatu = $("#Dhatus option:selected").text();
+        if (dhatu == "") {
+          document.getElementById("DhatusButton").disabled = true;
+          document.getElementById("DhatusButtonOptionGana").disabled = true;
+          document.getElementById("DhatusButtonOptionPadi").disabled = true;
+          document.getElementById("DhatusButtonOptionKarma").disabled = true;
+          document.getElementById("DhatusButtonOptionIt").disabled = true;
+        } else {
+          document.getElementById("DhatusButton").disabled = false;
+          document.getElementById("DhatusButtonOptionGana").disabled = false;
+          document.getElementById("DhatusButtonOptionPadi").disabled = false;
+          document.getElementById("DhatusButtonOptionKarma").disabled = false;
+          document.getElementById("DhatusButtonOptionIt").disabled = false;
+        }
+      });
+
+      var optionClicked = "SortedList";
+      const DhatusButton = document.getElementById("DhatusButton");
+      const DhatusButtonGana = document.getElementById("DhatusButtonOptionGana");
+      const DhatusButtonPadi = document.getElementById("DhatusButtonOptionPadi");
+      const DhatusButtonKarma = document.getElementById("DhatusButtonOptionKarma");
+      const DhatusButtonIt = document.getElementById("DhatusButtonOptionIt");
+
+      DhatusButton.addEventListener("click", () => {
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("vibhakti_vachana").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+        document.getElementById("btnOk").style.visibility = "visible";
+      });
+
+      DhatusButtonGana.addEventListener("click", () => {
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        const popupGana = document.getElementById("optionGana");
+        popupGana.style.visibility = "visible";
+        document.getElementById("optionPadi").style.visibility = "hidden";
+        document.getElementById("optionKarma").style.visibility = "hidden";
+        document.getElementById("optionIt").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("vibhakti_vachana").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+        document.getElementById("btnOk").style.visibility = "visible";
+        optionClicked = "Ganas";
+      });
+
+      DhatusButtonPadi.addEventListener("click", () => {
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        const popupPadi = document.getElementById("optionPadi");
+        popupPadi.style.visibility = "visible";
+        document.getElementById("optionGana").style.visibility = "hidden";
+        document.getElementById("optionKarma").style.visibility = "hidden";
+        document.getElementById("optionIt").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("vibhakti_vachana").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+        document.getElementById("btnOk").style.visibility = "visible";
+        optionClicked = "Padis";
+      });
+
+      DhatusButtonKarma.addEventListener("click", () => {
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        const popupKarma = document.getElementById("optionKarma");
+        popupKarma.style.visibility = "visible";
+        document.getElementById("optionGana").style.visibility = "hidden";
+        document.getElementById("optionPadi").style.visibility = "hidden";
+        document.getElementById("optionIt").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("vibhakti_vachana").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+        document.getElementById("btnOk").style.visibility = "visible";
+        optionClicked = "Karmas";
+      });
+
+      DhatusButtonIt.addEventListener("click", () => {
+        const popup = document.getElementById("popup");
+        popup.style.visibility = "visible";
+        const popupIt = document.getElementById("optionIt");
+        popupIt.style.visibility = "visible";
+        document.getElementById("optionGana").style.visibility = "hidden";
+        document.getElementById("optionKarma").style.visibility = "hidden";
+        document.getElementById("optionPadi").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "hidden";
+        document.getElementById("vibhakti_vachana").style.visibility = "hidden";
+        document.getElementById("krdantaTbl").style.visibility = "hidden";
+        document.getElementById("btnOk").style.visibility = "visible";
+        optionClicked = "Its";
+      });
+
+      function optionsClicked() {
+        if (optionClicked == "SortedList") getDhatus();
+        else if (optionClicked == "Ganas") getDhatusOptionGana();
+        else if (optionClicked == "Padis") getDhatusOptionPadi();
+        else if (optionClicked == "Karmas") getDhatusOptionKarma();
+        else if (optionClicked == "Its") getDhatusOptionIt();
+        optionClicked = "SortedList";
+        document.getElementById("DhatusButton").disabled = true;
+        document.getElementById("DhatusButtonOptionGana").disabled = true;
+        document.getElementById("DhatusButtonOptionPadi").disabled = true;
+        document.getElementById("DhatusButtonOptionKarma").disabled = true;
+        document.getElementById("DhatusButtonOptionIt").disabled = true;
+        document.getElementById("btnOk").style.visibility = "hidden";
+      }
+
+      // Restore Dhatus selections
+      function getDhatus() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("vibhakti_vachana").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
+        const dhatuVidha = $("#DhatuVidha option:selected").text();
+        const KrdantaVidha = $("#Prayoga option:selected").text();
+        const KrdMode = $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha + "&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu;
+        const apiUrl = getApiUrl('KrdantaDhatuKrdantaMode' + parameters);
+        renderRestApiJson(apiUrl);
+      }
+
+      function getDhatusOptionGana() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("vibhakti_vachana").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
+        const dhatuVidha = $("#DhatuVidha option:selected").text();
+        const KrdantaVidha = $("#Prayoga option:selected").text();
+        const KrdMode = $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        const parameter = $("#gana option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha + "&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu + "&option=गण" + "&parameter=" + parameter;
+        const apiUrl = getApiUrl('KrdantaOptionGanaPadiKarmaIt' + parameters);
+        document.getElementById("optionGana").style.visibility = "hidden";
+        renderRestApiJson(apiUrl);
+      }
+
+      function getDhatusOptionPadi() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("vibhakti_vachana").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
+        const dhatuVidha = $("#DhatuVidha option:selected").text();
+        const KrdantaVidha = $("#Prayoga option:selected").text();
+        const KrdMode = $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        const parameter = $("#padi option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha + "&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu + "&option=पदि" + "&parameter=" + parameter;
+        const apiUrl = getApiUrl('KrdantaOptionGanaPadiKarmaIt' + parameters);
+        document.getElementById("optionPadi").style.visibility = "hidden";
+        renderRestApiJson(apiUrl);
+      }
+
+      function getDhatusOptionKarma() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("vibhakti_vachana").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
+        const dhatuVidha = $("#DhatuVidha option:selected").text();
+        const KrdantaVidha = $("#Prayoga option:selected").text();
+        const KrdMode = $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        const parameter = $("#karma option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha + "&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu + "&option=कर्म" + "&parameter=" + parameter;
+        const apiUrl = getApiUrl('KrdantaOptionGanaPadiKarmaIt' + parameters);
+        document.getElementById("optionKarma").style.visibility = "hidden";
+        renderRestApiJson(apiUrl);
+      }
+
+      function getDhatusOptionIt() {
+        document.getElementById("popup").style.visibility = "hidden";
+        document.getElementById("textBoxes").style.visibility = "visible";
+        document.getElementById("vibhakti_vachana").style.visibility = "visible";
+        document.getElementById("krdantaTbl").style.visibility = "visible";
+        const dhatuVidha = $("#DhatuVidha option:selected").text();
+        const KrdantaVidha = $("#Prayoga option:selected").text();
+        const KrdMode = $("#KrdMode option:selected").text();
+        const dhatu = $("#Dhatus option:selected").text();
+        const parameter = $("#it option:selected").text();
+        parameters = "?DhatuVidha=" + dhatuVidha + "&KrdantaVidha=" + KrdantaVidha + "&KrdMode=" + KrdMode + "&dhatu=" + dhatu + "&option=इट्" + "&parameter=" + parameter;
+        const apiUrl = getApiUrl('KrdantaOptionGanaPadiKarmaIt' + parameters);
+        document.getElementById("optionIt").style.visibility = "hidden";
+        renderRestApiJson(apiUrl);
+      }
+
+      function renderRestApiJson(apiUrl) {
+        fetch(apiUrl)
+          .then(response => response.json())
+          .then(data => {
+            const titleEl = document.getElementById("dhatuTitle");
+            if (titleEl) {
+              const dhatuSel = $("#Dhatus option:selected").text();
+              titleEl.innerHTML = "Participle Paradigms: " + dhatuSel;
+            }
+            dataArray = data['Krdantas'];
+            document.getElementById("DhatusButton").disabled = true;
+
+            const textBoxes = document.getElementById("textBoxes");
+            textBoxes.innerHTML = ""; // Clear old metadata inputs
+
+            Object.entries(dataArray).forEach(([key, value]) => {
+              if (key == "forms") {
+                let tabl = document.getElementById('tbl');
+                if (tabl) tabl.remove();
+                const table = document.createElement('table');
+                table.setAttribute("id", "tbl");
+                const headerRow = table.insertRow();
+                const rowLabel = document.createElement('th');
+                rowLabel.textContent = 'विभक्ति/वचन';
+                headerRow.appendChild(rowLabel);              
+                const header1 = document.createElement('th');
+                header1.textContent = 'एकवचन';
+                headerRow.appendChild(header1);
+                const header2 = document.createElement('th');
+                header2.textContent = 'द्विवचन';
+                headerRow.appendChild(header2);
+                const header3 = document.createElement('th');
+                header3.textContent = 'बहुवचन';
+                headerRow.appendChild(header3);
+
+                formsDict = dataArray["forms"];
+                vibhaktis = ['प्रथमा', 'द्वितीया', 'तृतीया', 'चतुर्थि', 'पंचमि', 'शष्टि', 'सप्तमि', 'सं प्रथम'];
+
+                for (const [rowKey, rowValue] of Object.entries(formsDict)) {
+                  const row = table.insertRow();
+                  const labelCell = row.insertCell();
+                  labelCell.textContent = vibhaktis[rowKey];
+                  for (const form of rowValue) {
+                    const cell = row.insertCell();
+                    cell.textContent = form;
+                  }
+                }
+                const texboxes = document.getElementById("vibhakti_vachana");
+                texboxes.innerHTML = "";
+                texboxes.appendChild(table);
+              } else if (key != "") {
+                const metaBox = document.createElement("div");
+                metaBox.className = "meta-box";
+
+                const labelSpan = document.createElement("span");
+                labelSpan.className = "label";
+                labelSpan.textContent = key;
+                metaBox.appendChild(labelSpan);
+
+                const valueInput = document.createElement("input");
+                valueInput.type = "text";
+                valueInput.className = "value";
+                valueInput.value = value;
+                valueInput.readOnly = true;
+                metaBox.appendChild(valueInput);
+
+                textBoxes.appendChild(metaBox);
+              }
+            });
+          })
+          .catch(error => {
+            console.error(error);
+            document.getElementById("status").value = error;
+          });
+      }
+    </script>
+  </body>
+</html>

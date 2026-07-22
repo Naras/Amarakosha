@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Amarakosha - Sentence Analyser</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg-color: #0f172a;
+        --panel-bg: rgba(30, 41, 59, 0.7);
+        --accent-color: #38bdf8;
+        --accent-hover: #0ea5e9;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --card-bg: rgba(15, 23, 42, 0.6);
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        font-family: 'Noto Sans', sans-serif;
+        color: var(--text-main);
+        min-height: 100vh;
+        background-image: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 40%),
+                          radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 40%);
+      }
+
+      /* Navbar */
+      #navbar {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border-color);
+        padding: 10px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      #navbar ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+      }
+
+      #navbar li {
+        display: inline-block;
+        border: none;
+        margin: 0;
+      }
+
+      #navbar li a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        font-size: 1rem;
+        padding: 8px 16px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      #navbar li a:hover, #navbar li.active a {
+        color: var(--text-main);
+        background: rgba(56, 189, 248, 0.15);
+        box-shadow: 0 0 15px rgba(56, 189, 248, 0.1);
+      }
+
+      /* Container */
+      .app-container {
+        max-width: 1400px;
+        margin: 30px auto;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 30px;
+      }
+
+      /* Header info */
+      .header-section {
+        grid-column: 1 / -1;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .header-section h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.5rem;
+        margin: 0;
+        background: linear-gradient(135deg, #f8fafc 30%, #38bdf8 90%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .header-section p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        margin-top: 5px;
+      }
+
+      /* Sidebar & Details panel */
+      .sidebar {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 20px;
+        backdrop-filter: blur(8px);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        position: sticky;
+        top: 90px;
+        box-sizing: border-box;
+      }
+
+      .sidebar label {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 1.1rem;
+      }
+
+      select#Dhatus {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-main);
+        padding: 10px;
+        font-size: 1rem;
+        height: 250px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.3s ease;
+        width: 100%;
+      }
+
+      select#Dhatus:focus {
+        border-color: var(--accent-color);
+      }
+
+      /* Buttons */
+      .sidebar button, #pageButtons button {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px;
+        font-family: 'Outfit', sans-serif;
+        font-weight: 500;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+      }
+
+      .sidebar button:hover:not(:disabled), #pageButtons button:hover:not(:disabled) {
+        background: rgba(56, 189, 248, 0.15);
+        border-color: var(--accent-color);
+      }
+
+      .sidebar button:disabled, #pageButtons button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      #btnMorphologicalAnalysis {
+        background: linear-gradient(135deg, var(--accent-color), var(--accent-hover)) !important;
+        color: var(--bg-color) !important;
+        font-weight: 700 !important;
+        border: none !important;
+        text-align: center !important;
+      }
+
+      #btnMorphologicalAnalysis:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+      }
+
+      /* Details view */
+      .details-panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 30px;
+        backdrop-filter: blur(8px);
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .details-panel h5 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.5rem;
+        margin: 0;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 10px;
+        color: var(--accent-color);
+      }
+
+      /* Page buttons row */
+      #pageButtons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      #pageButtons button {
+        text-align: center;
+        padding: 8px 16px;
+      }
+
+      /* Dynamic flex containers */
+      .flex-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .tileVertical {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      /* Inputs styled inside details */
+      .tileVertical label {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-bottom: -4px;
+        letter-spacing: 0.05em;
+      }
+
+      .tileVertical input[type="text"] {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-main);
+        padding: 10px;
+        font-size: 1rem;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* Declension/Syntax Table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card-bg);
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        margin-top: 10px;
+      }
+
+      table th, table td {
+        padding: 10px 12px;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+        white-space: normal;
+        word-break: break-word;
+        font-size: 0.95rem;
+      }
+
+      table th {
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent-color);
+        font-family: 'Outfit', sans-serif;
+        font-weight: 600;
+      }
+
+      table tr:last-child td {
+        border-bottom: none;
+      }
+
+      table tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="navbar">
+      <ul>
+        <li><a href="webclient_Amara_Synonyms.html">Amarakosha</a></li>
+        <li><a href="webclient_Subanta_Generate.html">Subanta</a></li>
+        <li><a href="webclient_Tiganta_Generate.html">Tiganta</a></li>
+        <li><a href="webclient_Krdanta_Generate.html">Krdanta</a></li>
+        <li class="active"><a href="webclient_sentence_analyser.html">Analysis</a></li>
+        <li><a href="index.html">Home</a></li>
+      </ul>
+    </div>
+
+    <div class="app-container">
+      <div class="header-section">
+        <h2>Sentence Analyser</h2>
+        <p>Analyse Sanskrit sentences and visualize syntax dependency graphs</p>
+      </div>
+
+      <div class="sidebar">
+        <label for="Dhatus">Select Sentence</label>
+        <select id="Dhatus" size="20"></select>
+        <button id="btnMorphologicalAnalysis">Morphological Analysis</button>
+        <button id="btnSyntacticAnalysis" disabled>Syntax Analysis</button>
+        <button id="btnGraph" disabled>View Dependency Graphs</button>
+      </div>
+
+      <div class="details-panel">
+        <h5>Analysis Output</h5>
+        
+        <!-- Pager buttons for parsed sentences -->
+        <div id="pageButtons"></div>
+
+        <div id="sentenceAnalysis">
+          <div style="color: var(--text-muted); text-align: center; padding: 50px;">
+            Select a sentence and run "Morphological Analysis" to begin.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+      var sentence = null;
+      var sectionInterpretation = null;
+      var sectionGraphs = null;
+      var sectionSemantic = null;
+      var numpages = 0;
+      var numpagesInterpretation = 0;
+      var subantas_tigantas_krdantas = {'सुबंतः':0,  'तिगंतः':0, 'कृदंतः':0};
+      var subantas_tigantas_krdantas_forms = {'सुबंतः':0,  'तिगंतः':0, 'कृदंतः':0};
+      const pages = ['सुबंतः',  'तिगंतः', 'कृदंतः'];
+
+      const DhatusSelect = document.getElementById("Dhatus");
+
+      fetch(getApiUrl('SentencesBandarkar'))
+        .then(response => response.json())
+        .then(json => {
+          dataArray = json['Sentences'];
+          dataArray.forEach((item, i) => {
+            const option = document.createElement("option");
+            option.value = i;
+            option.text = item;
+            DhatusSelect.appendChild(option);
+          });
+        });
+
+      const DhatusListBox = document.getElementById("Dhatus");
+      DhatusListBox.addEventListener("change", () => {
+        sentence = $("#Dhatus option:selected").text();
+        if (sentence == "") document.getElementById("btnMorphologicalAnalysis").disabled = true;
+        else document.getElementById("btnMorphologicalAnalysis").disabled = false;
+      });
+
+      const btnMorphologicalAnalysis = document.getElementById("btnMorphologicalAnalysis");
+      btnMorphologicalAnalysis.addEventListener("click", () => {
+        sentence = $("#Dhatus option:selected").text();
+        const url = getApiUrl('SentenceAnalysis?sentence=' + encodeURIComponent(sentence));
+        document.getElementById("btnMorphologicalAnalysis").disabled = true;
+        document.getElementById("btnSyntacticAnalysis").disabled = false;
+
+        fetch(url)
+          .then(response => response.json())
+          .then(data => {
+            sectionInterpretation = data.sentenceAnalysis.syntactic.interpretations;
+            sectionGraphs = data.sentenceAnalysis.syntactic.graphs;
+            sectionSemantic = data.sentenceAnalysis.semantic;
+
+            let sentenceAnalysisDiv = document.getElementById("sentenceAnalysis");
+            if (sentenceAnalysisDiv != null) sentenceAnalysisDiv.parentNode.removeChild(sentenceAnalysisDiv);
+            sentenceAnalysisDiv = document.createElement('div');
+            sentenceAnalysisDiv.setAttribute("id", "sentenceAnalysis");
+
+            pageNumber = 0;
+            
+            for (const section of pages) {
+              const sectionData = data.sentenceAnalysis.morphological[section];
+              const sectionFormsData = data.sentenceAnalysis.morphological[section + 'Forms'];
+              subantas_tigantas_krdantas[section] = sectionData.length;
+              if (section == 'तिगंतः') len = 3; else len = 8;
+              subantas_tigantas_krdantas_forms[section] = sectionFormsData.length / len;
+              var rownames;
+              if (section == 'तिगंतः') rownames = ["प्रथमपुरुषः", "मध्यमपुरुषः", "उत्तमपुरुषः"];
+              else rownames = ['प्रथमा', 'द्वितीया', 'तृतीया', 'चतुर्थि', 'पंचमि', 'शष्टि', 'सप्तमि', 'सं प्रथम'];
+              const flexDiv = document.createElement('div');
+              flexDiv.setAttribute("class", "flex-container");
+              for (let i = 0; i < sectionData.length; i++) {
+                pageNumber += 1;
+                const pageAnchor = document.createElement('a');
+                pageAnchor.name = 'Page ' + pageNumber;
+                
+                const pageDiv = generatePageKeyValuePairs(data, section, i);
+                pageDiv.id = 'page-' + pageNumber;
+                pageDiv.style.display = "none";
+                flexDiv.appendChild(pageAnchor);
+                flexDiv.appendChild(pageDiv);
+              }
+
+              vacanas = ['एकवचन', 'द्विवचन', 'बहुवचन'];
+              const tblDiv = generatePageTable(data, section, rownames, vacanas, pageNumber);
+              tblDiv.style.display = "none";
+              flexDiv.appendChild(tblDiv);
+              sentenceAnalysisDiv.appendChild(flexDiv);
+            }
+
+            buttons = document.getElementById("pageButtons");
+            while (buttons.firstChild) {
+              buttons.removeChild(buttons.firstChild);
+            }
+            pagerange = 0;
+            for (const [key, value] of Object.entries(subantas_tigantas_krdantas)) {
+              pagerange += value;
+              subantas_tigantas_krdantas[key] = pagerange;
+            }
+
+            for (let i = 1; i <= pageNumber; i++) {
+              const button = document.createElement('button');
+              button.textContent = 'Page ' + i;
+              button.addEventListener('click', () => showPage(i));
+              buttons.appendChild(button);
+            }
+            const panel = document.querySelector(".details-panel");
+            panel.appendChild(sentenceAnalysisDiv);
+            numpages = pageNumber;
+            showPage(1);
+          });
+      });
+
+      const btnSyntaxAnalysis = document.getElementById("btnSyntacticAnalysis");
+      btnSyntaxAnalysis.addEventListener("click", () => {
+        let sentenceAnalysisDiv = document.getElementById("sentenceAnalysis");
+        if (sentenceAnalysisDiv != null) sentenceAnalysisDiv.parentNode.removeChild(sentenceAnalysisDiv);
+        sentenceAnalysisDiv = document.createElement('div');
+        sentenceAnalysisDiv.setAttribute("id", "sentenceAnalysis");
+        sentenceAnalysisDiv.setAttribute("name", "sentence Analysis");
+
+        document.getElementById("btnGraph").disabled = false;
+
+        pageNumber = sectionInterpretation.length; numpagesInterpretation = sectionInterpretation.length;
+        const flexDiv = document.createElement('div');
+        flexDiv.setAttribute("class", "flex-container");
+        flexDiv.setAttribute("id", "Interpretations");
+        const tblDiv = generateInterpretationsTable(sectionInterpretation, 0);
+        flexDiv.style.display = "flex";
+        flexDiv.appendChild(tblDiv);
+        sentenceAnalysisDiv.appendChild(flexDiv);
+
+        if (sectionSemantic) {
+          const semCard = document.createElement('div');
+          semCard.setAttribute("class", "tileVertical");
+          semCard.setAttribute("id", "semanticCard");
+          semCard.style.marginTop = "25px";
+          
+          const semLabel = document.createElement('label');
+          semLabel.textContent = "Semantic Evaluation";
+          semCard.appendChild(semLabel);
+          
+          const statusBadge = document.createElement('div');
+          statusBadge.setAttribute("id", "semanticStatusBadge");
+          statusBadge.style.display = "inline-block";
+          statusBadge.style.padding = "6px 16px";
+          statusBadge.style.borderRadius = "20px";
+          statusBadge.style.fontWeight = "bold";
+          statusBadge.style.fontSize = "0.9rem";
+          statusBadge.style.margin = "10px 0";
+          statusBadge.style.width = "fit-content";
+          semCard.appendChild(statusBadge);
+          
+          const reportDiv = document.createElement('pre');
+          reportDiv.setAttribute("id", "semanticReport");
+          reportDiv.style.fontFamily = "'Courier New', Courier, monospace";
+          reportDiv.style.background = "rgba(0, 0, 0, 0.3)";
+          reportDiv.style.padding = "15px";
+          reportDiv.style.borderRadius = "8px";
+          reportDiv.style.border = "1px solid rgba(255, 255, 255, 0.05)";
+          reportDiv.style.color = "var(--text-muted)";
+          reportDiv.style.overflowX = "auto";
+          reportDiv.style.whiteSpace = "pre-wrap";
+          semCard.appendChild(reportDiv);
+          
+          sentenceAnalysisDiv.appendChild(semCard);
+        }
+
+        buttons = document.getElementById("pageButtons");
+        while (buttons.firstChild) {
+          buttons.removeChild(buttons.firstChild);
+        }
+        for (let i = 1; i <= pageNumber; i++) {
+          const button = document.createElement('button');
+          button.textContent = 'Page ' + i;
+          button.addEventListener('click', () => showPageInterpretation(i));
+          buttons.appendChild(button);
+        }
+        const panel = document.querySelector(".details-panel");
+        panel.appendChild(sentenceAnalysisDiv);
+        numpages = pageNumber;
+        btnSyntaxAnalysis.style.disabled = true;
+        showPageInterpretation(1);
+      });
+
+      const btnGraph = document.getElementById("btnGraph");
+      btnGraph.addEventListener("click", () => {
+        drawGraphsNewWindow(sentence, sectionGraphs);
+        btnGraph.style.disabled = true;
+      });
+
+      function generateKeyValuePairs(data, section) {
+        const div = document.createElement('div');
+        const labelSection = document.createElement("label");
+        labelSection.htmlFor = section;
+        labelSection.textContent = section;
+        div.appendChild(labelSection);
+        for (const [key, value] of Object.entries(data)) {
+          const label = document.createElement('label');
+          label.textContent = key + ':';
+
+          const text = document.createElement('input');
+          text.type = 'text';
+          text.value = Array.isArray(value) ? value.join(', ') : value;
+
+          div.appendChild(label);
+          div.appendChild(text);
+        }
+        return div;
+      }
+
+      function generatePageKeyValuePairs(data, section, index) {
+        const pageDiv = document.createElement('div');
+        pageDiv.setAttribute("class", "tileVertical");
+        const keyValueDiv = generateKeyValuePairs(data.sentenceAnalysis.morphological[section][index], section);
+        pageDiv.appendChild(keyValueDiv);
+        return pageDiv;
+      }
+
+      function generateTable(data, rownames, colnames, hdr) {
+        const table = document.createElement('table');
+        const headerRow = table.insertRow();
+        if (hdr && hdr.trim() !== "") {
+          const header = document.createElement('th');
+          header.textContent = hdr;
+          headerRow.appendChild(header);
+        }
+        Object.entries(colnames).forEach((k,v) => {
+          const header = document.createElement('th');
+          header.textContent = colnames[v];
+          headerRow.appendChild(header);
+        });
+        for (const [key, value] of Object.entries(data)) {
+          const row = table.insertRow();
+          if (rownames && rownames[key] && rownames[key].trim() !== "") {
+            const labelCell = row.insertCell();
+            labelCell.textContent = rownames[key];
+          }
+          for (const form of value) {
+            const cell = row.insertCell();
+            cell.textContent = form;
+          }
+        }
+        return table;
+      }
+
+      function generatePageTable(data, section, rownames, colnames, pageNumber) {
+        const pageDiv = document.createElement('div');
+        pageDiv.setAttribute("class", "tileVertical");
+        if (section == 'तिगंतः') {hdr = 'पुरुष/वचन'; inc = 3}
+        else {hdr = 'विभक्ति/वचन'; inc = 8}
+        formData = data.sentenceAnalysis.morphological[section + 'Forms'];
+        for (k = 0; k < formData.length; k += inc) {
+          const tableDiv = generateTable(formData.slice(k, k + inc), rownames, colnames, hdr);
+          tableDiv.id = section + "-" + k/inc;
+          const labelSection = document.createElement("label");
+          labelSection.htmlFor = tableDiv.id;
+          labelSection.textContent = tableDiv.id;
+          pageDiv.appendChild(labelSection);
+          pageDiv.appendChild(tableDiv);
+        }
+        return pageDiv;
+      }
+
+      function showPage(pageNumber) {
+        const pageId = document.getElementById('page-' + pageNumber);
+        for (let i = 0; i < numpages; i++) {
+          p = document.getElementById(('page-' + (i + 1))); 
+          p.style.display = "none"; 
+          p.parentNode.style.display = "none";
+        }
+        for (section in pages) { 
+          for (let i = 0; i < subantas_tigantas_krdantas_forms[pages[section]]; i++) {
+            document.getElementById(pages[section] + "-" + i).style.display = "none"; 
+          }
+        }
+        if (pageNumber <= subantas_tigantas_krdantas['सुबंतः']) {
+          section = 'सुबंतः'; 
+        } else if (pageNumber <= subantas_tigantas_krdantas['तिगंतः']) {
+          section = 'तिगंतः';
+        } else {
+          section = 'कृदंतः';
+        }
+
+        tblId = section + "-" + Math.min((subantas_tigantas_krdantas[section] - pageNumber), subantas_tigantas_krdantas_forms[section] - 1);
+        tbl = document.getElementById(tblId);
+
+        tbl.style.display = "table";
+        parent = tbl.parentNode;
+        parent.style.display = "flex";
+        grandparent = parent.parentNode;
+        parent.removeChild(tbl);
+        grandparent.removeChild(parent);
+        parent.prepend(tbl);
+        grandparent.prepend(parent);
+
+        pageId.style.display = "flex";
+        parent = pageId.parentNode; 
+        parent.style.display = "flex";
+        grandparent=parent.parentNode;
+        parent.removeChild(pageId);
+        grandparent.removeChild(parent);
+        parent.prepend(pageId);
+        grandparent.prepend(parent);
+      }
+
+      function generateInterpretationsTable(data, section) {
+        const pagesDiv = document.createElement('div');
+        for (k = 0; k < data.length; k++) {
+          const pageDiv = document.createElement('div');
+          pageDiv.style.display = "flex";
+          pageDiv.style.gap = "15px";
+          pageDiv.style.width = "100%";
+          cellData = data[k].cells;
+          conclusions = data[k].conclusions;
+
+          rownames = [];
+          colnames = ["Roles", "Words", "linga/rupa", "vibhakti/purusha", "vacana"];
+          hdr = "";
+          const tableDiv = generateTable(cellData, rownames, colnames, hdr);
+          tableDiv.style.flex = "3";
+          pageDiv.appendChild(tableDiv);
+
+          rownames = [];
+          colnames = ["Interpretation"];
+          hdr = "";
+          const tableDivC = generateTableInter(conclusions, rownames, colnames, hdr);
+          tableDivC.style.flex = "2";
+          pageDiv.appendChild(tableDivC);
+
+          pageDiv.id = "page-" + (k + 1);
+          pagesDiv.appendChild(pageDiv);
+        }
+        return pagesDiv;
+      }
+
+      function showPageInterpretation(pageNumber) {
+        const pageId = document.getElementById('page-' + pageNumber);
+        const flexDiv = document.getElementById("Interpretations");
+
+        for (let i = 0; i < numpagesInterpretation; i++) {
+          p = document.getElementById(('page-' + (i + 1))); 
+          p.style.display = "none"; 
+          p.parentNode.style.display = "none";
+        }
+        
+        flexDiv.style.display = "flex";
+        pageId.style.display = "flex";
+        parent = pageId.parentNode; 
+        parent.style.display = "block";
+        grandparent=parent.parentNode;
+        parent.removeChild(pageId);
+        grandparent.removeChild(parent);
+        parent.prepend(pageId);
+        grandparent.prepend(parent);
+
+        // Update semantic card contents dynamically based on active page's semantic details
+        if (sectionInterpretation && sectionInterpretation[pageNumber - 1]) {
+          const interp = sectionInterpretation[pageNumber - 1];
+          const semCard = document.getElementById("semanticCard");
+          if (semCard) {
+            if (interp.semantic && interp.semantic.evaluated) {
+              semCard.style.display = "flex"; // Show card
+              const badge = document.getElementById("semanticStatusBadge");
+              const report = document.getElementById("semanticReport");
+              if (badge && report) {
+                if (interp.semantic.compatible) {
+                  badge.textContent = "Compatible";
+                  badge.style.background = "rgba(34, 197, 94, 0.2)";
+                  badge.style.color = "#4ade80";
+                  badge.style.border = "1px solid rgba(74, 222, 128, 0.3)";
+                } else {
+                  badge.textContent = "Incompatible";
+                  badge.style.background = "rgba(239, 68, 68, 0.2)";
+                  badge.style.color = "#f87171";
+                  badge.style.border = "1px solid rgba(248, 113, 113, 0.3)";
+                }
+                report.textContent = interp.semantic.report.join('\n');
+              }
+            } else {
+              semCard.style.display = "none"; // Hide card if not evaluated
+            }
+          }
+        }
+      }
+
+      function generateTableInter(data, rownames, colnames, hdr) {
+        const table = document.createElement('table');
+        const headerRow = table.insertRow();
+        if (hdr && hdr.trim() !== "") {
+          const header = document.createElement('th');
+          header.textContent = hdr;
+          headerRow.appendChild(header);
+        }
+        Object.entries(colnames).forEach((k,v) => {
+          const header = document.createElement('th');
+          header.textContent = colnames[v];
+          headerRow.appendChild(header);
+        });
+        const row = table.insertRow();
+        if (rownames && rownames[0] && rownames[0].trim() !== "") {
+          const labelCell = row.insertCell();
+          labelCell.textContent = rownames[0];
+        }
+        const cell = row.insertCell();
+        cell.textContent = Array.isArray(data) ? data.join('\n') : data;
+        return table;
+      }
+
+      function drawGraphsNewWindow(sentence, graphs) {
+        const basePath = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        const closeScript = '</' + 'script>';
+        const insertHtml = `<!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <link rel="stylesheet" href="${basePath}graphStyleSheet.css">
+        </head>
+        <body>
+          <header id="myHeader" class="header">
+            <h3 id="sentence">placeholder</h3>
+          </header>
+          <svg width="960" height="600"></svg>
+          <script src="${basePath}d3.v4.min.js">${closeScript}
+          <script src="${basePath}webclient_graph.js">${closeScript}
+        </body>
+        </html>`;
+
+        sessionStorage.setItem("sentence", sentence);
+        sessionStorage.setItem("graphs", JSON.stringify(graphs));
+
+        var url = URL.createObjectURL(
+          new Blob([insertHtml], { type: "text/html" })
+        );
+        graphWindow = window.open(url, "win", `width=1000,height=600,screenX=600,screenY=200`);
+      }
+    </script>
+  </body>
+</html>

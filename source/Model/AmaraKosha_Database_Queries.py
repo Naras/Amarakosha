@@ -1,11 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 __author__ = 'NarasMG'
 
 import peewee, os
-from iscii2utf8 import *
-conn = peewee.SqliteDatabase(os.getcwd() + '\WordsData.db', pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
-cursor = conn.cursor()
-rowcursor = conn.cursor()
+
+# from source.Controller.Transliterate import IndianLanguages
+from source.Controller.iscii2utf8 import *
+# print(f"connection {os.path.join(os.getcwd(), 'Amarakosha.db')}")
+conn_unicode = peewee.SqliteDatabase(os.path.join(os.getcwd(), 'Amarakosha.db'), pragmas={'journal_mode': 'wal','cache_size': -1024 * 64})
 maxrows = 5
+IndianLanguages = ('devanagari','bengali','gurmukhi','gujarati','oriya','tamizh','telugu','kannada','malayalam')
 
 mypar = Parser()
 mypar.set_script(1)
@@ -27,34 +31,44 @@ def isascii(s):
         return True
     except UnicodeEncodeError:
         return False
-def iscii_unicode(iscii_string, script=1):
-    mypar.set_script(script)
+def iscii_unicode(iscii_string, script="devanagari"):
+    scriptIndex = IndianLanguages.index(script) + 1
+    # print(f"iscii_unicode script {script} index {scriptIndex}")
+    mypar.set_script(scriptIndex)
     flush = 0
     x_as_List = [ord(char) for char in iscii_string+' ']
     n = mypar.iscii2utf8(x_as_List, flush)
     # y = x[n:]
     return ''.join([ch for ch in mypar.write_output()])
-def unicode_iscii(unicode_string, script=1):
-    mypar.set_script(script)
-    scripts_map_unicode = mypar.make_script_maps_unicode_to_iscii()
-    return ''.join([chr(scripts_map_unicode[ord(ch)]) for ch in unicode_string])
-
+def unicode_iscii(unicode_string, script="devanagari"):
+    scriptIndex = IndianLanguages.index(script) + 1
+    mypar.set_script(scriptIndex)
+    try:
+        scripts_map_unicode = mypar.make_script_maps_unicode_to_iscii()
+        result_as_list = []
+        for i, ch in enumerate(unicode_string):
+            # print('ch %s hex %s dec %s'%(ch, hex(ord(ch)), ord(ch)))
+            result_as_list.append(chr(scripts_map_unicode[ord(ch)]))
+            if ord(ch) in nukta_specials.values(): result_as_list.append(chr(ISCII_NUKTA))
+        return ''.join(result_as_list)
+    except Exception as e:
+        raise Exception('unicode_iscii: character %s unicode-string %s character %s' % (e, unicode_string, ch))
 def schemaParse():
-    cursor = conn.get_tables()
+    cursor = conn_unicode.get_tables()
     mypar = Parser()
     mypar.set_script(1)
     tbls = []
     for row in cursor:
         tbls.append(row)
     return tbls
-def sqlQuery(sql, param=None, maxrows=5, duplicate=True, script=1):
+def sqlQueryUnicode(sql, param=None, maxrows=5, duplicate=False, script="devanagari"):
     # lstParam = [x for x in param] if isinstance(param,tuple) else param
     # print('sql=%s param=%s'%(sql, lstParam))
     current = 0
-    if param==None: rowcursor = conn.execute_sql(sql)
+    if param==None: rowcursor = conn_unicode.execute_sql(sql)
     else:
         if not isinstance(param,tuple): param = (param,)
-        rowcursor = conn.execute_sql(sql, param)
+        rowcursor = conn_unicode.execute_sql(sql, param)
     try:
         result = []
         for r in rowcursor.fetchall():
@@ -66,8 +80,8 @@ def sqlQuery(sql, param=None, maxrows=5, duplicate=True, script=1):
                     resultRow.append(field)
                     if duplicate: resultRow.append(field)
                 else:
-                    resultRow.append(iscii_unicode(str(field), script))
-                    if duplicate: resultRow.append(field)
+                    resultRow.append(field)
+                    if duplicate: resultRow.append(unicode_iscii(field))
             result += [resultRow]
             current += 1
             if maxrows > 0 and current > maxrows:
@@ -78,9 +92,9 @@ def sqlQuery(sql, param=None, maxrows=5, duplicate=True, script=1):
     columns = [column[0] for column in rowcursor.description]
     if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
     return columns, result
-def tblSelect(table_name,maxrows=5,duplicate=True, script=1):
+def tblSelectUnicode(table_name,maxrows=5,duplicate=False, script="devanagari"):
     current = 0
-    rowcursor = conn.execute_sql('select * from ' + table_name)
+    rowcursor = conn_unicode.execute_sql('select * from ' + table_name)
     try:
         tbl = []
         for r in rowcursor.fetchall():
@@ -91,8 +105,8 @@ def tblSelect(table_name,maxrows=5,duplicate=True, script=1):
                     tblRow.append(field)
                     if duplicate: tblRow.append(field)
                 else:
-                    tblRow.append(iscii_unicode(str(field), script))
-                    if duplicate: tblRow.append(field)
+                    tblRow.append(field)
+                    if duplicate: tblRow.append(unicode_iscii(str(field), script))
             tbl += [tblRow]
             current += 1
             if maxrows > 0 and current > maxrows:
@@ -103,50 +117,10 @@ def tblSelect(table_name,maxrows=5,duplicate=True, script=1):
     if duplicate: columns = list(flatMap(lambda x: (x, x), columns))
 
     return columns, tbl
-    '''
-    # print(columns)
-    qry = 'select ' + ','.join(columns) + ' from ' + row.table_name
-    # print(qry)
-    tblDF = pd.DataFrame(pd.read_sql_query(qry, conn), columns=columns)  # 'select * from ' + row.table_name,conn)
-    # rowcursor.execute('select * from ' + row.table_name)
-    # tblDF = pd.DataFrame(rowcursor.fetchall())
-    # df = pd.DataFrame()
-    # for fld in tblDF: print(type(fld),fld)
-    # tblDF.columns = columns
-    df = []
-    for i in tblDF.head().index:
-        r = []
-        for col in columns:
-            if not isascii(str(tblDF[col][i])):
-                r.append(iscii_unicode(tblDF[col][i]))
-            else:
-                r.append(tblDF[col][i])
-        df.append(r)
-    print(df)
-    tblDF = pd.DataFrame(df)
-    tblDF.columns = columns
-    # tblDF.at[i, k] = iscii_unicode(str(v))
-    # print(tblDF.head())
-    '''
+
 if __name__ == '__main__':
-    cols, lines = sqlQuery('Select * from Subanta where Base = ?', "¤¢ÕÝÌÂÜ") #×èÔÏè
-    print('%s\n%s'%(cols, lines))
+        tbls = schemaParse()
+        print('tables %s' % tbls)
 
-    cols, lines = sqlQuery('Select * from SubFin where Finform = ?', 'ÏÚÌ£')
-    print('%s\n%s' % (cols, lines))
-
-    cols, lines = sqlQuery('select * from stinfin where field2 = ? and field3 = ?', (383, "1A"))
-    print('%s\n%s' % (cols, lines))
-
-    cols, lines = sqlQuery('select * from Sdhatu where field2 = ? ', unicode_iscii('अंश्'))
-    print('%s\n%s' % (cols, lines))
-
-    cols2, lines2 = sqlQuery('select * from Sdhatu where field1 = ? ', 383)
-    # print('%s\n%s' % (cols, lines))
-
-    print(cols == cols2, lines == lines2)
-
-    tbls = schemaParse()
-    print('tables %s' % tbls)
-
-
+        # cols, lines = sqlQueryUnicode('Select su.base, su.erb, su.code, sf.sufstr from Subanta su, sufcode sf where Base = ? and sf.code = substr(su.code,1, 4)', 'अंशुमती')
+        # print('Subanta/Sufcode: %s\n%s'%(cols, lines))

@@ -1,0 +1,23 @@
+# Completed Tasks Checklist
+
+- [x] Fix `NoneType` and attribute errors in `SemanticAnalysis.py`
+  - [x] Add null-safety guards for `verptr`, `krdfirst`, `mrecord`, `karmatch`, `krdmatch`, `krdunmatch`, and `un_match`
+  - [x] Protect `karptr.pos > krdpos` against `None`/`False` `krdpos`
+- [x] Eliminate duplicate semantic report lines
+  - [x] Unindent `if not Naflag:` report generation block outside `for line in cfp_lines:`
+  - [x] Add `if krdfirst:` guard to prevent Krdanta reporting when no Krdanta is present
+  - [x] Filter out structural metadata tokens (`(`, `/`, `उत्तमपुरुषः`, `एकवचनम्`, etc.) from verb root meanings
+- [x] Replicate `.ACI` rules to `source/Controller`
+  - [x] Create `source/Controller/SemanticData` directory
+  - [x] Replicate static `COMPTBLE.ACI` selectional restriction rules
+  - [x] Update path references in `SemanticAnalysis.py` to point to `source/Controller/SemanticData/COMPTBLE.ACI`
+  - [x] Keep dynamic sentence analysis 100% in-memory without disk I/O
+- [x] UI alignment and layout polish
+  - [x] Fix column 0 offset in `generateTable` & `generateTableInter` in `webclient_sentence_analyser.html`
+  - [x] Align `Roles`, `Words`, `linga/rupa`, `vibhakti/purusha`, and `vacana` headers with data cells
+  - [x] Enable text wrapping and responsive flex sizing for syntax tables
+  - [x] Add `purusha` and `vacana` to Morphological Tiganta REST API payload in `restService.py`
+- [x] Automated unit and end-to-end testing
+  - [x] Create abstract, regex-driven semantic analysis test suite in `tests/test_semantic_analysis.py`
+  - [x] Update Playwright webclient test suite in `tests/test_webclient.py` using local `file://` URLs
+  - [x] Run `pytest` and verify 22/22 tests pass cleanly
